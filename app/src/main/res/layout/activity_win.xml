@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+  <TextView
+    android:id="@+id/win"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Pin war richtig!"
+    android:textSize="55sp"
+    android:textStyle="bold"
+    android:paddingTop="21dp"
+    android:textColor="@color/green"
+    android:layout_centerHorizontal="true"
+    />
+
+  <TextView
+    android:id="@+id/balance"
+    android:layout_below="@+id/win"
+    android:textAppearance="?android:attr/textAppearanceLarge"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textStyle="bold"
+    android:paddingTop="21dp"
+    android:textColor="@color/blue"
+    android:layout_centerHorizontal="true"
+    />
+
+  <WebView
+    android:id="@+id/web"
+    android:layout_width="match_parent"
+    android:layout_height="200dp"
+    android:layout_alignParentBottom="true" />
+</RelativeLayout>

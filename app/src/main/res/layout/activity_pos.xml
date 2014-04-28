@@ -6,7 +6,36 @@
   android:layout_height="match_parent"
   android:orientation="horizontal"
   android:background="@color/blue"
-  tools:context="org.baobab.pos.PosActivity">
+  tools:context="org.baobab.pos.PosActivity" >
+
+  <LinearLayout
+    android:minWidth="100dp"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/black_overlay"
+    android:orientation="vertical" >
+
+    <fragment
+      class="org.baobab.pos.TransactionFragment"
+      android:layout_width="wrap_content"
+      android:layout_height="0dp"
+      android:layout_weight="1" />
+
+    <TextView
+      android:id="@+id/sum"
+      android:textStyle="bold"
+      android:textSize="43sp"
+      android:gravity="right"
+      android:clickable="true"
+      android:paddingTop="13dp"
+      android:paddingBottom="13dp"
+      android:textColor="@android:color/black"
+      android:background="@drawable/background_total_button"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="0.00" />
+
+  </LinearLayout>
 
   <org.baobab.pos.StretchableGrid
     android:id="@+id/products"
@@ -16,24 +45,5 @@
     android:layout_width="0dp"
     android:layout_height="match_parent"
     android:keepScreenOn="true" />
-
-  <LinearLayout
-    style="?metaButtonBarStyle"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom|center_horizontal"
-    android:background="@color/black_overlay"
-    android:orientation="horizontal" >
-
-    <Button
-      android:id="@+id/dummy_button"
-      style="?metaButtonBarButtonStyle"
-      android:layout_width="0dp"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:text="@string/dummy_button" />
-
-  </LinearLayout>
-
 </LinearLayout>
 

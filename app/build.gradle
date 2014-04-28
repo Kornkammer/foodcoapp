@@ -22,5 +22,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:+'
     compile 'com.android.support:support-v4:19.0.0'
     compile 'com.android.support:gridlayout-v7:18.0.+'
+    compile 'com.google.zxing:core:2.2'
+    compile 'com.google.zxing:android-integration:2.2'
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }

@@ -3,16 +3,13 @@ package org.baobab.pos;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 public class StretchableGrid extends LinearLayout {
     public static final String namespace = "http://schemas.android.com/apk/res-auto";
-    private int rowCount;
     private int columnCount;
-    private int elementsCount = 0;
+    private int rowCount;
 
     public StretchableGrid(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -25,7 +22,7 @@ public class StretchableGrid extends LinearLayout {
             row.setLayoutParams(new LayoutParams(
                     LayoutParams.MATCH_PARENT,
                     0, 1f));
-            super.addView(row);
+            super.addView(row, i);
             for(int j = 0; j < columnCount; j++) {
                 row.addView(new FrameLayout(getContext()),
                         j, new LayoutParams(
@@ -36,15 +33,17 @@ public class StretchableGrid extends LinearLayout {
     }
 
     @Override
-    public void addView(View element) {
-        int rowIdx = elementsCount / columnCount;
-        int colIdx = elementsCount % columnCount;
+    public void addView(View view, int index) {
+        if (index < 0) {
+            return;
+        }
+        int rowIdx = index / columnCount;
+        int colIdx = index % columnCount;
         LinearLayout row = (LinearLayout) getChildAt(rowIdx);
         row.removeViewAt(colIdx);
-        row.addView(element, colIdx, new LinearLayout.LayoutParams(
+        row.addView(view, colIdx, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.MATCH_PARENT, 1f));
-        elementsCount++;
     }
 
 }
