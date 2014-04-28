@@ -36,13 +36,13 @@
       </activity>
 
       <activity android:name="org.baobab.pos.LegitimateActivity"
-                android:screenOrientation="reversePortrait"
+                android:screenOrientation="reverseLandscape"
                 android:windowSoftInputMode="stateVisible"
                 android:theme="@style/FullscreenTheme">
       </activity>
 
       <activity android:name="org.baobab.pos.WinActivity"
-                android:screenOrientation="landscape"
+                android:screenOrientation="reverseLandscape"
                 android:theme="@style/FullscreenTheme">
       </activity>
 
