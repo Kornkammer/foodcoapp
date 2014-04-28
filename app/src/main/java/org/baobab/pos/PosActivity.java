@@ -44,14 +44,9 @@ public class PosActivity extends FragmentActivity
         findViewById(R.id.sum).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //startActivity(new Intent(PosActivity.this,
-                //        LegitimateActivity.class)
-                //.setData(getIntent().getData()));
-                Intent intent = new Intent("com.google.zxing.client.android.SCAN");
-                intent.setPackage("com.google.zxing.client.android");
-                intent.putExtra("SCAN_MODE",
-                        "ONE_D_MODE,QR_CODE_MODE,PRODUCT_MODE,DATA_MATRIX_MODE");
-                startActivityForResult(intent, 0);
+                startActivity(new Intent(PosActivity.this,
+                        LegitimateActivity.class)
+                .setData(getIntent().getData()));
             }
         });
 
