@@ -2,6 +2,7 @@
 
 <RelativeLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
+  android:padding="16dp"
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
@@ -17,8 +18,9 @@
     android:layout_height="wrap_content"
     android:layout_toRightOf="@id/image"
     android:layout_alignParentRight="true"
+    android:layout_marginLeft="16dp"
     android:imeOptions="flagNoExtractUi"
-    android:inputType="textCapWords"
+    android:inputType="textAutoComplete|textCapWords"
     android:singleLine="true"
     android:textStyle="bold"
     android:hint="Baola Kirsch"
@@ -31,7 +33,7 @@
     android:layout_below="@id/title"
     android:layout_toRightOf="@id/image"
     android:imeOptions="flagNoExtractUi"
-    android:inputType="numberDecimal"
+    android:inputType="numberSigned|numberDecimal"
     android:textStyle="bold"
     android:textSize="23sp"
     android:hint="1.50" />
@@ -43,14 +45,4 @@
     android:layout_toRightOf="@id/price"
     android:textColor="#77000000"
     android:text="bla" />
-
-  <Button
-    android:id="@+id/done"
-    android:layout_width="wrap_content"
-    android:layout_height="114dp"
-    android:layout_alignParentRight="true"
-    android:layout_alignParentBottom="true"
-    android:layout_toRightOf="@id/image"
-    android:textSize="23sp"
-    android:text="Done" />
 </RelativeLayout>

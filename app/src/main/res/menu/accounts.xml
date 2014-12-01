@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.baobab.pos.AccountsActivity" >
+    
+    <item android:id="@+id/add"
+        android:title="@string/add"
+        android:icon="@drawable/ic_menu_invite"
+        android:showAsAction="always"
+        app:showAsAction="always" />
+</menu>

@@ -29,8 +29,11 @@ public class TransactionFragment extends Fragment
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         View frame = flate.inflate(R.layout.fragment_transaction, null, false);
         products = (GridLayout) frame.findViewById(R.id.transaction_products);
-        getActivity().getSupportLoaderManager().initLoader(1, null, this);
         return frame;
+    }
+
+    public void load() {
+        getActivity().getSupportLoaderManager().initLoader(1, null, this);
     }
 
     @Override
@@ -44,6 +47,7 @@ public class TransactionFragment extends Fragment
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         products.removeAllViews();
         sum = 0;
+        data.moveToPosition(-1);
         while (data.moveToNext()) {
             addProduct(data);
         }
@@ -58,7 +62,7 @@ public class TransactionFragment extends Fragment
         lp.columnSpec = GridLayout.spec(0, 2);
         products.addView(title, lp);
         int quantity = data.getInt(3);
-        float price = data.getFloat(7);
+        float price = data.getFloat(4) * -1;
         float total = quantity * price;
         sum += (quantity * price);
         if (!data.isNull(6)) {

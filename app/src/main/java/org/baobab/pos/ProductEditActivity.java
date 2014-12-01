@@ -1,6 +1,7 @@
 package org.baobab.pos;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,8 +15,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -25,14 +31,14 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class ProductEditActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
+public class ProductEditActivity extends ActionBarActivity
+        implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_IMAGE_CAPTURE = 42;
     private static final String TAG = "POS";
     private ImageButton image;
     private EditText title;
     private EditText price;
-    private Button done;
     private File imageFile;
 
     @Override
@@ -43,7 +49,6 @@ public class ProductEditActivity extends FragmentActivity implements LoaderManag
         image = (ImageButton) findViewById(R.id.image);
         title = (EditText) findViewById(R.id.title);
         price = (EditText) findViewById(R.id.price);
-        done = (Button) findViewById(R.id.done);
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,7 +58,6 @@ public class ProductEditActivity extends FragmentActivity implements LoaderManag
                 }
             }
         });
-        done.setOnClickListener(this);
         getSupportLoaderManager().initLoader(0, null, this);
     }
 
@@ -69,6 +73,39 @@ public class ProductEditActivity extends FragmentActivity implements LoaderManag
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_FULLSCREEN);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getSupportActionBar().setDisplayOptions(
+                ActionBar.DISPLAY_SHOW_CUSTOM,
+                ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME
+                        | ActionBar.DISPLAY_SHOW_TITLE);
+        View bar = ((LayoutInflater) getSupportActionBar().getThemedContext()
+                .getSystemService(Activity.LAYOUT_INFLATER_SERVICE))
+                .inflate(R.layout.actionbar_done_discard, null, false);
+        getSupportActionBar().setCustomView(bar,
+                new ActionBar.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.MATCH_PARENT)
+        );
+        bar.findViewById(R.id.actionbar_cancel).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                }
+        );
+        bar.findViewById(R.id.actionbar_done).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        store();
+                    }
+                }
+        );
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -91,18 +128,17 @@ public class ProductEditActivity extends FragmentActivity implements LoaderManag
             if (!data.isNull(1)) {
                 title.setText(data.getString(1));
             }
-            if (!data.isNull(2)) {
-                imageFile = new File(data.getString(2));
-                image.setImageURI(Uri.fromFile(imageFile));
+            if (data.getFloat(2) != 0.0f) {
+                price.setText(String.format("%.2f", data.getFloat(2)));
             }
-            if (data.getFloat(3) != 0.0f) {
-                price.setText(String.format("%.2f", data.getFloat(3)));
+            if (!data.isNull(3)) {
+                imageFile = new File(data.getString(3));
+                image.setImageURI(Uri.fromFile(imageFile));
             }
         }
     }
 
-    @Override
-    public void onClick(View v) {
+    public void store() {
         if (title.getText().toString().equals("")) {
             Toast.makeText(this, "no title", Toast.LENGTH_LONG).show();
             return;

@@ -1,16 +1,19 @@
 package org.baobab.pos;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -18,15 +21,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-import com.google.zxing.qrcode.encoder.QRCode;
-
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
-public class PosActivity extends FragmentActivity
+public class PosActivity extends ActionBarActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, View.OnLongClickListener {
 
@@ -36,34 +35,61 @@ public class PosActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setIntent(getIntent().setData(Uri.parse(
-                "content://org.baobab.pos/transactions/1")));
         setContentView(R.layout.activity_pos);
-        products = (StretchableGrid) findViewById(R.id.products);
+        if (getIntent().getData() != null) {
+            resetTransaction();
+            startActivity(new Intent(this, WinActivity.class)
+                    .setData(getIntent().getData()));
+        }
+        if (savedInstanceState == null) {
+            resetTransaction();
+        }
         getSupportLoaderManager().initLoader(0, null, this);
+        products = (StretchableGrid) findViewById(R.id.products);
         findViewById(R.id.sum).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(PosActivity.this,
                         LegitimateActivity.class)
-                .setData(getIntent().getData()));
+                .setData(getIntent().getData())
+                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
             }
         });
+        findViewById(R.id.sum).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                startActivity(new Intent(PosActivity.this,
+                        LegitimateActivity.class)
+                        .setData(getIntent().getData())
+                        .putExtra("SCAN", true)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+                return true;
+            }
+        });
+    }
 
+    private void resetTransaction() {
+        ContentValues b = new ContentValues();
+        b.put("account_id", 1);
+        b.put("start", System.currentTimeMillis());
+        Uri session = getContentResolver().insert(Uri.parse(
+                "content://org.baobab.pos/sessions"), b);
+        b = new ContentValues();
+        b.put("session_id", session.getLastPathSegment());
+        Uri uri = getContentResolver().insert(Uri.parse(
+                "content://org.baobab.pos/transactions"), b);
+        setIntent(getIntent().setData(uri));
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        String contents = data.getStringExtra("SCAN_RESULT");
-        String format = data.getStringExtra("SCAN_RESULT_FORMAT");
-        Toast.makeText(this, contents, 3000).show();
-    }
-
-    @Override
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void onStart() {
         super.onStart();
+        ((TransactionFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.transaction)).load();
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    protected void fullscreen() {
         if (Build.VERSION.SDK_INT < 16) {
             getWindow().setFlags(
                     WindowManager.LayoutParams.FLAG_FULLSCREEN,
@@ -89,7 +115,7 @@ public class PosActivity extends FragmentActivity
                     PosActivity.this,
                     data.getLong(0),
                     data.getString(1),
-                    data.getString(2)), i);
+                    data.getString(3)), i);
         }
     }
 
@@ -138,5 +164,34 @@ public class PosActivity extends FragmentActivity
             setOnClickListener(PosActivity.this);
             setOnLongClickListener(PosActivity.this);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.pos, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.accounts:
+                startActivity(new Intent(this, AccountsActivity.class));
+                break;
+            case R.id.export:
+                Export.csv(this);
+                Intent mail = new Intent(Intent.ACTION_SEND,
+                        Uri.parse("mailto:flo@sonnenstreifen.de"));
+                mail.putExtra(Intent.EXTRA_EMAIL, new String[] {"flo@sonnenstreifen.de"});
+                mail.putExtra(Intent.EXTRA_TEXT, "neuster Stand Biergarten");
+                mail.putExtra(Intent.EXTRA_SUBJECT, "Kiosk " +
+                        new SimpleDateFormat().format(System.currentTimeMillis()));
+                mail.setType("application/csv");
+                mail.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(Export.file()));
+                Intent chooser = Intent.createChooser(mail, "Ex(el)port");
+                startActivity(chooser);
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

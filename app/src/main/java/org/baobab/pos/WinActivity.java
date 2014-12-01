@@ -1,6 +1,8 @@
 package org.baobab.pos;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
+import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,11 +18,18 @@ public class WinActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_win);
-        String balance = String.format("%.2f", PreferenceManager
-        .getDefaultSharedPreferences(this).getFloat("balance", 0.0f));
-        ((TextView) findViewById(R.id.balance))
-                .setText("..noch " + balance + " Baolas übrig ");
         ((WebView) findViewById(R.id.web)).loadUrl("http://baobab.org");
+        findViewById(R.id.win).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        //Cursor account = getContentResolver().query(getIntent().getData(), null, null, null, null);
+        //account.moveToFirst();
+        //String balance = String.format("%.2f", account.getFloat(2));
+        //((TextView) findViewById(R.id.balance))
+        //        .setText("..noch " + balance + " Baolas übrig ");
     }
 
     @Override
