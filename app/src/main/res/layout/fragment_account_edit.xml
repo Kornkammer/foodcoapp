@@ -18,6 +18,7 @@
     android:layout_width="256dp"
     android:layout_height="wrap_content"
     android:layout_alignParentRight="true"
+    android:imeOptions="flagNoExtractUi"
     android:hint="pin" />
 
   <EditText
@@ -32,6 +33,7 @@
     android:layout_height="wrap_content"
     android:layout_below="@id/pin"
     android:layout_width="256dp"
+    android:imeOptions="flagNoExtractUi"
     android:hint="pin nochmal" />
 
   <TextView
@@ -57,6 +59,7 @@
     android:layout_toLeftOf="@id/pin"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:imeOptions="flagNoExtractUi"
     android:hint="name" />
 
   <Button

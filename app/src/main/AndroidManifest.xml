@@ -40,7 +40,7 @@
             android:name="org.baobab.pos.LegitimateActivity"
             android:screenOrientation="reverseLandscape"
             android:theme="@style/AppTheme"
-            android:windowSoftInputMode="stateVisible" >
+            android:windowSoftInputMode="stateAlwaysVisible" >
         </activity>
         <activity
             android:name="org.baobab.pos.WinActivity"

@@ -151,6 +151,10 @@ public class ProductEditActivity extends ActionBarActivity
             Toast.makeText(this, "no price", Toast.LENGTH_LONG).show();
             return;
         }
+        if (Float.valueOf(price.getText().toString()) > 1000) {
+            Toast.makeText(this, "Preis ist zu hoch!", Toast.LENGTH_LONG).show();
+            return;
+        }
         ContentValues cv = new ContentValues();
         cv.put("title", title.getText().toString());
         cv.put("path", imageFile.getAbsolutePath());

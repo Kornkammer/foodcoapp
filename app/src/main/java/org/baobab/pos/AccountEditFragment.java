@@ -254,6 +254,7 @@ public class AccountEditFragment extends Fragment
         Uri uri = getActivity().getContentResolver().insert(
                 Uri.parse("content://org.baobab.pos/accounts"),
                 values);
+        Toast.makeText(getActivity(), "Gespeichert", 3000).show();
         getActivity().getSupportFragmentManager().popBackStack();
         return;
     }
@@ -272,6 +273,11 @@ public class AccountEditFragment extends Fragment
                 null, null, null, null);
         if (auth.getCount() > 0) {
             auth.moveToFirst();
+            if (getArguments().containsKey("guid") &&
+                auth.getString(3).equals(getArguments().getString("guid"))) {
+                Toast.makeText(getActivity(), "Selba!", 3000).show();
+                return false;
+            }
             ContentValues v = new ContentValues();
             v.put("status", "locked");
             getActivity().getContentResolver().update(Uri.parse(

@@ -57,8 +57,8 @@ public class StorageProvider extends ContentProvider {
                     "name TEXT, " +
                     "status TEXT, " +
                     "contact TEXT, " +
-                    "pin TEXT UNIQUE, " +
-                    "qr TEXT UNIQUE" +
+                    "pin TEXT, " +
+                    "qr TEXT" +
                     ");");
             db.execSQL("CREATE TABLE sessions (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -178,7 +178,7 @@ public class StorageProvider extends ContentProvider {
                 break;
             case LEGITIMATE:
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, status, max(accounts._id) FROM accounts " +
+                        "SELECT _id, status, max(accounts._id), guid FROM accounts " +
                                 "WHERE pin IS ? OR qr IS ? GROUP BY guid",
                         new String[] { uri.getQueryParameter("pin"),
                                 uri.getQueryParameter("pin")});
