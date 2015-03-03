@@ -23,9 +23,12 @@ public class LegitimateActivity extends FragmentActivity {
     private MediaPlayer win;
     private MediaPlayer fail;
 
+    private static final String TAG = "POS";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
 
         getActionBar().setHomeButtonEnabled(true);
         setContentView(R.layout.activity_legitimate);
@@ -40,14 +43,15 @@ public class LegitimateActivity extends FragmentActivity {
         ((EditText) findViewById(R.id.pin)).setOnEditorActionListener(
                 new EditText.OnEditorActionListener() {
                     @Override
-                    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    public boolean onEditorAction(TextView view, int id, KeyEvent e) {
                         findViewById(R.id.result).setVisibility(View.INVISIBLE);
-                        if (actionId == EditorInfo.IME_ACTION_SEARCH ||
-                                actionId == EditorInfo.IME_ACTION_DONE ||
-                                event.getAction() == KeyEvent.ACTION_DOWN &&
-                                        event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
-                            String pin = ((EditText) v).getText().toString();
-                            legitimate(pin);
+                        if (id == EditorInfo.IME_ACTION_SEARCH ||
+                                id == EditorInfo.IME_ACTION_DONE ||
+                                e.getAction() == KeyEvent.ACTION_DOWN &&
+                                        e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                            String hash = Crypt.hash(((EditText) view)
+                                    .getText().toString(), LegitimateActivity.this);
+                            legitimate(hash);
                         }
                         return false;
                     }
@@ -57,9 +61,9 @@ public class LegitimateActivity extends FragmentActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            String contents = data.getStringExtra("SCAN_RESULT");
+            String qr = data.getStringExtra("SCAN_RESULT");
             //String format = data.getStringExtra("SCAN_RESULT_FORMAT");
-            legitimate(contents);
+            legitimate(Crypt.hash(qr, this));
         }
     }
 
@@ -91,7 +95,7 @@ public class LegitimateActivity extends FragmentActivity {
             });
 
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(1400);
-            Toast.makeText(LegitimateActivity.this, "Konto gesperrt!", 3000).show();
+            Toast.makeText(LegitimateActivity.this, "Konto gesperrt!", Toast.LENGTH_LONG).show();
             return false;
         }
         if (win != null) {
@@ -130,4 +134,5 @@ public class LegitimateActivity extends FragmentActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
 }

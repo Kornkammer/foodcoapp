@@ -12,6 +12,8 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.UUID;
+
 public class StorageProvider extends ContentProvider {
 
     private static final String TAG = "POS";
@@ -241,6 +243,9 @@ public class StorageProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
             case ACCOUNTS:
+                if (!values.containsKey("guid")) {
+                    values.put("guid", UUID.randomUUID().toString());
+                }
                 uri = ContentUris.withAppendedId(uri,
                     db.getWritableDatabase().insert("accounts", null, values));
                 getContext().getContentResolver().notifyChange(uri, null);

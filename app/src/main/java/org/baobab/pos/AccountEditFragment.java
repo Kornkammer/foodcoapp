@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.ContactsContract;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -24,15 +23,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.QRCodeWriter;
-
-import java.util.UUID;
 
 public class AccountEditFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -208,29 +200,29 @@ public class AccountEditFragment extends Fragment
         ContentValues values = new ContentValues();
         String pin = ((EditText) getView().findViewById(R.id.pin)).getText().toString();
         String pin2 = ((EditText) getView().findViewById(R.id.pin2)).getText().toString();
-        if (!pin.equals(pin2)) {
-            Toast.makeText(getActivity(), "pins nicht gleich", 3000).show();
+        if (pin.equals("") || pin2.equals("")) {
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);
+            Toast.makeText(getActivity(), "Pin brauchts!", Toast.LENGTH_LONG).show();
+            return;
+        } else if (!pin.equals(pin2)) {
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(250);
+            Toast.makeText(getActivity(), "pins nicht gleich", Toast.LENGTH_LONG).show();
             return;
         }
+        String hash = Crypt.hash(pin, getActivity());
         if (getArguments().containsKey("pin") &&
-                getArguments().getString("pin").equals(pin)) {
-            values.put("pin", pin); // keep
-        } else if (pin.equals("")) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(250);
-            Toast.makeText(getActivity(), "Pin brauchts!", 3000).show();
-            return;
-        } else {
-            if (lockAccountIfAlreadyTaken(pin)) {
-                Toast.makeText(getActivity(), "PIN gibts schon!!!", 3000).show();
+                getArguments().getString("pin").equals(hash)) {
+            values.put("hash", hash); // keep
+        }  else {
+            if (lockAccountIfAlreadyTaken(hash)) {
+                Toast.makeText(getActivity(), "PIN gibts schon!!!", Toast.LENGTH_LONG).show();
                 return;
             }
-            values.put("pin", pin);
+            values.put("pin", hash);
         }
         if (getArguments().containsKey("guid")) {
             archivePreviousVersions();
             values.put("guid", getArguments().getString("guid"));
-        } else {
-            values.put("guid", UUID.randomUUID().toString());
         }
         if (getArguments().containsKey("contact")) {
             values.put("contact", getArguments().getString("contact"));
@@ -244,17 +236,15 @@ public class AccountEditFragment extends Fragment
         values.put("status", "foo");
         if (getArguments().containsKey("qr")) {
             if (lockAccountIfAlreadyTaken(getArguments().getString("qr"))) {
-                Toast.makeText(getActivity(), "QR code gibts schon!!!", 3000).show();
+                Toast.makeText(getActivity(), "QR code gibts schon!!!", Toast.LENGTH_LONG).show();
                 return;
             }
-            values.put("qr", getArguments().getString("qr"));
-        } else {
-            values.put("qr", UUID.randomUUID().toString());
+            values.put("qr", Crypt.hash(getArguments().getString("qr"), getActivity()));
         }
         Uri uri = getActivity().getContentResolver().insert(
                 Uri.parse("content://org.baobab.pos/accounts"),
                 values);
-        Toast.makeText(getActivity(), "Gespeichert", 3000).show();
+        Toast.makeText(getActivity(), "Gespeichert", Toast.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();
         return;
     }
@@ -275,7 +265,6 @@ public class AccountEditFragment extends Fragment
             auth.moveToFirst();
             if (getArguments().containsKey("guid") &&
                 auth.getString(3).equals(getArguments().getString("guid"))) {
-                Toast.makeText(getActivity(), "Selba!", 3000).show();
                 return false;
             }
             ContentValues v = new ContentValues();

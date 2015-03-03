@@ -13,7 +13,7 @@ public class AccountsActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
         setContentView(R.layout.activity_accounts);
         if (getIntent().getData() != null && getIntent().getData().toString().startsWith("content://org.baobab.pos/accounts/")) {
             editAccount(getIntent().getData());
