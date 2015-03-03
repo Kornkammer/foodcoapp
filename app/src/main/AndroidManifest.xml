@@ -65,6 +65,7 @@
         <activity
             android:name="org.baobab.pos.AccountsActivity"
             android:clearTaskOnLaunch="true"
+            android:screenOrientation="portrait"
             android:taskAffinity="accounts.accounts"
             android:label="@string/accounts" >
           <intent-filter>
