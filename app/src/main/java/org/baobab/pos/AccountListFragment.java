@@ -8,14 +8,13 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.CursorTreeAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,6 +22,9 @@ import android.widget.TextView;
 
 public class AccountListFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
+
+    private Uri uri;
+    private CursorTreeAdapter adapter;
 
     public AccountListFragment() { }
 
@@ -34,36 +36,85 @@ public class AccountListFragment extends ListFragment
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        setListAdapter(
-                new CursorAdapter(getActivity(), null, true) {
+        adapter = new CursorTreeAdapter(null, getActivity(), true) {
 
-                    @Override
-                    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-                        return new AccountView(getActivity());
-                    }
+            @Override
+            protected Cursor getChildrenCursor(Cursor groupCursor) {
+                Bundle b = new Bundle();
+                b.putLong("group_id", groupCursor.getLong(0));
+                getLoaderManager().restartLoader(groupCursor.getPosition(), b, AccountListFragment.this);
+                return null;
+            }
 
-                    @Override
-                    public void bindView(View view, Context context, Cursor cursor) {
-                        if (cursor.isNull(3)) {
-                            ((AccountView) view).balance.setText("0.00");
-                        } else {
-                            ((AccountView) view).balance.setText(
-                                    String.format("%.2f", cursor.getFloat(3)));
-                        }
-                        ((AccountView) view).name.setText(cursor.getString(1));
-                        ((AccountView) view).id = cursor.getLong(2);
-                    }
+            @Override
+            protected View newGroupView(Context context, Cursor cursor, boolean isExpanded, ViewGroup parent) {
+                return new AccountView(getActivity());
+            }
+
+            @Override
+            protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
+                if (cursor.isNull(3)) {
+                    ((AccountView) view).balance.setText("0.00");
+                } else {
+                    ((AccountView) view).balance.setText(
+                            String.format("%.2f", cursor.getFloat(3)));
                 }
-        );
+                ((AccountView) view).name.setText(cursor.getString(1));
+                ((AccountView) view).id = cursor.getLong(2);
+            }
+
+            @Override
+            protected View newChildView(Context context, Cursor cursor, boolean isLastChild, ViewGroup parent) {
+                return new AccountView(getActivity());
+            }
+
+            @Override
+            protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
+                if (cursor.isNull(2)) {
+                    ((AccountView) view).balance.setText("0.00");
+                } else {
+                    ((AccountView) view).balance.setText(
+                            String.format("%.2f", cursor.getFloat(2)));
+                }
+                ((AccountView) view).name.setText(cursor.getString(1));
+                ((AccountView) view).id = cursor.getLong(2);
+            }
+        };
+        ((ExpandableListView) view.findViewById(android.R.id.list)).setAdapter(adapter);
         registerForContextMenu(getListView());
-        getLoaderManager().initLoader(0, null, this);
+    }
+
+    public void setUri(String uri) {
+        this.uri = Uri.parse(uri);
+        getLoaderManager().initLoader(-1, null, this);
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        if (id < 0) {
+            return new CursorLoader(getActivity(), uri, null, null, null, null);
+        } else {
+            return new CursorLoader(getActivity(), Uri.parse(
+                    "content://org.baobab.pos/accounts/" +
+                            args.getLong("group_id") + "/products"),
+                    null, null, null, null);
+        }
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (loader.getId() < 0) {
+            adapter.changeCursor(data);
+        } else {
+            adapter.setChildrenCursor(loader.getId(), data);
+        }
     }
 
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        ((AccountsActivity) getActivity()).editAccount(
+        ((AccountActivity) getActivity()).editAccount(
                 Uri.parse("content://org.baobab.pos/accounts/"
                         + ((AdapterView.AdapterContextMenuInfo) menuInfo).id));
     }
@@ -71,18 +122,6 @@ public class AccountListFragment extends ListFragment
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(),
-                Uri.parse("content://org.baobab.pos/accounts"),
-                null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        ((CursorAdapter) getListAdapter()).swapCursor(data);
     }
 
     @Override

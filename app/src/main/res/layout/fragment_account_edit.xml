@@ -1,77 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<RelativeLayout
+<LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
-  android:padding="8dp"
-  android:background="#000000"
+  android:padding="@dimen/small"
+  android:orientation="vertical"
   android:layout_width="match_parent"
   android:layout_height="match_parent" >
 
-  <TextView
-    android:id="@+id/contact"
-    android:clickable="true"
-    android:focusable="true"
-    android:layout_width="128dp"
-    android:layout_height="wrap_content"
-    style="?android:buttonStyle"
-    android:drawableTop="@drawable/ic_menu_invite" />
+  <LinearLayout
+    android:padding="@dimen/small"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="382" >
 
-  <EditText
-    android:id="@+id/name"
-    android:textSize="42sp"
-    android:textStyle="bold"
-    android:textColor="#fff"
-    android:layout_marginRight="16dp"
-    android:layout_toRightOf="@id/contact"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:imeOptions="flagNoExtractUi"
-    android:hint="name" />
+    <TextView
+      android:id="@+id/contact"
+      android:clickable="true"
+      android:focusable="true"
+      android:layout_width="0dp"
+      android:layout_weight="382"
+      android:layout_height="match_parent"
+      style="?android:buttonStyle"
+      android:drawableTop="@drawable/ic_menu_invite" />
 
     <EditText
-    android:id="@+id/pin"
-    android:textSize="42sp"
-    android:textStyle="bold"
-    android:textColor="#fff"
-    android:selectAllOnFocus="true"
-    android:inputType="numberPassword"
-    android:password="true"
-    android:layout_width="256dp"
-    android:layout_height="wrap_content"
-    android:layout_below="@id/contact"
-    android:layout_alignRight="@id/contact"
-    android:imeOptions="flagNoExtractUi"
-    android:hint="pin" />
+      android:id="@+id/name"
+      android:textSize="42sp"
+      android:textStyle="bold"
+      android:textColor="#fff"
+      android:layout_width="0dp"
+      android:layout_weight="618"
+      android:layout_height="wrap_content"
+      android:imeOptions="flagNoExtractUi"
+      android:hint="name" />
+  </LinearLayout>
 
-  <EditText
-    android:id="@+id/pin2"
-    android:textSize="42sp"
-    android:textStyle="bold"
-    android:textColor="#fff"
-    android:selectAllOnFocus="true"
-    android:inputType="numberPassword"
-    android:password="true"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    android:layout_below="@id/pin"
-    android:layout_alignRight="@id/contact"
-    android:imeOptions="flagNoExtractUi"
-    android:hint="pin nochmal" />
+  <LinearLayout
+    android:padding="@dimen/small"
+
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_weight="618" >
+
+    <Button
+      android:id="@+id/scan"
+      android:layout_width="0dp"
+      android:layout_weight="382"
+      android:layout_height="match_parent"
+      android:textSize="22sp"
+      android:textColor="@color/blue" />
+
+    <EditText
+      android:id="@+id/pin"
+      android:textSize="42sp"
+      android:textStyle="bold"
+      android:textColor="#fff"
+      android:selectAllOnFocus="true"
+      android:inputType="numberPassword"
+      android:password="true"
+      android:layout_width="0dp"
+      android:layout_weight="309"
+      android:layout_height="wrap_content"
+      android:imeOptions="flagNoExtractUi"
+      android:hint="pin" />
 
 
+    <EditText
+      android:id="@+id/pin2"
+      android:textSize="42sp"
+      android:textStyle="bold"
+      android:textColor="#fff"
+      android:selectAllOnFocus="true"
+      android:inputType="numberPassword"
+      android:password="true"
+      android:layout_width="0dp"
+      android:layout_weight="309"
+      android:layout_height="wrap_content"
+      android:imeOptions="flagNoExtractUi"
+      android:hint="pin" />
 
-  <Button
-    android:id="@+id/scan"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignParentRight="true"
-    android:layout_alignLeft="@id/name"
-    android:layout_alignBottom="@id/pin2"
-    android:layout_marginTop="12dp"
-    android:layout_below="@id/name"
-    android:text="Scan"
-    android:textSize="22sp"
-    android:textColor="@color/blue"
-    android:layout_gravity="right|bottom"/>
+  </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

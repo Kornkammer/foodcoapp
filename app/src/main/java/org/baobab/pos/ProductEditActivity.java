@@ -9,9 +9,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,7 +21,6 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -39,7 +36,7 @@ public class ProductEditActivity extends ActionBarActivity
     private ImageButton image;
     private EditText title;
     private EditText price;
-    private File imageFile;
+    private Uri img;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,8 +109,8 @@ public class ProductEditActivity extends ActionBarActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-            imageFile = storeImage(bitmap);
-            image.setImageURI(Uri.fromFile(imageFile));
+            img = storeImage(bitmap);
+            image.setImageURI(img);
         }
     }
 
@@ -132,8 +129,8 @@ public class ProductEditActivity extends ActionBarActivity
                 price.setText(String.format("%.2f", data.getFloat(2)));
             }
             if (!data.isNull(3)) {
-                imageFile = new File(data.getString(3));
-                image.setImageURI(Uri.fromFile(imageFile));
+                img = Uri.parse(data.getString(3));
+                image.setImageURI(img);
             }
         }
     }
@@ -143,7 +140,7 @@ public class ProductEditActivity extends ActionBarActivity
             Toast.makeText(this, "no title", Toast.LENGTH_LONG).show();
             return;
         }
-        if (imageFile == null) {
+        if (img == null) {
             Toast.makeText(this, "no image", Toast.LENGTH_LONG).show();
             return;
         }
@@ -157,7 +154,7 @@ public class ProductEditActivity extends ActionBarActivity
         }
         ContentValues cv = new ContentValues();
         cv.put("title", title.getText().toString());
-        cv.put("path", imageFile.getAbsolutePath());
+        cv.put("img", img.toString());
         cv.put("price", Float.valueOf(price.getText().toString()));
         getContentResolver().update(getIntent().getData(), cv, null, null);
         finish();
@@ -168,7 +165,7 @@ public class ProductEditActivity extends ActionBarActivity
 
     }
 
-    private File storeImage(Bitmap bitmap) {
+    private Uri storeImage(Bitmap bitmap) {
         try {Log.d(TAG, "dir " + getFilesDir());
             File dir = new File(getFilesDir(), "/pos");
             if (!dir.exists()) dir.mkdir();
@@ -182,7 +179,7 @@ public class ProductEditActivity extends ActionBarActivity
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             out.flush();
             out.close();
-            return file;
+            return Uri.fromFile(file);
         } catch (Exception e) {
             Log.e(TAG, "error storing file " + e.toString());
         }

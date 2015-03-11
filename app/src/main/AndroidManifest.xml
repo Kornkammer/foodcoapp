@@ -63,11 +63,12 @@
             android:authorities="org.baobab.pos" />
 
         <activity
-            android:name="org.baobab.pos.AccountsActivity"
+            android:name=".AccountActivity"
             android:clearTaskOnLaunch="true"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:taskAffinity="accounts.accounts"
-            android:label="@string/accounts" >
+            android:windowSoftInputMode="adjustPan"
+            android:label="@string/balance" >
           <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />

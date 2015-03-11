@@ -241,8 +241,8 @@ public class AccountEditFragment extends Fragment
             }
             values.put("qr", Crypt.hash(getArguments().getString("qr"), getActivity()));
         }
-        Uri uri = getActivity().getContentResolver().insert(
-                Uri.parse("content://org.baobab.pos/accounts"),
+        getActivity().getContentResolver().insert(
+                Uri.parse("content://org.baobab.pos/accounts/5/accounts"),
                 values);
         Toast.makeText(getActivity(), "Gespeichert", Toast.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();

@@ -32,31 +32,34 @@ public class StorageProvider extends ContentProvider {
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "title TEXT, " +
                     "price FLOAT, " +
-                    "path TEXT" +
+                    "unit TEXT, " +
+                    "img TEXT" +
                     ");");
             db.execSQL("CREATE TABLE transactions (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "session_id INTEGER, " +
-                    "account_id INTEGER, " +
                     "timestamp INTEGER, " +
                     "status TEXT" +
                     ");");
             db.execSQL("CREATE TABLE transaction_products (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "transaction_id INTEGER, " +
+                    "account_id INTEGER, " +
                     "product_id INTEGER, " +
-                    "quantity INTEGER, " +
+                    "quantity FLOAT, " +
                     "price FLOAT, " +
                     "title TEXT, " +
-                    "path TEXT " +
+                    "img TEXT " +
                     ");");
             db.execSQL("CREATE UNIQUE INDEX idx"
                     + " ON transaction_products (" +
                     "transaction_id, product_id);");
             db.execSQL("CREATE TABLE accounts (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "parent_id, " +
                     "guid TEXT, " +
                     "name TEXT, " +
+                    "skr INTEGER," +
                     "status TEXT, " +
                     "contact TEXT, " +
                     "pin TEXT, " +
@@ -68,9 +71,9 @@ public class StorageProvider extends ContentProvider {
                     "start INTEGER, " +
                     "stop INTEGER" +
                     ");");
-            db.execSQL("INSERT INTO products (title, price) VALUES ('Tee', 1.5);");
-            db.execSQL("INSERT INTO products (title, price) VALUES ('Bier', 3.5);");
-            db.execSQL("INSERT INTO products (title, price) VALUES ('Keks', 0.5);");
+            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Baola', 1.5, 'android.resource://org.baobab.pos/drawable/baola');");
+            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Kaffee', 3.5, 'android.resource://org.baobab.pos/drawable/coffee');");
+            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Keks', 0.5, 'android.resource://org.baobab.pos/drawable/cookie');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
@@ -84,6 +87,17 @@ public class StorageProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (1, 0, 'a','Aktiva');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (2, 0, 'b','Passiva');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (3, 1, 'c','Kasse');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (4, 1, 'd','Lager');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (6, 2, 'f','Sepp');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (7, 2, 'g','Susi');");
+            db.execSQL("INSERT INTO accounts (_id, parent_id, guid, name) VALUES (8, 2, 'h','Flo');");
+            db.execSQL("INSERT INTO transaction_products (title, quantity, price, account_id, img) VALUES ('Baola', 5, 1.5, 4, 'android.resource://org.baobab.pos/drawable/baola');");
+            db.execSQL("INSERT INTO transaction_products (title, quantity, price, account_id, img) VALUES ('Baola', 3, 1.5, 4, 'android.resource://org.baobab.pos/drawable/baola');");
+            db.execSQL("INSERT INTO transaction_products (title, quantity, price, account_id, img) VALUES ('Keks', 7, 0.3, 4, 'android.resource://org.baobab.pos/drawable/baola');");
+            db.execSQL("INSERT INTO transaction_products (title, quantity, price, account_id, img) VALUES ('Cash', 7, 1, 3, 'android.resource://org.baobab.pos/drawable/baola');");
             Log.d(TAG, "created DB");
         }
 
@@ -102,12 +116,15 @@ public class StorageProvider extends ContentProvider {
     private static final int TRANSACTION = 6;
     private static final int TRANSACTIONS = 7;
     private static final int TRANSACTION_PRODUCT = 8;
+    private static final int ACCOUNT_PRODUCTS = 9;
 
-    private static final short SUM = 8;
+    private static final short SUM = 10;
 
     static {
         router.addURI("org.baobab.pos", "accounts/#", ACCOUNT);
         router.addURI("org.baobab.pos", "accounts", ACCOUNTS);
+        router.addURI("org.baobab.pos", "accounts/#/accounts", ACCOUNTS);
+        router.addURI("org.baobab.pos", "accounts/#/products", ACCOUNT_PRODUCTS);
         router.addURI("org.baobab.pos", "products", PRODUCTS);
         router.addURI("org.baobab.pos", "sessions", SESSIONS);
         router.addURI("org.baobab.pos", "products/#", PRODUCT);
@@ -154,16 +171,32 @@ public class StorageProvider extends ContentProvider {
                         new String[] { uri.getPathSegments().get(1) });
                 break;
             case ACCOUNTS:
+                String parent_id = "0";
+                if (uri.getPathSegments().size() > 1) {
+                    parent_id = uri.getPathSegments().get(1);
+                }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT accounts._id AS _id, name, max(accounts._id), " +
                                 "sum(transaction_products.quantity * transaction_products.price)" +
                         " FROM accounts" +
-                        " LEFT OUTER JOIN transactions ON transactions.account_id = accounts._id" +
-                        " LEFT OUTER JOIN transaction_products ON transaction_products.transaction_id = transactions._id" +
-                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +
-                        " WHERE pin IS NOT NULL" +
+                        " LEFT OUTER JOIN transaction_products ON transaction_products.account_id = accounts._id" +
+                        " WHERE parent_id = " + parent_id +
                         " GROUP BY guid" +
                         " ORDER BY name",
+                        null);
+                break;
+            case ACCOUNT_PRODUCTS:
+                String account_id = "0";
+                if (uri.getPathSegments().size() > 1) {
+                    account_id = uri.getPathSegments().get(1);
+                }
+                result = db.getReadableDatabase().rawQuery(
+                        "SELECT _id, title, quantity < 0 AS credit" +
+                                "sum(transaction_products.quantity * transaction_products.price) AS sum" +
+                        " FROM transaction_products" +
+                        " WHERE account_id = " + account_id +
+                        " GROUP BY title" +
+                        " ORDER BY sum DESC",
                         null);
                 break;
             case ACCOUNT:
@@ -171,9 +204,8 @@ public class StorageProvider extends ContentProvider {
                         "SELECT accounts._id AS _id, guid, name, contact, pin, qr, max(accounts._id), " +
                                 "sum(transaction_products.quantity * transaction_products.price) " +
                         " FROM accounts" +
-                        " LEFT OUTER JOIN transactions ON transactions.account_id = accounts._id" +
-                        " LEFT OUTER JOIN transaction_products ON transaction_products.transaction_id = transactions._id" +
-                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +
+                        " LEFT OUTER JOIN transaction_products ON transaction_products.account_id = accounts._id" +
+//                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +
                         " WHERE accounts._id = ?" +
                         " GROUP BY guid",
                         new String[] { uri.getLastPathSegment() });
@@ -191,10 +223,10 @@ public class StorageProvider extends ContentProvider {
                                 "GROUP_CONCAT(quantity || ' x ' || title || ' a ' || price || ' = ' || (quantity * price), ',  \n'), " +
                                 "sum(transaction_products.quantity * transaction_products.price)" +
                         " FROM transactions" +
-                        " JOIN accounts ON transactions.account_id = accounts._id" +
                         " JOIN sessions ON transactions.session_id = sessions._id" +
                         " JOIN accounts AS session ON sessions.account_id = session._id" +
                         " JOIN transaction_products ON transaction_products.transaction_id = transactions._id" +
+                        " JOIN accounts ON transaction_products.account_id = accounts._id" +
                         " WHERE transactions.account_id IS NOT NULL" +
                         " GROUP BY transactions._id",
                         null);
@@ -226,17 +258,18 @@ public class StorageProvider extends ContentProvider {
                 float price = product.getFloat(2) * -1;
                 db.getWritableDatabase().execSQL(
                         "INSERT OR REPLACE INTO transaction_products" +
-                                " (transaction_id, product_id, title, price, path, quantity)" +
-                                " VALUES (?, ?, ?, ?, ?, " +
+                                " (transaction_id, account_id, product_id, title, price, img, quantity)" +
+                                " VALUES (?, ?, ?, ?, ?, ?, " +
                                 "COALESCE(" +
                                 "(SELECT quantity FROM transaction_products" +
                                 " WHERE transaction_id = ? AND product_id = ?)," +
-                                "0) + 1);", new String[]{
+                                "0) + 1);", new String[] {
                                 uri.getPathSegments().get(1),
+                                values.getAsString("account_id"),
                                 product.getString(0),
                                 product.getString(1),
                                 String.valueOf(price),
-                                product.getString(3),
+                                product.getString(4),
                                 uri.getPathSegments().get(1),
                                 uri.getLastPathSegment() }
                 );
@@ -245,6 +278,9 @@ public class StorageProvider extends ContentProvider {
             case ACCOUNTS:
                 if (!values.containsKey("guid")) {
                     values.put("guid", UUID.randomUUID().toString());
+                }
+                if (uri.getPathSegments().size() > 1) {
+                    values.put("parent_id", Long.valueOf(uri.getPathSegments().get(1)));
                 }
                 uri = ContentUris.withAppendedId(uri,
                     db.getWritableDatabase().insert("accounts", null, values));
@@ -274,9 +310,9 @@ public class StorageProvider extends ContentProvider {
                         null, null, null);
                 if (c.getCount() == 0) return -1;
                 c.moveToFirst();
-                if (c.getInt(3) > 1) {
+                if (c.getInt(4) > 1) {
                     ContentValues dec = new ContentValues();
-                    dec.put("quantity", c.getInt(3) - 1);
+                    dec.put("quantity", c.getInt(4) - 1);
                     db.getWritableDatabase().update("transaction_products", dec,
                             "transaction_id = ? AND product_id = ?",
                             new String[]{

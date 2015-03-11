@@ -1,0 +1,17 @@
+<resources>
+
+  <dimen name="small">8dp</dimen>
+  <dimen name="medium">16dp</dimen>
+  <dimen name="large">32dp</dimen>
+  <dimen name="xlarge">64dp</dimen>
+
+  <dimen name="font_size_xlarge">63sp</dimen>
+  <dimen name="font_size_large">57sp</dimen>
+  <dimen name="font_size_medium">31sp</dimen>
+  <dimen name="font_size_small">23sp</dimen>
+  <dimen name="font_size_xsmall">19sp</dimen>
+
+  <dimen name="padding_small">5dp</dimen>
+  <dimen name="padding_large">11dp</dimen>
+
+</resources>

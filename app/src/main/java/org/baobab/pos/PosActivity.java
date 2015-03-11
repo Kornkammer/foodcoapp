@@ -19,11 +19,9 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 public class PosActivity extends ActionBarActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -46,7 +44,7 @@ public class PosActivity extends ActionBarActivity
         }
         getSupportLoaderManager().initLoader(0, null, this);
         products = (StretchableGrid) findViewById(R.id.products);
-        findViewById(R.id.sum).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.pin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(PosActivity.this,
@@ -55,7 +53,7 @@ public class PosActivity extends ActionBarActivity
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
             }
         });
-        findViewById(R.id.sum).setOnLongClickListener(new View.OnLongClickListener() {
+        findViewById(R.id.scan).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 startActivity(new Intent(PosActivity.this,
@@ -115,7 +113,7 @@ public class PosActivity extends ActionBarActivity
                     PosActivity.this,
                     data.getLong(0),
                     data.getString(1),
-                    data.getString(3)), i);
+                    data.getString(4)), i);
         }
     }
 
@@ -128,10 +126,13 @@ public class PosActivity extends ActionBarActivity
         if (((ProductButton) v).empty) {
             return;
         }
+        ContentValues cv = new ContentValues();
+        cv.put("account_id", 4);
+
         getContentResolver().insert(
                 getIntent().getData().buildUpon()
                 .appendEncodedPath("products/" + ((ProductButton) v).id)
-                .build(), null);
+                .build(), cv);
 
     }
 
@@ -148,14 +149,14 @@ public class PosActivity extends ActionBarActivity
         boolean empty;
         long id;
 
-        public ProductButton(Context context, long id, String title, String path) {
+        public ProductButton(Context context, long id, String title, String img) {
             super(context);
             this.id = id;
             View.inflate(getContext(), R.layout.view_product_button, this);
             ((TextView) findViewById(R.id.title)).setText(title);
-            if (path != null) {
+            if (img != null) {
                 ((ImageView) findViewById(R.id.image))
-                        .setImageURI(Uri.fromFile(new File(path)));
+                        .setImageURI(Uri.parse(img));
             } else {
                 empty = true;
             }
@@ -176,7 +177,7 @@ public class PosActivity extends ActionBarActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.accounts:
-                startActivity(new Intent(this, AccountsActivity.class));
+                startActivity(new Intent(this, AccountActivity.class));
                 break;
             case R.id.export:
                 Export.csv(this);

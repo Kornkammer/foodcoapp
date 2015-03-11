@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class LegitimateActivity extends FragmentActivity {
+public class LegitimateActivity extends ActionBarActivity {
 
     private MediaPlayer win;
     private MediaPlayer fail;
@@ -30,8 +30,7 @@ public class LegitimateActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
 
 
-        getActionBar().setHomeButtonEnabled(true);
-        setContentView(R.layout.activity_legitimate);
+        getSupportActionBar().setHomeButtonEnabled(true);
         win = MediaPlayer.create(this, R.raw.chaching);
         fail = MediaPlayer.create(this, R.raw.trombone);
         if (getIntent().hasExtra("SCAN")) {
@@ -40,6 +39,7 @@ public class LegitimateActivity extends FragmentActivity {
             intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
             startActivityForResult(intent, 0);
         }
+        setContentView(R.layout.activity_legitimate);
         ((EditText) findViewById(R.id.pin)).setOnEditorActionListener(
                 new EditText.OnEditorActionListener() {
                     @Override
