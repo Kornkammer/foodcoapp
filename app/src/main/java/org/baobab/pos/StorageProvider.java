@@ -191,7 +191,7 @@ public class StorageProvider extends ContentProvider {
                     account_id = uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, title, quantity < 0 AS credit" +
+                        "SELECT _id, title, " +
                                 "sum(transaction_products.quantity * transaction_products.price) AS sum" +
                         " FROM transaction_products" +
                         " WHERE account_id = " + account_id +

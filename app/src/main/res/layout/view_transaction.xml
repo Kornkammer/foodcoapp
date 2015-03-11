@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<merge
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="match_parent"
+  android:layout_width="wrap_content" >
+
+    <android.support.v7.widget.GridLayout
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      android:id="@+id/transaction_products"
+      android:layout_height="match_parent"
+      android:layout_width="wrap_content"
+      android:paddingRight="3dp"
+      app:columnCount="6"
+      app:rowCount="2" />
+
+</merge>
