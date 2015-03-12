@@ -1,7 +1,26 @@
 <resources>
 
-    <color name="black_overlay">#66000000</color>
-    <color name="green">#7fa87f</color>
-    <color name="blue">#0077aa</color>
+  <color name="black_overlay">#66000000</color>
+  <color name="green">#7fa87f</color>
+  <color name="blue">#525B92</color>
+
+  <color name="xxdark_blue">#0E132E</color>
+  <color name="xdark_blue">#242634</color>
+  <color name="dark_blue">#282C44</color>
+  <color name="medium_blue">#676E98</color>
+  <color name="light_blue">#727798</color>
+  <color name="xlight_blue">#A3A7C2</color>
+
+  <color name="xdark_green">#353D10</color>
+  <color name="dark_green">#42472E</color>
+  <color name="medium_green">#353D10</color>
+  <color name="light_green">#AEBA7B</color>
+  <color name="xlight_green">#B2BA8F</color>
+
+  <color name="xdark_red">#401211</color>
+  <color name="dark_red">#4A3130</color>
+  <color name="medium_red">#633634</color>
+  <color name="light_red">#BC7E7C</color>
+  <color name="xlight_red">#BC9190</color>
 
 </resources>
