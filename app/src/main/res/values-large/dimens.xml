@@ -5,13 +5,17 @@
   <dimen name="large">32dp</dimen>
   <dimen name="xlarge">64dp</dimen>
 
-  <dimen name="font_size_xlarge">63sp</dimen>
+  <dimen name="font_size_xlarge">69sp</dimen>
   <dimen name="font_size_large">57sp</dimen>
-  <dimen name="font_size_medium">31sp</dimen>
+  <dimen name="font_size_medium">33sp</dimen>
   <dimen name="font_size_small">23sp</dimen>
   <dimen name="font_size_xsmall">19sp</dimen>
 
-  <dimen name="padding_small">5dp</dimen>
+  <dimen name="padding_xsmall">4dp</dimen>
+  <dimen name="padding_small">7dp</dimen>
   <dimen name="padding_large">11dp</dimen>
+
+  <dimen name="img_width">88dp</dimen>
+  <dimen name="img_height">55dp</dimen>
 
 </resources>
