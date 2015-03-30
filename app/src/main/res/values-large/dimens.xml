@@ -13,6 +13,7 @@
 
   <dimen name="padding_xsmall">4dp</dimen>
   <dimen name="padding_small">7dp</dimen>
+  <dimen name="padding_medium">9dp</dimen>
   <dimen name="padding_large">11dp</dimen>
 
   <dimen name="img_width">88dp</dimen>

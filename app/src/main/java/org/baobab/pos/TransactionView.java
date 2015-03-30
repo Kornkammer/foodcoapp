@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.GridLayout;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -17,7 +18,7 @@ import android.widget.TextView;
 public class TransactionView extends GridLayout {
 
     OnClickListener onAmountClick;
-    int sum;
+    double sum;
 
     public TransactionView(Context context) {
         this(context, null);
@@ -36,12 +37,16 @@ public class TransactionView extends GridLayout {
     public void populate(Cursor data) {
         removeAllViews();
         data.moveToPosition(-1);
-        sum = 0;
+        sum = 0.0;
         while (data.moveToNext()) {
             addProduct(data);
         }
-//        ((TextView) findViewById(R.id.total))
-//                .setText(String.format("%.2f", sum));
+        ((TextView) ((FragmentActivity) getContext())
+                .findViewById(R.id.sum))
+                .setText(String.format("%.2f", sum));
+        ((TextView) ((FragmentActivity) getContext())
+                .findViewById(R.id.total))
+                .setText(String.format("%.2f", sum));
     }
 
     private void addProduct(Cursor data) {
@@ -77,11 +82,11 @@ public class TransactionView extends GridLayout {
             });
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
             lp.rowSpec = GridLayout.spec(0, 2);
-            lp.topMargin = 8;
+            lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_medium);
             addView(images, lp);
         }
         TextView amount = new TextView(getContext());
-        amount.setTextSize(getContext().getResources().getDimension(R.dimen.font_size_xlarge));
+        amount.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xlarge));
         int padding = getContext().getResources().getDimensionPixelSize(R.dimen.padding_large);
         amount.setPadding(0, -padding, 0, -padding);
         amount.setText(String.valueOf(quantity));
@@ -104,7 +109,7 @@ public class TransactionView extends GridLayout {
         });
 
         TextView x = new TextView(getContext());
-        x.setTextSize(getContext().getResources().getDimension(R.dimen.font_size_small));
+        x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         x.setText("x ");
         x.setTextColor(getResources().getColor(R.color.light_blue));
         lp = new GridLayout.LayoutParams();
@@ -114,20 +119,21 @@ public class TransactionView extends GridLayout {
         addView(x, lp);
 
         TextView title = new TextView(getContext());
-        title.setTextSize(getContext().getResources().getDimension(R.dimen.font_size_medium));
+        title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
         title.setText(data.getString(6));
         title.setTypeface(null, Typeface.BOLD);
-        title.setPadding(0, 1, 0, - getContext().getResources().getDimensionPixelSize(R.dimen.padding_small));
+        title.setPadding(0, 1, 0, -getContext().getResources().getDimensionPixelSize(R.dimen.padding_small));
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2);
+        lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         addView(title, lp);
 
         TextView result = new TextView(getContext());
         result.setText(String.format("%.2f", total));
         result.setTypeface(null, Typeface.BOLD);
         result.setTextColor(getResources().getColor(R.color.xdark_green));
-        result.setTextSize(getContext().getResources().getDimension(R.dimen.font_size_large));
+        result.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.leftMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
@@ -138,7 +144,7 @@ public class TransactionView extends GridLayout {
         TextView details = new TextView(getContext());
         details.setTextColor(getResources().getColor(android.R.color.black));
         details.setText(String.format("%.2f", price) + "/St");
-        details.setTextSize(getContext().getResources().getDimension(R.dimen.font_size_xsmall));
+        details.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xsmall));
         lp = new GridLayout.LayoutParams();
         lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         lp.columnSpec = GridLayout.spec(3);
@@ -146,7 +152,7 @@ public class TransactionView extends GridLayout {
 
         TextView eq = new TextView(getContext());
         eq.setText(" =");
-        eq.setTextSize(getContext().getResources().getDimension(R.dimen.font_size_small));
+        eq.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         eq.setTextColor(getResources().getColor(R.color.light_blue));
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(4);
