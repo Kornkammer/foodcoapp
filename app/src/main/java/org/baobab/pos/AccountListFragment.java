@@ -4,10 +4,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 
-public class AccountListFragment extends ListFragment
+public class AccountListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri uri;
@@ -70,18 +72,21 @@ public class AccountListFragment extends ListFragment
 
             @Override
             protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
-                if (cursor.isNull(2)) {
-                    ((AccountView) view).balance.setText("0.00");
-                } else {
-                    ((AccountView) view).balance.setText(
-                            String.format("%.2f", cursor.getFloat(2)));
-                }
-                ((AccountView) view).name.setText(cursor.getString(1));
-                ((AccountView) view).id = cursor.getLong(2);
+                ((AccountView) view).populate(cursor);
+                ((AccountView) view).expand();
             }
         };
         ((ExpandableListView) view.findViewById(android.R.id.list)).setAdapter(adapter);
-        registerForContextMenu(getListView());
+//        registerForContextMenu(getListView());
+
+        ((ExpandableListView) view.findViewById(android.R.id.list))
+                .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Log.d("POS", "foo");
+                    }
+                });
+
     }
 
     public void setUri(String uri) {
@@ -96,7 +101,7 @@ public class AccountListFragment extends ListFragment
         } else {
             return new CursorLoader(getActivity(), Uri.parse(
                     "content://org.baobab.pos/accounts/" +
-                            args.getLong("group_id") + "/products"),
+                            args.getLong("group_id") + "/accounts"),
                     null, null, null, null);
         }
     }
@@ -106,7 +111,13 @@ public class AccountListFragment extends ListFragment
         if (loader.getId() < 0) {
             adapter.changeCursor(data);
         } else {
-            adapter.setChildrenCursor(loader.getId(), data);
+            if (data.getCount() == 0) {
+                ((AccountView)((ExpandableListView) getView()
+                        .findViewById(android.R.id.list))
+                        .getChildAt(loader.getId())).expand();
+            } else {
+                adapter.setChildrenCursor(loader.getId(), data);
+            }
         }
     }
 
@@ -119,10 +130,10 @@ public class AccountListFragment extends ListFragment
                         + ((AdapterView.AdapterContextMenuInfo) menuInfo).id));
     }
 
-    @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-    }
+//    @Override
+//    public void onListItemClick(ListView l, View v, int position, long id) {
+//        super.onListItemClick(l, v, position, id);
+//    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -130,16 +141,47 @@ public class AccountListFragment extends ListFragment
     }
 
     private class AccountView extends LinearLayout {
+        private boolean expanded;
         final TextView balance;
         final TextView name;
         long id;
 
         public AccountView(Context ctx) {
             super(ctx);
-            setOrientation(HORIZONTAL);
+            setOrientation(VERTICAL);
             View.inflate(ctx, R.layout.account_list_item, this);
             balance = (TextView) findViewById(R.id.balance);
             name = (TextView) findViewById(R.id.name);
+        }
+
+        public void expand() {
+            setClickable(true);
+            setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (expanded) {
+                       removeViewAt(1);
+                    } else {
+                        TransactionView transaction = new TransactionView(getActivity());
+                        Cursor c = getActivity().getContentResolver().query(
+                                Uri.parse("content://org.baobab.pos/accounts/" + id + "/products"),
+                                null, null, null, null);
+                        transaction.populate(c);
+                        ((LinearLayout) v).addView(transaction);
+                    }
+                    expanded = !expanded;
+                }
+            });
+        }
+
+        public void populate(Cursor cursor) {
+            id = cursor.getLong(2);
+            if (cursor.isNull(3)) {
+                balance.setText("0.00");
+            } else {
+                balance.setText(String.format("%.2f", cursor.getFloat(3)));
+            }
+            name.setText(cursor.getString(1));
         }
     }
 }

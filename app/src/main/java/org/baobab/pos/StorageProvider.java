@@ -191,12 +191,10 @@ public class StorageProvider extends ContentProvider {
                     account_id = uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, title, " +
-                                "sum(transaction_products.quantity * transaction_products.price) AS sum" +
+                        "SELECT _id, transaction_id, account_id, product_id, sum(quantity), price, title, img " +
                         " FROM transaction_products" +
                         " WHERE account_id = " + account_id +
-                        " GROUP BY title" +
-                        " ORDER BY sum DESC",
+                        " GROUP BY title, price",
                         null);
                 break;
             case ACCOUNT:
@@ -344,6 +342,13 @@ public class StorageProvider extends ContentProvider {
                 break;
             case TRANSACTION:
                 db.getWritableDatabase().update("transactions", values, "_id =  + " + uri.getLastPathSegment(), null);
+                break;
+            case TRANSACTION_PRODUCT:
+                db.getWritableDatabase().update("transaction_products", values,
+                        "transaction_id = ? AND product_id = ?",
+                        new String[]{
+                                uri.getPathSegments().get(1),
+                                uri.getLastPathSegment() });
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);

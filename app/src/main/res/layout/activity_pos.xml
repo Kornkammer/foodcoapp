@@ -5,14 +5,15 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   android:orientation="horizontal"
-  android:background="@color/blue"
+  android:background="@color/medium_blue"
+  android:id="@+id/frame"
   tools:context="org.baobab.pos.PosActivity" >
 
   <LinearLayout
     android:minWidth="100dp"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
-    android:background="@color/black_overlay"
+    android:background="@color/dark_blue"
     android:orientation="vertical" >
 
     <fragment
@@ -22,7 +23,7 @@
       android:layout_height="wrap_content" />
 
     <View
-      android:background="@android:color/black"
+      android:background="@color/xdark_blue"
       android:layout_width="match_parent"
       android:layout_height="3dp" />
 
@@ -34,7 +35,7 @@
       android:clickable="true"
       android:paddingTop="13dp"
       android:paddingBottom="13dp"
-      android:textColor="@android:color/black"
+      android:textColor="@color/xdark_red"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:text="0.00" />
@@ -51,6 +52,7 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="@dimen/xlarge"
+        android:textColor="@color/light_blue"
         android:background="@drawable/background_blue"
         android:text="Scan" />
       <TextView
@@ -60,6 +62,7 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="@dimen/xlarge"
+        android:textColor="@color/light_blue"
         android:background="@drawable/background_blue"
         android:text="Pin" />
       <TextView
@@ -69,6 +72,7 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="@dimen/xlarge"
+        android:textColor="@color/light_blue"
         android:background="@drawable/background_blue"
         android:text="Bar" />
     </LinearLayout>
@@ -81,8 +85,8 @@
       android:clickable="true"
       android:paddingTop="13dp"
       android:paddingBottom="13dp"
-      android:textColor="@android:color/black"
-      android:background="@drawable/background_white"
+      android:textColor="@color/xdark_red"
+      android:background="@drawable/background_light"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_weight="1"

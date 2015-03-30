@@ -4,22 +4,28 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent">
 
-  <TextView
-    android:id="@+id/name"
-    android:textSize="20sp"
-    android:textStyle="bold"
-    android:layout_width="0dp"
-    android:layout_weight="618"
-    android:layout_marginLeft="@dimen/xlarge"
-    android:layout_marginTop="@dimen/small"
-    android:layout_height="match_parent" />
+  <LinearLayout
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
-  <TextView
-    android:id="@+id/balance"
-    android:textSize="32sp"
-    android:textStyle="bold"
-    android:gravity="right"
-    android:layout_width="0dp"
-    android:layout_weight="382"
-    android:layout_height="match_parent" />
+    <TextView
+      android:id="@+id/name"
+      android:textSize="20sp"
+      android:textStyle="bold"
+      android:layout_width="0dp"
+      android:layout_weight="618"
+      android:layout_marginLeft="@dimen/xlarge"
+      android:layout_marginTop="@dimen/small"
+      android:layout_height="match_parent" />
+
+    <TextView
+      android:id="@+id/balance"
+      android:textSize="32sp"
+      android:textStyle="bold"
+      android:gravity="right"
+      android:layout_width="0dp"
+      android:layout_weight="382"
+      android:layout_height="match_parent" />
+  </LinearLayout>
 </merge>

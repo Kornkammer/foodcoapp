@@ -1,5 +1,6 @@
 package org.baobab.pos;
 
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -15,6 +16,8 @@ public class AccountActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         getSupportActionBar().setHomeButtonEnabled(true);
         setContentView(R.layout.activity_accounts);
+
+        getWindow().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.xdark_blue)));
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.active))
                 .setUri("content://org.baobab.pos/accounts/1/accounts");
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.passive))
