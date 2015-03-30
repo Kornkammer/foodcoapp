@@ -4,23 +4,22 @@
   <color name="green">#7fa87f</color>
   <color name="blue">#525B92</color>
 
-  <color name="xxdark_blue">#0E132E</color>
-  <color name="xdark_blue">#242634</color>
-  <color name="dark_blue">#282C44</color>
-  <color name="medium_blue">#676E98</color>
-  <color name="light_blue">#727798</color>
-  <color name="xlight_blue">#A3A7C2</color>
+  <color name="xdark_blue">#10123E</color>
+  <color name="dark_blue">#2A2C46</color>
+  <color name="medium_blue">#2C2E5B</color>
+  <color name="light_blue">#6C70B0</color>
+  <color name="xlight_blue">#7F82B0</color>
 
-  <color name="xdark_green">#353D10</color>
-  <color name="dark_green">#42472E</color>
-  <color name="medium_green">#353D10</color>
-  <color name="light_green">#AEBA7B</color>
-  <color name="xlight_green">#B2BA8F</color>
+  <color name="xdark_green">#595913</color>
+  <color name="dark_green">#656536</color>
+  <color name="medium_green">#848434</color>
+  <color name="light_green">#C3C36C</color>
+  <color name="xlight_green">#C3C384</color>
 
-  <color name="xdark_red">#401211</color>
-  <color name="dark_red">#4A3130</color>
-  <color name="medium_red">#633634</color>
-  <color name="light_red">#BC7E7C</color>
-  <color name="xlight_red">#BC9190</color>
+  <color name="xdark_red">#593013</color>
+  <color name="dark_red">#654936</color>
+  <color name="medium_red">#845534</color>
+  <color name="light_red">#C3906C</color>
+  <color name="xlight_red">#C39E84</color>
 
 </resources>
