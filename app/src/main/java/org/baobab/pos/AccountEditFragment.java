@@ -16,6 +16,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -66,7 +67,7 @@ public class AccountEditFragment extends Fragment
                 );
             }
         });
-        //view.findViewById(R.id.contact).setOnLongClickListener(new View.OnLongClickListener() {
+        //view.findViewById(R.guid.contact).setOnLongClickListener(new View.OnLongClickListener() {
         //    @Override
         //    public boolean onLongClick(View v) {
         //        startActivityForResult(
@@ -136,7 +137,8 @@ public class AccountEditFragment extends Fragment
                 getLoaderManager().initLoader(1, null, this);
                 break;
             case SCAN:
-                getArguments().putString("qr", data.getStringExtra("SCAN_RESULT"));
+                getArguments().putString("qr", Crypt.hash(
+                        data.getStringExtra("SCAN_RESULT"), getActivity()));
                 ((Button) getView().findViewById(R.id.scan)).setText("***");
         }
     }
@@ -165,8 +167,12 @@ public class AccountEditFragment extends Fragment
             case 0:
                 getArguments().putString("guid", data.getString(1));
                 getActivity().setTitle("Edit " + data.getString(2));
-                getArguments().putString("pin", data.getString(4));
-                getArguments().putString("qr", data.getString(5));
+                if (!data.isNull(4)) {
+                    getArguments().putString("pin", data.getString(4));
+                }
+                if (data.isNull(5)) {
+                    getArguments().putString("qr", data.getString(5));
+                }
                 ((TextView) getView().findViewById(R.id.name))
                     .setText(data.getString(2));
                 ((TextView) getView().findViewById(R.id.pin))
@@ -177,6 +183,10 @@ public class AccountEditFragment extends Fragment
 
                 if (!data.isNull(3)) {
                     getArguments().putString("contact", data.getString(3));
+                    getLoaderManager().initLoader(1, null, this);
+                }
+                if (!data.isNull(1)) {
+                    getArguments().putString("parent_guid", data.getString(1));
                     getLoaderManager().initLoader(1, null, this);
                 }
                 break;
@@ -210,9 +220,13 @@ public class AccountEditFragment extends Fragment
             return;
         }
         String hash = Crypt.hash(pin, getActivity());
+        Log.d("ui", "pin: " + pin);
+        Log.d("ui", "hash: " + hash);
+        Log.d("ui", "field: " + getArguments().getString("pin"));
         if (getArguments().containsKey("pin") &&
-                getArguments().getString("pin").equals(hash)) {
-            values.put("hash", hash); // keep
+                getArguments().getString("pin") != null &&
+                getArguments().getString("pin").equals(pin)) {
+            values.put("pin", pin); // keep
         }  else {
             if (lockAccountIfAlreadyTaken(hash)) {
                 Toast.makeText(getActivity(), "PIN gibts schon!!!", Toast.LENGTH_LONG).show();
@@ -224,6 +238,10 @@ public class AccountEditFragment extends Fragment
             archivePreviousVersions();
             values.put("guid", getArguments().getString("guid"));
         }
+        if (getArguments().containsKey("parent_guid")) {
+            archivePreviousVersions();
+            values.put("parent_guid", getArguments().getString("guid"));
+        }
         if (getArguments().containsKey("contact")) {
             values.put("contact", getArguments().getString("contact"));
         }
@@ -234,15 +252,16 @@ public class AccountEditFragment extends Fragment
             values.put("name", values.getAsString("guid"));
         }
         values.put("status", "foo");
-        if (getArguments().containsKey("qr")) {
+        if (getArguments().containsKey("qr") &&
+                getArguments().getString("qr") != null) {
             if (lockAccountIfAlreadyTaken(getArguments().getString("qr"))) {
                 Toast.makeText(getActivity(), "QR code gibts schon!!!", Toast.LENGTH_LONG).show();
                 return;
             }
-            values.put("qr", Crypt.hash(getArguments().getString("qr"), getActivity()));
+            values.put("qr", getArguments().getString("qr"));
         }
         getActivity().getContentResolver().insert(
-                Uri.parse("content://org.baobab.pos/accounts/5/accounts"),
+                Uri.parse("content://org.baobab.pos/accounts/passiva/accounts"),
                 values);
         Toast.makeText(getActivity(), "Gespeichert", Toast.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();

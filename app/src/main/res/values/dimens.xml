@@ -4,6 +4,7 @@
   <dimen name="medium">8dp</dimen>
   <dimen name="large">16dp</dimen>
   <dimen name="xlarge">32dp</dimen>
+  <dimen name="xxlarge">64dp</dimen>
 
   <dimen name="font_size_xlarge">43sp</dimen>
   <dimen name="font_size_large">34sp</dimen>

@@ -80,6 +80,7 @@ public class TransactionListFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        System.out.println("data "+data.getCount());
         ((CursorAdapter) getListAdapter()).swapCursor(data);
     }
 

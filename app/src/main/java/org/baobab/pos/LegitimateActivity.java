@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,7 +32,7 @@ public class LegitimateActivity extends ActionBarActivity {
 
 
         getSupportActionBar().setHomeButtonEnabled(true);
-        win = MediaPlayer.create(this, R.raw.chaching);
+        win = MediaPlayer.create(this, R.raw.tada);
         fail = MediaPlayer.create(this, R.raw.trombone);
         if (getIntent().hasExtra("SCAN")) {
             Intent intent = new Intent(
@@ -62,7 +63,6 @@ public class LegitimateActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
             String qr = data.getStringExtra("SCAN_RESULT");
-            //String format = data.getStringExtra("SCAN_RESULT_FORMAT");
             legitimate(Crypt.hash(qr, this));
         }
     }
@@ -102,15 +102,22 @@ public class LegitimateActivity extends ActionBarActivity {
             win.start();
         }
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(70);
+        Cursor sum = getContentResolver().query(getIntent().getData().buildUpon()
+                .appendEncodedPath("sum").build(), null, null, null, null);
+        sum.moveToFirst();
+        Log.d(TAG, "sum " + sum.getFloat(2));
         ContentValues b = new ContentValues();
-        b.put("account_id", auth.getLong(0));
-        b.put("timestamp", System.currentTimeMillis());
-        getContentResolver().update(getIntent().getData(), b, null, null);
-        startActivity(new Intent(LegitimateActivity.this,
-                PosActivity.class).setData(Uri.parse(
-                "content://org.baobab.pos/accounts/" + auth.getInt(0)))
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        b.put("account_guid", auth.getString(3));
+        b.put("quantity", sum.getFloat(2));
+        getContentResolver().insert(
+                getIntent().getData().buildUpon()
+                        .appendEncodedPath("products/18")
+                        .build(), b);
+//        startActivity(new Intent(LegitimateActivity.this,
+//                PosActivity.class).setData(getIntent().getData())
+//                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
+//                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        finish();
         return true;
     }
 

@@ -7,8 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scaleType="fitXY"
-    android:padding="5dp"
-    android:src="@drawable/ic_launcher" />
+    android:padding="5dp" />
 
   <TextView
     android:id="@+id/title"
@@ -20,5 +19,5 @@
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
     android:background="#77000000"
-    android:text="foo bar"/>
+    android:text="foo bar" />
 </merge>

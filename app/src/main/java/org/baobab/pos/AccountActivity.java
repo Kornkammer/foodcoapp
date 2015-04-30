@@ -19,9 +19,9 @@ public class AccountActivity extends ActionBarActivity {
 
         getWindow().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.xdark_blue)));
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.active))
-                .setUri("content://org.baobab.pos/accounts/1/accounts");
+                .setUri("content://org.baobab.pos/accounts/aktiva/accounts", false);
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.passive))
-                .setUri("content://org.baobab.pos/accounts/2/accounts");
+                .setUri("content://org.baobab.pos/accounts/passiva/accounts", true);
         if (getIntent().getData() != null && getIntent().getData().toString().startsWith("content://org.baobab.pos/accounts/")) {
             editAccount(getIntent().getData());
         }

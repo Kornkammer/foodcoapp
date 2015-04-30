@@ -28,7 +28,7 @@ public class WinActivity extends FragmentActivity {
         //Cursor account = getContentResolver().query(getIntent().getData(), null, null, null, null);
         //account.moveToFirst();
         //String balance = String.format("%.2f", account.getFloat(2));
-        //((TextView) findViewById(R.id.balance))
+        //((TextView) findViewById(R.guid.balance))
         //        .setText("..noch " + balance + " Baolas übrig ");
     }
 

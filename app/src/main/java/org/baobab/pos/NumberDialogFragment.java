@@ -39,7 +39,7 @@ public abstract class NumberDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         ((TextView) view.findViewById(R.id.message)).setText(msg);
         EditText number = (EditText) view.findViewById(R.id.number);
-        number.setText(value);
+        number.setText("" + Math.abs(Float.valueOf(value)));
         number.selectAll();
         number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override

@@ -10,7 +10,7 @@
   tools:context="org.baobab.pos.PosActivity" >
 
   <LinearLayout
-    android:minWidth="100dp"
+    android:minWidth="210dp"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:background="@color/dark_blue"
@@ -20,48 +20,41 @@
       android:id="@+id/transaction"
       class="org.baobab.pos.TransactionFragment"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content" />
-
-    <View
-      android:background="@color/xdark_blue"
-      android:layout_width="match_parent"
-      android:layout_height="3dp" />
+      android:layout_height="0dp"
+      android:layout_weight="1" />
 
     <TextView
-      android:id="@+id/total"
-      android:textStyle="bold"
-      android:textSize="@dimen/font_size_large"
-      android:gravity="right"
-      android:clickable="true"
-      android:paddingTop="13dp"
-      android:paddingBottom="13dp"
-      android:textColor="@color/xdark_red"
+      android:id="@+id/header"
+      android:textColor="@color/medium_red"
+      android:background="@color/xdark_red"
+      android:text="zu bezahlen"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="0.00" />
+      android:layout_height="wrap_content"/>
 
     <LinearLayout
       android:orientation="horizontal"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content" >
+      android:layout_height="@dimen/xxlarge" >
 
       <TextView
         android:id="@+id/scan"
         android:gravity="center"
         android:clickable="true"
         android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/xlarge"
+        android:padding="@dimen/medium"
+        android:layout_width="@dimen/xlarge"
+        android:layout_height="match_parent"
         android:textColor="@color/light_blue"
         android:background="@drawable/background_blue"
-        android:text="Scan" />
+        android:text="QR" />
       <TextView
         android:id="@+id/pin"
         android:gravity="center"
         android:clickable="true"
         android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/xlarge"
+        android:padding="@dimen/medium"
+        android:layout_width="@dimen/xlarge"
+        android:layout_height="match_parent"
         android:textColor="@color/light_blue"
         android:background="@drawable/background_blue"
         android:text="Pin" />
@@ -70,28 +63,27 @@
         android:gravity="center"
         android:clickable="true"
         android:layout_weight="1"
-        android:layout_width="0dp"
-        android:layout_height="@dimen/xlarge"
+        android:padding="@dimen/medium"
+        android:layout_width="@dimen/xlarge"
+        android:layout_height="match_parent"
         android:textColor="@color/light_blue"
         android:background="@drawable/background_blue"
         android:text="Bar" />
-    </LinearLayout>
 
-    <TextView
-      android:id="@+id/sum"
-      android:textStyle="bold"
-      android:textSize="57dp"
-      android:gravity="right"
-      android:clickable="true"
-      android:paddingTop="13dp"
-      android:paddingBottom="13dp"
-      android:textColor="@color/xdark_red"
-      android:background="@drawable/background_light"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_weight="1"
-      android:layout_gravity="bottom"
-      android:text="0.00" />
+      <TextView
+        android:id="@+id/sum"
+        android:textStyle="bold"
+        android:textSize="@dimen/font_size_large"
+        android:gravity="center_vertical|end"
+        android:clickable="true"
+        android:textColor="@color/xdark_red"
+        android:background="@drawable/background_light"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:text="0.00" />
+
+    </LinearLayout>
 
   </LinearLayout>
 

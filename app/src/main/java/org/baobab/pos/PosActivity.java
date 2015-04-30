@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,16 +35,25 @@ public class PosActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pos);
-        if (getIntent().getData() != null) {
-            resetTransaction();
-            startActivity(new Intent(this, WinActivity.class)
-                    .setData(getIntent().getData()));
-        }
         if (savedInstanceState == null) {
             resetTransaction();
         }
         getSupportLoaderManager().initLoader(0, null, this);
         products = (StretchableGrid) findViewById(R.id.products);
+        findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Cursor sum = getContentResolver().query(getIntent().getData().buildUpon()
+                        .appendEncodedPath("sum").build(), null, null, null, null);
+                sum.moveToFirst();
+                Log.d(TAG, "sum " + sum.getFloat(2));
+                ContentValues b = new ContentValues();
+                b.put("quantity", sum.getFloat(2));
+                b.put("account_guid", "kasse");
+                getContentResolver().insert(getIntent().getData().buildUpon()
+                        .appendEncodedPath("products/17").build(), b);
+            }
+        });
         findViewById(R.id.pin).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,35 +63,28 @@ public class PosActivity extends ActionBarActivity
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
             }
         });
-        findViewById(R.id.scan).setOnLongClickListener(new View.OnLongClickListener() {
+        findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 startActivity(new Intent(PosActivity.this,
                         LegitimateActivity.class)
                         .setData(getIntent().getData())
                         .putExtra("SCAN", true)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
-                return true;
             }
         });
     }
 
-    private void resetTransaction() {
-        ContentValues b = new ContentValues();
-        b.put("account_id", 1);
-        b.put("start", System.currentTimeMillis());
-        Uri session = getContentResolver().insert(Uri.parse(
-                "content://org.baobab.pos/sessions"), b);
-        b = new ContentValues();
-        b.put("session_id", session.getLastPathSegment());
+    public void resetTransaction() {
         Uri uri = getContentResolver().insert(Uri.parse(
-                "content://org.baobab.pos/transactions"), b);
+                "content://org.baobab.pos/transactions"), null);
         setIntent(getIntent().setData(uri));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        fullscreen();
         ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
     }
@@ -127,7 +130,7 @@ public class PosActivity extends ActionBarActivity
             return;
         }
         ContentValues cv = new ContentValues();
-        cv.put("account_id", 4);
+        cv.put("account_guid", "lager");
 
         getContentResolver().insert(
                 getIntent().getData().buildUpon()

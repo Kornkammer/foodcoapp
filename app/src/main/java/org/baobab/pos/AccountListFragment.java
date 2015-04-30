@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -18,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 
 
@@ -26,6 +24,7 @@ public class AccountListFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri uri;
+    private int invert = 1;
     private CursorTreeAdapter adapter;
 
     public AccountListFragment() { }
@@ -39,6 +38,11 @@ public class AccountListFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         adapter = new CursorTreeAdapter(null, getActivity(), true) {
+
+            @Override
+            public long getGroupId(int groupPosition) {
+                return groupPosition;
+            }
 
             @Override
             protected Cursor getChildrenCursor(Cursor groupCursor) {
@@ -55,14 +59,14 @@ public class AccountListFragment extends Fragment
 
             @Override
             protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
-                if (cursor.isNull(3)) {
+                if (cursor.isNull(4)) {
                     ((AccountView) view).balance.setText("0.00");
                 } else {
                     ((AccountView) view).balance.setText(
-                            String.format("%.2f", cursor.getFloat(3)));
+                            String.format("%.2f", invert * cursor.getFloat(4)));
                 }
                 ((AccountView) view).name.setText(cursor.getString(1));
-                ((AccountView) view).id = cursor.getLong(2);
+                ((AccountView) view).guid = cursor.getString(2);
             }
 
             @Override
@@ -77,7 +81,7 @@ public class AccountListFragment extends Fragment
             }
         };
         ((ExpandableListView) view.findViewById(android.R.id.list)).setAdapter(adapter);
-//        registerForContextMenu(getListView());
+        registerForContextMenu(view.findViewById(android.R.id.list));
 
         ((ExpandableListView) view.findViewById(android.R.id.list))
                 .setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -89,7 +93,8 @@ public class AccountListFragment extends Fragment
 
     }
 
-    public void setUri(String uri) {
+    public void setUri(String uri, boolean invert) {
+        this.invert = invert? -1 : 1;
         this.uri = Uri.parse(uri);
         getLoaderManager().initLoader(-1, null, this);
     }
@@ -124,15 +129,17 @@ public class AccountListFragment extends Fragment
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
-
+        adapter.getCursor().moveToPosition((int)
+                ((ExpandableListView.ExpandableListContextMenuInfo) menuInfo).id);
+        Log.d("ui", "guid: " + adapter.getCursor().getString(2));
         ((AccountActivity) getActivity()).editAccount(
                 Uri.parse("content://org.baobab.pos/accounts/"
-                        + ((AdapterView.AdapterContextMenuInfo) menuInfo).id));
+                        + adapter.getCursor().getString(2)));
     }
 
 //    @Override
-//    public void onListItemClick(ListView l, View v, int position, long id) {
-//        super.onListItemClick(l, v, position, id);
+//    public void onListItemClick(ListView l, View v, int position, long guid) {
+//        super.onListItemClick(l, v, position, guid);
 //    }
 
     @Override
@@ -144,7 +151,7 @@ public class AccountListFragment extends Fragment
         private boolean expanded;
         final TextView balance;
         final TextView name;
-        long id;
+        String guid;
 
         public AccountView(Context ctx) {
             super(ctx);
@@ -163,8 +170,9 @@ public class AccountListFragment extends Fragment
                        removeViewAt(1);
                     } else {
                         TransactionView transaction = new TransactionView(getActivity());
+                        transaction.showImages(false);
                         Cursor c = getActivity().getContentResolver().query(
-                                Uri.parse("content://org.baobab.pos/accounts/" + id + "/products"),
+                                Uri.parse("content://org.baobab.pos/accounts/" + guid + "/products"),
                                 null, null, null, null);
                         transaction.populate(c);
                         ((LinearLayout) v).addView(transaction);
@@ -175,11 +183,11 @@ public class AccountListFragment extends Fragment
         }
 
         public void populate(Cursor cursor) {
-            id = cursor.getLong(2);
+            guid = cursor.getString(2);
             if (cursor.isNull(3)) {
                 balance.setText("0.00");
             } else {
-                balance.setText(String.format("%.2f", cursor.getFloat(3)));
+                balance.setText(String.format("%.2f", cursor.getFloat(4)));
             }
             name.setText(cursor.getString(1));
         }
