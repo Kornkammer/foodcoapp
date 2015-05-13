@@ -49,6 +49,7 @@ public class StorageProvider extends ContentProvider {
                     "product_id INTEGER, " +
                     "quantity FLOAT, " +
                     "price FLOAT, " +
+                    "unit TEXT, " +
                     "title TEXT, " +
                     "img TEXT " +
                     ");");
@@ -72,9 +73,9 @@ public class StorageProvider extends ContentProvider {
                     "start INTEGER, " +
                     "stop INTEGER" +
                     ");");
-            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Baola', 1.5, 'android.resource://org.baobab.pos/drawable/baola');");
-            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Kaffee', 3.5, 'android.resource://org.baobab.pos/drawable/coffee');");
-            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Keks', 0.5, 'android.resource://org.baobab.pos/drawable/cookie');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Baola', 1.5, 'Stück', 'android.resource://org.baobab.pos/drawable/baola');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.pos/drawable/coffee');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Keks', 0.5, 'Stück', 'android.resource://org.baobab.pos/drawable/cookie');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
@@ -197,7 +198,7 @@ public class StorageProvider extends ContentProvider {
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transaction_products._id, transaction_id, account_guid," +
-                                " product_id, sum(quantity), price, title, img," +
+                                " product_id, sum(quantity), price, unit, title, img," +
                                 " accounts._id, parent_guid, guid, name, quantity > 0 as credit" +
                         " FROM transaction_products" +
                         " LEFT JOIN (" +
@@ -272,8 +273,8 @@ public class StorageProvider extends ContentProvider {
                         values.getAsFloat("quantity") : 1.0;
                 db.getWritableDatabase().execSQL(
                         "INSERT OR REPLACE INTO transaction_products" +
-                                " (transaction_id, account_guid, product_id, title, price, img, quantity)" +
-                                " VALUES (?, ?, ?, ?, ?, ?, " +
+                                " (transaction_id, account_guid, product_id, title, price, img, quantity, unit)" +
+                                " VALUES (?, ?, ?, ?, ?, ?, ?, " +
                                 "COALESCE(" +
                                 "(SELECT quantity FROM transaction_products" +
                                 " WHERE transaction_id = ? AND product_id = ?)," +
@@ -286,6 +287,7 @@ public class StorageProvider extends ContentProvider {
                                 product.getString(4),
                                 uri.getPathSegments().get(1),
                                 uri.getLastPathSegment(),
+                                product.getString(3),
                                 String.valueOf(quantity)}
                 );
                 getContext().getContentResolver().notifyChange(uri, null);

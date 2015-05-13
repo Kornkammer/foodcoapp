@@ -35,14 +35,27 @@
     android:imeOptions="flagNoExtractUi"
     android:inputType="numberSigned|numberDecimal"
     android:textStyle="bold"
-    android:textSize="23sp"
+    android:textSize="@dimen/font_size_large"
     android:hint="1.50" />
 
   <TextView
+    android:id="@+id/pro"
+    android:textSize="@dimen/font_size_medium"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignBaseline="@id/price"
     android:layout_toRightOf="@id/price"
-    android:textColor="#77000000"
-    android:text="bla" />
+    android:text="@string/per"/>
+
+  <TextView
+    android:id="@+id/unit"
+    android:clickable="true"
+    android:textStyle="bold"
+    android:textSize="@dimen/font_size_large"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="@dimen/font_size_small"
+    android:background="@drawable/background_translucent"
+    android:layout_alignBaseline="@id/price"
+    android:layout_toRightOf="@id/pro" />
 </RelativeLayout>

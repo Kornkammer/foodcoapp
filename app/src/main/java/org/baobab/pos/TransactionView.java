@@ -115,8 +115,8 @@ public class TransactionView extends GridLayout {
 
         }
         LinearLayout images = new LinearLayout(getContext());
-        if (!data.isNull(7) && showImages) {
-            Uri img = Uri.parse(data.getString(7));
+        if (!data.isNull(8) && showImages) {
+            Uri img = Uri.parse(data.getString(8));
             images.setOrientation(LinearLayout.HORIZONTAL);
             int numberOfImages = account.equals("lager")? (int) Math.abs(quantity) : 1;
             for (int i = 0; i < numberOfImages; i++) {
@@ -190,9 +190,9 @@ public class TransactionView extends GridLayout {
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
         if (account.equals("lager") || account.equals("kasse")) {
-            title.setText(data.getString(6));
+            title.setText(data.getString(7));
         } else {
-            title.setText(data.getString(11));
+            title.setText(data.getString(12));
         }
 
         title.setTypeface(null, Typeface.BOLD);

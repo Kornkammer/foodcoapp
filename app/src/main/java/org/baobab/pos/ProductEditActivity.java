@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -36,6 +37,7 @@ public class ProductEditActivity extends ActionBarActivity
     private ImageButton image;
     private EditText title;
     private EditText price;
+    private TextView unit;
     private Uri img;
 
     @Override
@@ -46,12 +48,23 @@ public class ProductEditActivity extends ActionBarActivity
         image = (ImageButton) findViewById(R.id.image);
         title = (EditText) findViewById(R.id.title);
         price = (EditText) findViewById(R.id.price);
+        unit = (TextView) findViewById(R.id.unit);
         image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
                     startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+                }
+            }
+        });
+        unit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (unit.getText().toString().equals(getString(R.string.weight))) {
+                    unit.setText(R.string.piece);
+                } else {
+                    unit.setText(R.string.weight);
                 }
             }
         });
@@ -128,9 +141,14 @@ public class ProductEditActivity extends ActionBarActivity
             if (data.getFloat(2) != 0.0f) {
                 price.setText(String.format("%.2f", data.getFloat(2)));
             }
-            if (!data.isNull(3)) {
-                img = Uri.parse(data.getString(3));
+            if (!data.isNull(4)) {
+                img = Uri.parse(data.getString(4));
                 image.setImageURI(img);
+            }
+            if (!data.isNull(3) && data.getString(3).equals("Gramm")) {
+                unit.setText(R.string.weight);
+            } else {
+                unit.setText(R.string.piece);
             }
         }
     }
@@ -156,6 +174,7 @@ public class ProductEditActivity extends ActionBarActivity
         cv.put("title", title.getText().toString());
         cv.put("img", img.toString());
         cv.put("price", Float.valueOf(price.getText().toString()));
+        cv.put("unit", unit.getText().toString());
         getContentResolver().update(getIntent().getData(), cv, null, null);
         finish();
     }

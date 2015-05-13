@@ -10,4 +10,8 @@
   <string name="export">Export</string>
   <string name="balance">Bilanz</string>
 
+  <string name="weight">Kilo</string>
+  <string name="piece">Stück</string>
+  <string name="per">pro</string>
+
 </resources>
