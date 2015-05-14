@@ -64,6 +64,9 @@ public abstract class NumberDialogFragment extends DialogFragment {
         EditText number = (EditText) getView().findViewById(R.id.number);
         try {
             float n = Float.valueOf(number.getText().toString());
+            if (!value.startsWith("-")) {
+                n = n * -1;
+            }
             onNumber(n);
         } catch (NumberFormatException e) {
             Log.d("System.err", e.getMessage());

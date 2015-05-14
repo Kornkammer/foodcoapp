@@ -3,6 +3,7 @@ package org.baobab.pos;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -30,7 +31,7 @@ public class LegitimateActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         getSupportActionBar().setHomeButtonEnabled(true);
         win = MediaPlayer.create(this, R.raw.tada);
         fail = MediaPlayer.create(this, R.raw.trombone);

@@ -119,6 +119,12 @@ public class TransactionView extends GridLayout {
             Uri img = Uri.parse(data.getString(8));
             images.setOrientation(LinearLayout.HORIZONTAL);
             int numberOfImages = account.equals("lager")? (int) Math.abs(quantity) : 1;
+            if (numberOfImages > 23) {
+                numberOfImages = 23;
+            }
+            if (numberOfImages < 1) {
+                numberOfImages = 1;
+            }
             for (int i = 0; i < numberOfImages; i++) {
                 ImageView image = new ImageView(getContext());
                 image.setImageURI(img);
@@ -146,38 +152,34 @@ public class TransactionView extends GridLayout {
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_medium);
         addView(images, lp);
 
-        TextView amount = new TextView(getContext());
-        amount.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xlarge));
-        int padding = getContext().getResources().getDimensionPixelSize(R.dimen.padding_large);
-        amount.setPadding(0, -padding, 0, -padding);
+        DecimalView amount = new DecimalView(getContext(), onAmountClick);
         if (data.getLong(3) <= 16) {
-            amount.setText(String.valueOf((int) Math.abs(quantity)));
-        } else {
-            amount.setText("     ");
+            if (Math.abs(quantity) < 1.0) {
+                amount.setNumber(quantity * 1000);
+            } else {
+                amount.setNumber(quantity);
+            }
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.setGravity(Gravity.RIGHT);
-        amount.setBackgroundResource(R.drawable.background_translucent);
-        amount.setTextColor(getResources().getColor(R.color.xlight_blue));
-        FrameLayout f = new FrameLayout(getContext());
-        f.addView(amount);
-        addView(f, lp);
-        f.setClickable(true);
-        f.setId(data.getInt(3));
-        f.setTag(String.valueOf(quantity));
-        if (onAmountClick != null) {
-            f.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onAmountClick.onClick(v);
-                }
-            });
-        }
+        addView(amount, lp);
+        amount.setId(data.getInt(3));
+        amount.setTag(String.valueOf(quantity));
 
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
-        if (data.getLong(3) <= 16) {
+        if (data.getLong(3) <= 16 && !data.isNull(6) &&
+                data.getString(6).equals(getContext().getString(R.string.weight))) {
+//            if (data.getPosition() == data.getCount() && Math.abs(quantity) == 1) {
+//                onAmountClick.onClick(amount);
+//            } else
+            if (Math.abs(quantity) < 1) {
+                x.setText("g ");
+            } else {
+                x.setText("kg ");
+            }
+        } else {
             x.setText("x ");
         }
         x.setTextColor(getResources().getColor(R.color.light_blue));
@@ -212,7 +214,7 @@ public class TransactionView extends GridLayout {
             sum.setTextColor(getResources().getColor(R.color.xdark_green));
         }
         sum.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
-        f = new FrameLayout(getContext());
+        FrameLayout f = new FrameLayout(getContext());
         f.addView(sum);
         f.setClickable(true);
         f.setId(data.getInt(3));

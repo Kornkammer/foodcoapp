@@ -145,7 +145,7 @@ public class ProductEditActivity extends ActionBarActivity
                 img = Uri.parse(data.getString(4));
                 image.setImageURI(img);
             }
-            if (!data.isNull(3) && data.getString(3).equals("Gramm")) {
+            if (!data.isNull(3) && data.getString(3).equals(getString(R.string.weight))) {
                 unit.setText(R.string.weight);
             } else {
                 unit.setText(R.string.piece);
@@ -174,6 +174,7 @@ public class ProductEditActivity extends ActionBarActivity
         cv.put("title", title.getText().toString());
         cv.put("img", img.toString());
         cv.put("price", Float.valueOf(price.getText().toString()));
+
         cv.put("unit", unit.getText().toString());
         getContentResolver().update(getIntent().getData(), cv, null, null);
         finish();

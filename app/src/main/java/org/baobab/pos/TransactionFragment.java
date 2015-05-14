@@ -83,7 +83,7 @@ public class TransactionFragment extends Fragment
                 .findViewById(R.id.sum));
         TextView header = ((TextView) ((FragmentActivity) getActivity())
                 .findViewById(R.id.header));
-        if (sum == 0.0) {
+        if (sum < 0.01 && sum > -0.01) {
             header.setText("");
             header.setBackgroundResource(R.drawable.background_translucent);
             ok.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_launcher, 0, 0, 0);
