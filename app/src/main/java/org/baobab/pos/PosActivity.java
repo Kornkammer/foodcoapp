@@ -187,7 +187,7 @@ public class PosActivity extends ActionBarActivity
                 Intent mail = new Intent(Intent.ACTION_SEND,
                         Uri.parse("mailto:flo@sonnenstreifen.de"));
                 mail.putExtra(Intent.EXTRA_EMAIL, new String[] {"flo@sonnenstreifen.de"});
-                mail.putExtra(Intent.EXTRA_TEXT, "neuster Stand Biergarten");
+//                mail.putExtra(Intent.EXTRA_TEXT, "neuster Stand Biergarten");
                 mail.putExtra(Intent.EXTRA_SUBJECT, "Kiosk " +
                         new SimpleDateFormat().format(System.currentTimeMillis()));
                 mail.setType("application/csv");

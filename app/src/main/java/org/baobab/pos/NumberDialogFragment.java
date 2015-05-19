@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public abstract class NumberDialogFragment extends DialogFragment {
 
@@ -66,6 +67,10 @@ public abstract class NumberDialogFragment extends DialogFragment {
             float n = Float.valueOf(number.getText().toString());
             if (!value.startsWith("-")) {
                 n = n * -1;
+            }
+            if (Math.abs(n) > 1000) {
+                Toast.makeText(getActivity(), "So viel gibts ja gar nicht!", Toast.LENGTH_LONG).show();
+                return;
             }
             onNumber(n);
         } catch (NumberFormatException e) {
