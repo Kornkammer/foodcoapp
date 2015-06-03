@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -30,9 +31,14 @@ public class TransactionFragment extends Fragment
         transaction.setOnAmountClick(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+                Cursor c = getActivity().getContentResolver().query(
+                        Uri.parse("content://org.baobab.pos/products/" + v.getId()),
+                        null, null, null, null);
+                c.moveToFirst();
                 getFragmentManager().beginTransaction()
                         .replace(v.getId(), new NumberDialogFragment(
-                                "Wie viel?", (String) v.getTag()) {
+                                "Wie viel " + c.getString(3) + " " + c.getString(1),
+                                (String) v.getTag()) {
                             @Override
                             public void onNumber(float number) {
                                 ContentValues cv = new ContentValues();
