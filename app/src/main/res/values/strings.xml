@@ -14,4 +14,8 @@
   <string name="piece">Stück</string>
   <string name="per">pro</string>
 
+  <string name="settings">Einstellungen</string>
+  <string name="prefs_rotate_title">Bildschirm rotieren</string>
+  <string name="prefs_rotate_summary">für die Pin Eingabe</string>
+
 </resources>

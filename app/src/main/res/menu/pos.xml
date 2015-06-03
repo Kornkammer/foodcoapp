@@ -4,6 +4,12 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:android="http://schemas.android.com/apk/res/android">
 
+  <item android:id="@+id/settings"
+        android:title="@string/settings"
+        android:icon="@drawable/ic_menu_preferences"
+        android:showAsAction="always"
+        app:showAsAction="always" />
+
   <item android:id="@+id/accounts"
         android:title="@string/accounts"
         android:icon="@drawable/ic_menu_cc_am"

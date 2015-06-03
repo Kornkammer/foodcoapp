@@ -179,6 +179,9 @@ public class PosActivity extends ActionBarActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                break;
             case R.id.accounts:
                 startActivity(new Intent(this, AccountActivity.class));
                 break;

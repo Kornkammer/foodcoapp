@@ -1,0 +1,11 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <PreferenceCategory android:title="Einstellungen" >
+    <CheckBoxPreference
+      android:key="rotate"
+      android:title="@string/prefs_rotate_title"
+      android:summary="@string/prefs_rotate_summary" />
+
+  </PreferenceCategory>
+</PreferenceScreen>
