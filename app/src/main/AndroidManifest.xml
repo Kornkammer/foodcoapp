@@ -59,7 +59,7 @@
         </activity>
 
         <provider
-            android:name="org.baobab.pos.StorageProvider"
+            android:name=".AccountingProvider"
             android:authorities="org.baobab.pos" />
 
         <activity

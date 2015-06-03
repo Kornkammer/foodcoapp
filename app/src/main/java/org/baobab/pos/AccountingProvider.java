@@ -14,7 +14,7 @@ import android.util.Log;
 
 import java.util.UUID;
 
-public class StorageProvider extends ContentProvider {
+public class AccountingProvider extends ContentProvider {
 
     private static final String TAG = "POS";
 
