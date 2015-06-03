@@ -4,6 +4,6 @@
 *.iml
 build
 app/app.iml
-/local.properties
+local.properties
 /.idea/workspace.xml
 .DS_Store
