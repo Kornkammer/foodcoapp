@@ -15,7 +15,9 @@
   <string name="per">pro</string>
 
   <string name="settings">Einstellungen</string>
-  <string name="prefs_rotate_title">Bildschirm rotieren</string>
-  <string name="prefs_rotate_summary">für die Pin Eingabe</string>
+  <string name="prefs_rotate_screen_title">Bildschirm rotieren</string>
+  <string name="prefs_rotate_screen_summary">für die Pin Eingabe</string>
+  <string name="prefs_negative_stocks_title">Minus Buchungen erlauben</string>
+  <string name="prefs_negative_stocks_summary">negative Kassen-/Lagerbestaände</string>
 
 </resources>

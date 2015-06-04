@@ -184,12 +184,13 @@ public class AccountingProvider extends ContentProvider {
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT accounts._id AS _id, name, guid, max(accounts._id)," +
-                            " sum(transaction_products.quantity * transaction_products.price), parent_guid" +
+                            " sum(transaction_products.quantity * transaction_products.price) AS balance, parent_guid" +
                         " FROM (SELECT _id, name, guid, max(_id), parent_guid FROM accounts GROUP BY guid) AS accounts" +
                         " LEFT OUTER JOIN transaction_products ON transaction_products.account_guid = accounts.guid" +
                         " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE parent_guid IS ? AND transactions.status IS NOT 'draft'" +
                         " GROUP BY guid" +
+                        (selection != null? " HAVING " + selection : "") +
                         " ORDER BY name",
                         new String[] { parent_guid });
                 break;
@@ -200,7 +201,7 @@ public class AccountingProvider extends ContentProvider {
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transaction_products._id, transaction_id, account_guid," +
-                                " product_id, sum(quantity), price, unit, title, img," +
+                                " product_id, sum(quantity) AS stock, price, unit, title, img," +
                                 " accounts._id, parent_guid, guid, name, quantity > 0 as credit" +
                         " FROM transaction_products" +
                         " LEFT JOIN (" +
@@ -208,7 +209,8 @@ public class AccountingProvider extends ContentProvider {
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE account_guid IS ? AND transactions.status IS NOT 'draft'" +
-                        " GROUP BY title, price",
+                        " GROUP BY title, price" +
+                        (selection != null? " HAVING " + selection : ""),
                         new String[] { account_guid });
                 break;
             case ACCOUNT:

@@ -33,7 +33,7 @@ public class LegitimateActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
 
         if (PreferenceManager.getDefaultSharedPreferences(this)
-                .getBoolean("rotate", false)) {
+                .getBoolean("rotate_screen", false)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);

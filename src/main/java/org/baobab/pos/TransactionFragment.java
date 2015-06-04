@@ -1,12 +1,15 @@
 package org.baobab.pos;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
@@ -109,28 +112,101 @@ public class TransactionFragment extends Fragment
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sum <= 0.0) {
-                    MediaPlayer.create(getActivity(), R.raw.yay).start();
-                    MediaPlayer.create(getActivity(), R.raw.chaching).start();
-                    ContentValues cv = new ContentValues();
-                    cv.put("status", "final");
-                    cv.put("stop", System.currentTimeMillis());
-                    getActivity().getContentResolver().update(
-                            getActivity().getIntent().getData(), cv, null, null);
-                    ((PosActivity) getActivity()).resetTransaction();
-                    load();
-                    if (sum == 0.0) {
-                        Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "Wechselgeld " + sum, Toast.LENGTH_SHORT).show();
-                    }
-                } else if (sum > 0) {
+                if (sum < -0.01) {
+                    MediaPlayer.create(getActivity(), R.raw.error_3).start();
+                    Toast.makeText(getActivity(), "Wechselgeld " + sum, Toast.LENGTH_SHORT).show();
+                } else if (sum > 0.01) {
+                    MediaPlayer.create(getActivity(), R.raw.error_4).start();
                     Toast.makeText(getActivity(), "Noch " + sum + " offen!", Toast.LENGTH_LONG).show();
                 } else {
-
+                    Cursor t = getActivity().getContentResolver().query(
+                            getActivity().getIntent().getData(), null, null, null, null);
+                    String msg = "";
+                    if (t.getCount() == 0) return;
+                    for (int i = 0; i < t.getCount(); i++) {
+                        t.moveToPosition(i);
+                        System.out.println(t.getString(7));
+                        System.out.println(t.getString(4));
+                        Cursor stocks = getActivity().getContentResolver().query(
+                                Uri.parse("content://org.baobab.pos/accounts/" + t.getString(2) + "/products"),
+                                null, "title IS '" + t.getString(7) + "'", null, null);
+                        System.out.println("Check! " + t.getString(10));
+                        int factor = 1;
+                        if (t.getString(10).equals("passiva")) {
+                            factor = -1;
+                        }
+                        if (stocks.getCount() > 0) {
+                            stocks.moveToFirst();
+                            System.out.println(stocks.getString(4));
+                            System.out.println(t.getString(4));
+                            if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
+                                msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(2) + "\n";
+                            }
+                        } else if (factor * t.getInt(4) < 0) {
+                            msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(2) + "\n";
+                        }
+                    }
+                    if (msg.length() > 0) {
+                        if (PreferenceManager.getDefaultSharedPreferences(getActivity())
+                                .getBoolean("allow_negative_stocks", false)) {
+                            msg = "Wirklich ins Minus buchen?\n\n" + msg;
+                            new AlertDialog.Builder(getActivity())
+                                    .setMessage(msg)
+                                    .setPositiveButton("Ja, Genau!", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            MediaPlayer.create(getActivity(), R.raw.yay).start();
+                                            MediaPlayer.create(getActivity(), R.raw.chaching).start();
+                                            saveStatus("final");
+                                            Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
+                                            ((PosActivity) getActivity()).resetTransaction();
+                                            load();
+                                        }
+                                    }).setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                }
+                            }).show();
+                            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+                            MediaPlayer.create(getActivity(), R.raw.error_1).start();
+                            return;
+                        } else {
+                            msg = "Keine Buchung ins Minus erlaubt!\n\n" + msg;
+                            Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+                            MediaPlayer.create(getActivity(), R.raw.error_2).start();
+                        }
+                    } else {
+                        MediaPlayer.create(getActivity(), R.raw.yay).start();
+                        MediaPlayer.create(getActivity(), R.raw.chaching).start();
+                        saveStatus("final");
+                        Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
+                        ((PosActivity) getActivity()).resetTransaction();
+                        load();
+                    }
                 }
             }
         });
+    }
+
+    private void saveStatus(String status) {
+        ContentValues cv = new ContentValues();
+        cv.put("status", status);
+        cv.put("stop", System.currentTimeMillis());
+        getActivity().getContentResolver().update(
+                getActivity().getIntent().getData(), cv, null, null);
+    }
+
+    private String emptyStocks(String account) {
+        Cursor empty_stocks = getActivity().getContentResolver().query(
+                Uri.parse("content://org.baobab.pos/accounts/" + account + "/products"),
+                null, "stock < 0", null, null);
+        System.out.println("empty " + empty_stocks.getCount());
+        String msg = "";
+        for (int i = 0; i < empty_stocks.getCount(); i++) {
+            empty_stocks.moveToPosition(i);
+            msg += " - nicht genug " + empty_stocks.getString(7) + " in " + empty_stocks.getString(2) + "\n";
+        }
+        return msg;
     }
 
 

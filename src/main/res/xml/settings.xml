@@ -2,10 +2,16 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
   <PreferenceCategory android:title="Einstellungen" >
+
     <CheckBoxPreference
-      android:key="rotate"
-      android:title="@string/prefs_rotate_title"
-      android:summary="@string/prefs_rotate_summary" />
+      android:key="rotate_screen"
+      android:title="@string/prefs_rotate_screen_title"
+      android:summary="@string/prefs_rotate_screen_summary" />
+
+    <CheckBoxPreference
+      android:key="allow_negative_stocks"
+      android:title="@string/prefs_negative_stocks_title"
+      android:summary="@string/prefs_negative_stocks_summary" />
 
   </PreferenceCategory>
 </PreferenceScreen>
