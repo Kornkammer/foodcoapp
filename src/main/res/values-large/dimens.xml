@@ -18,5 +18,6 @@
 
   <dimen name="img_width">88dp</dimen>
   <dimen name="img_height">55dp</dimen>
+  <dimen name="minwidth">330dp</dimen>
 
 </resources>

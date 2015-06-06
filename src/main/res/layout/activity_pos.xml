@@ -10,7 +10,7 @@
   tools:context="org.baobab.pos.PosActivity" >
 
   <LinearLayout
-    android:minWidth="210dp"
+    android:minWidth="@dimen/minwidth"
     android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:background="@color/dark_blue"
@@ -44,7 +44,7 @@
         android:padding="@dimen/medium"
         android:layout_width="@dimen/xlarge"
         android:layout_height="match_parent"
-        android:textColor="@color/light_blue"
+        android:textColor="@color/xlight_blue"
         android:background="@drawable/background_blue"
         android:text="QR" />
       <TextView
