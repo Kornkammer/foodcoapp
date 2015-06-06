@@ -346,7 +346,7 @@ public class AccountingProvider extends ContentProvider {
                         null, null, null);
                 if (c.getCount() == 0) return -1;
                 c.moveToFirst();
-                if (c.getInt(4) < -1) {
+                if (c.getInt(4) < -1 && selection == null) {
                     ContentValues dec = new ContentValues();
                     dec.put("quantity", c.getInt(4) + 1);
                     db.getWritableDatabase().update("transaction_products", dec,

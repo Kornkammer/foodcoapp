@@ -109,10 +109,9 @@ public class TransactionView extends GridLayout {
                     cv.put("quantity", -1);
                     getContext().getContentResolver()
                             .update(((FragmentActivity) getContext())
-                            .getIntent().getData(), cv, null, null);
+                                    .getIntent().getData(), cv, null, null);
                 }
             });
-
         }
         LinearLayout images = new LinearLayout(getContext());
         if (!data.isNull(8) && showImages) {
@@ -144,6 +143,17 @@ public class TransactionView extends GridLayout {
                             ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
                                     .appendEncodedPath("products/" + product_id)
                                     .build(), null, null);
+                }
+            });
+            images.setOnLongClickListener(new OnLongClickListener() {
+
+                @Override
+                public boolean onLongClick(View v) {
+                    getContext().getContentResolver().delete(
+                            ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                    .appendEncodedPath("products/" + product_id)
+                                    .build(), "", null);
+                    return false;
                 }
             });
         }
