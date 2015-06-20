@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PosActivity extends ActionBarActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -186,16 +188,17 @@ public class PosActivity extends ActionBarActivity
                 startActivity(new Intent(this, AccountActivity.class));
                 break;
             case R.id.export:
-                Export.csv(this);
-                Intent mail = new Intent(Intent.ACTION_SEND,
-                        Uri.parse("mailto:flo@sonnenstreifen.de"));
-                mail.putExtra(Intent.EXTRA_EMAIL, new String[] {"flo@sonnenstreifen.de"});
-//                mail.putExtra(Intent.EXTRA_TEXT, "neuster Stand Biergarten");
-                mail.putExtra(Intent.EXTRA_SUBJECT, "Kiosk " +
-                        new SimpleDateFormat().format(System.currentTimeMillis()));
-                mail.setType("application/csv");
-                mail.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(Export.file()));
-                Intent chooser = Intent.createChooser(mail, "Ex(el)port");
+                String mail = PreferenceManager.getDefaultSharedPreferences(this)
+                        .getString("export_email", "");
+                Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
+                String date = new SimpleDateFormat("yyyy_MM_dd").format(new Date());
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[] {mail});
+                intent.putExtra(Intent.EXTRA_TEXT, "FoodCoApp Backup und Excel Export vom " + date);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "FoodCoApp " + date + " Export");
+                intent.setType("application/zip");
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(
+                        Export.create(this, "foodcoapp_" + date + ".zip")));
+                Intent chooser = Intent.createChooser(intent, "Ex(el)port");
                 startActivity(chooser);
                 break;
         }

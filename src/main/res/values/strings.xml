@@ -16,8 +16,10 @@
 
   <string name="settings">Einstellungen</string>
   <string name="prefs_rotate_screen_title">Bildschirm rotieren</string>
-  <string name="prefs_rotate_screen_summary">für die Pin Eingabe</string>
+  <string name="prefs_rotate_screen_summary">während der Pin Eingabe</string>
   <string name="prefs_negative_stocks_title">Minus Buchungen erlauben</string>
-  <string name="prefs_negative_stocks_summary">negative Kassen-/Lagerbestaände</string>
+  <string name="prefs_negative_stocks_summary">negative Kassen-/Lagerbestände</string>
+  <string name="prefs_email_title">Mail to</string>
+  <string name="prefs_email_summary">Default Email Adresse für Backup Ex(cel)port</string>
 
 </resources>

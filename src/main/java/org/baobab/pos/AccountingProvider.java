@@ -16,8 +16,6 @@ import java.util.UUID;
 
 public class AccountingProvider extends ContentProvider {
 
-    private static final String TAG = "POS";
-
     private class DatabaseHelper extends SQLiteOpenHelper {
 
         static final String TAG = "Provider";
@@ -205,7 +203,7 @@ public class AccountingProvider extends ContentProvider {
                                 " accounts._id, parent_guid, guid, name, quantity > 0 as credit" +
                         " FROM transaction_products" +
                         " LEFT JOIN (" +
-                                "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
+                                "SELECT _id, guid, name, max(_id), parent_guid FROM accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE account_guid IS ? AND transactions.status IS NOT 'draft'" +
@@ -244,6 +242,7 @@ public class AccountingProvider extends ContentProvider {
                                 "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " WHERE transactions.status IS NOT 'draft'" +
+                                (selection != null? " AND " + selection : "") +
                         " GROUP BY transactions._id" +
                         " ORDER BY transactions._id",
                         null);

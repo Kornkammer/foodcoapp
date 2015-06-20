@@ -18,12 +18,21 @@ public class SettingsActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
-
         addPreferencesFromResource(R.xml.settings);
+        setMail();
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        if (key.equals("export_email")) {
+            setMail();
+        }
+    }
+
+    private void setMail() {
+        findPreference("export_email").setTitle(
+                getString(R.string.prefs_email_title) + ": " +
+                        prefs.getString("export_email", ""));
     }
 
 }
