@@ -1,7 +1,11 @@
 package org.baobab.pos;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
+import android.app.DialogFragment;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -42,10 +46,30 @@ public class LegitimateActivity extends ActionBarActivity {
         win = MediaPlayer.create(this, R.raw.tada);
         fail = MediaPlayer.create(this, R.raw.trombone);
         if (getIntent().hasExtra("SCAN")) {
-            Intent intent = new Intent(
-                    "com.google.zxing.client.android.SCAN");
-            intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-            startActivityForResult(intent, 0);
+            try {
+                Intent intent = new Intent(
+                        "com.google.zxing.client.android.SCAN");
+                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
+                startActivityForResult(intent, 0);
+            } catch (ActivityNotFoundException e) {
+                new AlertDialog.Builder(this)
+                        .setMessage("Kein QR Scanner installiert")
+                        .setNegativeButton("Schade", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        })
+                        .setPositiveButton("Jetz installieren", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
+                                        "market://details?id=com.google.zxing.client.android"
+                                )));
+                                finish();
+                            }
+                        }).show();
+            }
         }
         setContentView(R.layout.activity_legitimate);
         ((EditText) findViewById(R.id.pin)).setOnEditorActionListener(
