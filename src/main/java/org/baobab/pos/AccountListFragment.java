@@ -25,6 +25,7 @@ public class AccountListFragment extends Fragment
 
     private Uri uri;
     private int invert = 1;
+    private boolean editable;
     private CursorTreeAdapter adapter;
 
     public AccountListFragment() { }
@@ -93,10 +94,16 @@ public class AccountListFragment extends Fragment
 
     }
 
-    public void setUri(String uri, boolean invert) {
+    public AccountListFragment setUri(String uri, boolean invert) {
         this.invert = invert? -1 : 1;
         this.uri = Uri.parse(uri);
         getLoaderManager().initLoader(-1, null, this);
+        return this;
+    }
+
+    public AccountListFragment setEditable(boolean editable) {
+        this.editable = editable;
+        return this;
     }
 
     @Override
@@ -129,9 +136,9 @@ public class AccountListFragment extends Fragment
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
+        if (!editable) return;
         adapter.getCursor().moveToPosition((int)
                 ((ExpandableListView.ExpandableListContextMenuInfo) menuInfo).id);
-        Log.d("ui", "guid: " + adapter.getCursor().getString(2));
         ((AccountActivity) getActivity()).editAccount(
                 Uri.parse("content://org.baobab.pos/accounts/"
                         + adapter.getCursor().getString(2)));
