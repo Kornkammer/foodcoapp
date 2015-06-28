@@ -15,12 +15,12 @@ repositories {
 apply plugin: 'android'
 
 android {
-    compileSdkVersion 20
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 22
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 19
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -33,9 +33,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:19.0.+'
-    compile 'com.android.support:support-v4:19.0.+'
+    compile 'com.android.support:support-v4:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.0'
     compile 'com.android.support:gridlayout-v7:18.0.+'
+    compile 'com.android.support:design:22.2.0'
+    compile 'uk.co.chrisjenx:calligraphy:2.1.0'
     compile 'com.google.zxing:core:2.2'
     compile 'com.google.zxing:android-integration:2.2'
     compile 'net.sf.opencsv:opencsv:2.3'
