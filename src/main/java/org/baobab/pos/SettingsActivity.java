@@ -19,6 +19,7 @@ public class SettingsActivity extends PreferenceActivity
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
         addPreferencesFromResource(R.xml.settings);
+        getFragmentManager().executePendingTransactions();
         setMail();
     }
 
