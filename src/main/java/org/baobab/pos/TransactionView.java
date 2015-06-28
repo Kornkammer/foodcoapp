@@ -105,6 +105,7 @@ public class TransactionView extends GridLayout {
             f.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if (!showImages) return;
                     ContentValues cv = new ContentValues();
                     cv.put("quantity", -1);
                     getContext().getContentResolver()
