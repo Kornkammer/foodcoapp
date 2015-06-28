@@ -1,9 +1,8 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 
 import java.io.BufferedInputStream;
@@ -33,7 +32,7 @@ public class Export {
             os = new FileOutputStream(result);
             zos = new ZipOutputStream(new BufferedOutputStream(os));
 
-            zip(new File(Environment.getDataDirectory(), "//data//org.baobab.pos//databases//pos.db"), zos);
+            zip(new File(Environment.getDataDirectory(), "//data//org.baobab.foodcoapp//databases//foodcoapp.db"), zos);
             transactions(ctx, zos);
             reports(ctx, zos);
 
@@ -48,7 +47,7 @@ public class Export {
 
     static void transactions(final Context ctx, ZipOutputStream zos) throws IOException {
         Cursor all = ctx.getContentResolver().query(
-                Uri.parse("content://org.baobab.pos/transactions"),
+                Uri.parse("content://org.baobab.foodcoapp/transactions"),
                 null, null, null, null);
         File out = file("transactions.csv");
         exportTransactions(ctx, all, out);
@@ -59,12 +58,12 @@ public class Export {
 
     static void reports(final Context ctx, ZipOutputStream zos) throws IOException {
         Cursor accounts = ctx.getContentResolver().query(
-                Uri.parse("content://org.baobab.pos/accounts/passiva/accounts"),
+                Uri.parse("content://org.baobab.foodcoapp/accounts/passiva/accounts"),
                 null, null, null, null);
         for (int i = 0; i < accounts.getCount(); i++) {
             accounts.moveToPosition(i);
             Cursor account = ctx.getContentResolver().query(
-                    Uri.parse("content://org.baobab.pos/transactions"),
+                    Uri.parse("content://org.baobab.foodcoapp/transactions"),
                     null, "accounts.guid IS '" + accounts.getString(2) + "'", null, null);
             File csv = file(accounts.getString(1) + ".csv");
             exportTransactions(ctx, account, csv);

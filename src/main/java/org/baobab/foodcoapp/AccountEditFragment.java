@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 
 import android.app.Activity;
@@ -261,7 +261,7 @@ public class AccountEditFragment extends Fragment
             values.put("qr", getArguments().getString("qr"));
         }
         getActivity().getContentResolver().insert(
-                Uri.parse("content://org.baobab.pos/accounts/passiva/accounts"),
+                Uri.parse("content://org.baobab.foodcoapp/accounts/passiva/accounts"),
                 values);
         Toast.makeText(getActivity(), "Gespeichert", Toast.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();
@@ -272,13 +272,13 @@ public class AccountEditFragment extends Fragment
         ContentValues v = new ContentValues();
         v.put("status", "archive");
         getActivity().getContentResolver().update(
-                Uri.parse("content://org.baobab.pos/accounts"), v,
+                Uri.parse("content://org.baobab.foodcoapp/accounts"), v,
                 "guid IS ?", new String[]{getArguments().getString("guid")});
     }
 
     private boolean lockAccountIfAlreadyTaken(String pin) {
         Cursor auth = getActivity().getContentResolver().query(Uri.parse(
-                        "content://org.baobab.pos/legitimate?pin=" + pin),
+                        "content://org.baobab.foodcoapp/legitimate?pin=" + pin),
                 null, null, null, null);
         if (auth.getCount() > 0) {
             auth.moveToFirst();
@@ -289,7 +289,7 @@ public class AccountEditFragment extends Fragment
             ContentValues v = new ContentValues();
             v.put("status", "locked");
             getActivity().getContentResolver().update(Uri.parse(
-                            "content://org.baobab.pos/accounts"), v,
+                            "content://org.baobab.foodcoapp/accounts"), v,
                     "_id = " + auth.getLong(0), null);
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);

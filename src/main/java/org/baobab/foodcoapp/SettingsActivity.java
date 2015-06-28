@@ -1,5 +1,5 @@
 
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;

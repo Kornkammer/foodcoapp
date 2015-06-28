@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -21,7 +21,7 @@ public class AccountingProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context) {
-            super(context, "pos.db", null, 1);
+            super(context, "foodcoapp.db", null, 1);
         }
 
         @Override
@@ -71,15 +71,15 @@ public class AccountingProvider extends ContentProvider {
                     "start INTEGER, " +
                     "stop INTEGER" +
                     ");");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Baola', 1.5, 'Stück', 'android.resource://org.baobab.pos/drawable/baola');");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.pos/drawable/coffee');");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Keks', 0.5, 'Stück', 'android.resource://org.baobab.pos/drawable/cookie');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Baola', 1.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/baola');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Reis', 1.3, 'Kilo', 'android.resource://org.baobab.pos/drawable/rice');");
+            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Reis', 1.3, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/rice');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
@@ -87,8 +87,8 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.pos/drawable/cash');");
-            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Credits', 1, 'android.resource://org.baobab.pos/drawable/coin');");
+            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.foodcoapp/drawable/cash');");
+            db.execSQL("INSERT INTO products (title, price, img) VALUES ('Credits', 1, 'android.resource://org.baobab.foodcoapp/drawable/coin');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (1, '', 'aktiva','Aktiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (2, '', 'passiva','Passiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (3, 'aktiva', 'lager','Lager');");
@@ -121,18 +121,18 @@ public class AccountingProvider extends ContentProvider {
     private static final short SUM = 10;
 
     static {
-        router.addURI("org.baobab.pos", "accounts/*", ACCOUNT);
-        router.addURI("org.baobab.pos", "accounts", ACCOUNTS);
-        router.addURI("org.baobab.pos", "accounts/*/accounts", ACCOUNTS);
-        router.addURI("org.baobab.pos", "accounts/*/products", ACCOUNT_PRODUCTS);
-        router.addURI("org.baobab.pos", "products", PRODUCTS);
-        router.addURI("org.baobab.pos", "sessions", SESSIONS);
-        router.addURI("org.baobab.pos", "products/#", PRODUCT);
-        router.addURI("org.baobab.pos", "legitimate", LEGITIMATE);
-        router.addURI("org.baobab.pos", "transactions", TRANSACTIONS);
-        router.addURI("org.baobab.pos", "transactions/#", TRANSACTION);
-        router.addURI("org.baobab.pos", "transactions/#/products/#", TRANSACTION_PRODUCT);
-        router.addURI("org.baobab.pos", "transactions/#/sum", SUM);
+        router.addURI("org.baobab.foodcoapp", "accounts/*", ACCOUNT);
+        router.addURI("org.baobab.foodcoapp", "accounts", ACCOUNTS);
+        router.addURI("org.baobab.foodcoapp", "accounts/*/accounts", ACCOUNTS);
+        router.addURI("org.baobab.foodcoapp", "accounts/*/products", ACCOUNT_PRODUCTS);
+        router.addURI("org.baobab.foodcoapp", "products", PRODUCTS);
+        router.addURI("org.baobab.foodcoapp", "sessions", SESSIONS);
+        router.addURI("org.baobab.foodcoapp", "products/#", PRODUCT);
+        router.addURI("org.baobab.foodcoapp", "legitimate", LEGITIMATE);
+        router.addURI("org.baobab.foodcoapp", "transactions", TRANSACTIONS);
+        router.addURI("org.baobab.foodcoapp", "transactions/#", TRANSACTION);
+        router.addURI("org.baobab.foodcoapp", "transactions/#/products/#", TRANSACTION_PRODUCT);
+        router.addURI("org.baobab.foodcoapp", "transactions/#/sum", SUM);
     }
 
     private DatabaseHelper db;
@@ -256,9 +256,9 @@ public class AccountingProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (router.match(uri)) {
             case PRODUCT:
-                return "org.baobab.pos/products";
+                return "org.baobab.foodcoapp/products";
             case ACCOUNT:
-                return "org.baobab.pos/accounts";
+                return "org.baobab.foodcoapp/accounts";
         }
         return null;
     }
@@ -268,7 +268,7 @@ public class AccountingProvider extends ContentProvider {
         switch (router.match(uri)) {
             case TRANSACTION_PRODUCT:
                 Cursor product = query(Uri.parse(
-                        "content://org.baobab.pos/products/" + uri.getLastPathSegment()),
+                        "content://org.baobab.foodcoapp/products/" + uri.getLastPathSegment()),
                         null, null, null, null);
                 product.moveToFirst();
                 double price = product.getFloat(2);
@@ -315,7 +315,7 @@ public class AccountingProvider extends ContentProvider {
                     b.put("account_guid", 1);
                     b.put("start", System.currentTimeMillis());
                     Uri session = insert(Uri.parse(
-                            "content://org.baobab.pos/sessions"), b);
+                            "content://org.baobab.foodcoapp/sessions"), b);
                     values.put("session_id", session.getLastPathSegment());
                 }
                 if (!values.containsKey("status")) {

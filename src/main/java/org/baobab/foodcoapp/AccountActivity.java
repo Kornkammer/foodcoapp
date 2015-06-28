@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
@@ -19,12 +19,12 @@ public class AccountActivity extends ActionBarActivity {
 
         getWindow().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.xdark_blue)));
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.active))
-                .setUri("content://org.baobab.pos/accounts/aktiva/accounts", false)
+                .setUri("content://org.baobab.foodcoapp/accounts/aktiva/accounts", false)
                 .setEditable(false);
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.passive))
-                .setUri("content://org.baobab.pos/accounts/passiva/accounts", true)
+                .setUri("content://org.baobab.foodcoapp/accounts/passiva/accounts", true)
                 .setEditable(true);
-        if (getIntent().getData() != null && getIntent().getData().toString().startsWith("content://org.baobab.pos/accounts/")) {
+        if (getIntent().getData() != null && getIntent().getData().toString().startsWith("content://org.baobab.foodcoapp/accounts/")) {
             editAccount(getIntent().getData());
         }
     }

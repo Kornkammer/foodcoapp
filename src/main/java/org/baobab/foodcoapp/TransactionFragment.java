@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -35,7 +35,7 @@ public class TransactionFragment extends Fragment
             @Override
             public void onClick(final View v) {
                 Cursor c = getActivity().getContentResolver().query(
-                        Uri.parse("content://org.baobab.pos/products/" + v.getId()),
+                        Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
                         null, null, null, null);
                 c.moveToFirst();
                 getFragmentManager().beginTransaction()
@@ -128,7 +128,7 @@ public class TransactionFragment extends Fragment
                         System.out.println(t.getString(7));
                         System.out.println(t.getString(4));
                         Cursor stocks = getActivity().getContentResolver().query(
-                                Uri.parse("content://org.baobab.pos/accounts/" + t.getString(2) + "/products"),
+                                Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
                                 null, "title IS '" + t.getString(7) + "'", null, null);
                         System.out.println("Check! " + t.getString(10));
                         int factor = 1;
@@ -198,7 +198,7 @@ public class TransactionFragment extends Fragment
 
     private String emptyStocks(String account) {
         Cursor empty_stocks = getActivity().getContentResolver().query(
-                Uri.parse("content://org.baobab.pos/accounts/" + account + "/products"),
+                Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/products"),
                 null, "stock < 0", null, null);
         System.out.println("empty " + empty_stocks.getCount());
         String msg = "";

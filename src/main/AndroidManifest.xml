@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.baobab.pos" >
+    package="org.baobab.foodcoapp" >
 
   <uses-feature
     android:name="android.hardware.camera"
@@ -17,7 +17,7 @@
     android:label="@string/app_name"
     android:theme="@style/AppTheme" >
     <activity
-      android:name="org.baobab.pos.PosActivity"
+      android:name="org.baobab.foodcoapp.PosActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/app_name"
       android:screenOrientation="landscape" >
@@ -27,22 +27,22 @@
       </intent-filter>
     </activity>
     <activity
-      android:name="org.baobab.pos.ProductEditActivity"
+      android:name="org.baobab.foodcoapp.ProductEditActivity"
       android:screenOrientation="landscape"
       android:theme="@style/AppTheme" >
       <intent-filter>
         <action android:name="android.intent.action.EDIT" />
         <category android:name="android.intent.category.DEFAULT" />
-        <data android:mimeType="org.baobab.pos/products" />
+        <data android:mimeType="org.baobab.foodcoapp/products" />
       </intent-filter>
     </activity>
     <activity
-      android:name="org.baobab.pos.LegitimateActivity"
+      android:name="org.baobab.foodcoapp.LegitimateActivity"
       android:theme="@style/AppTheme"
       android:windowSoftInputMode="stateAlwaysVisible" >
     </activity>
     <activity
-      android:name="org.baobab.pos.WinActivity"
+      android:name="org.baobab.foodcoapp.WinActivity"
       android:screenOrientation="reverseLandscape"
       android:theme="@style/FullscreenTheme" >
     </activity>
@@ -50,7 +50,7 @@
       android:label="@string/transactions"
       android:clearTaskOnLaunch="true"
       android:taskAffinity="accounts.transactions"
-      android:name="org.baobab.pos.TransactionsActivity" >
+      android:name="org.baobab.foodcoapp.TransactionsActivity" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
@@ -58,11 +58,11 @@
     </activity>
 
     <provider
-      android:name=".AccountingProvider"
-      android:authorities="org.baobab.pos" />
+      android:name="org.baobab.foodcoapp.AccountingProvider"
+      android:authorities="org.baobab.foodcoapp" />
 
     <activity
-      android:name=".AccountActivity"
+      android:name="org.baobab.foodcoapp.AccountActivity"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="landscape"
       android:taskAffinity="accounts.accounts"
@@ -75,11 +75,11 @@
       <intent-filter>
         <action android:name="android.intent.action.EDIT" />
         <category android:name="android.intent.category.DEFAULT" />
-        <data android:mimeType="org.baobab.pos/accounts" />
+        <data android:mimeType="org.baobab.foodcoapp/accounts" />
       </intent-filter>
     </activity>
     <activity
-      android:name="org.baobab.pos.SettingsActivity"
+      android:name="org.baobab.foodcoapp.SettingsActivity"
       android:theme="@style/FullscreenTheme" >
     </activity>
   </application>

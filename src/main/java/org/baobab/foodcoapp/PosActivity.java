@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
 import android.content.ContentValues;
@@ -22,7 +22,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -30,7 +29,7 @@ public class PosActivity extends ActionBarActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, View.OnLongClickListener {
 
-    private static final String TAG = "POS";
+    private static final String TAG = "FoodCoApp";
     private StretchableGrid products;
 
     @Override
@@ -79,7 +78,7 @@ public class PosActivity extends ActionBarActivity
 
     public void resetTransaction() {
         Uri uri = getContentResolver().insert(Uri.parse(
-                "content://org.baobab.pos/transactions"), null);
+                "content://org.baobab.foodcoapp/transactions"), null);
         setIntent(getIntent().setData(uri));
     }
 
@@ -106,7 +105,7 @@ public class PosActivity extends ActionBarActivity
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
-                Uri.parse("content://org.baobab.pos/products"),
+                Uri.parse("content://org.baobab.foodcoapp/products"),
                 null, null, null, null);
     }
 
@@ -144,7 +143,7 @@ public class PosActivity extends ActionBarActivity
     @Override
     public boolean onLongClick(View v) {
         startActivity(new Intent(Intent.ACTION_EDIT,
-                Uri.parse("content://org.baobab.pos/products/" +
+                Uri.parse("content://org.baobab.foodcoapp/products/" +
                         ((ProductButton) v).id)));
         return false;
     }

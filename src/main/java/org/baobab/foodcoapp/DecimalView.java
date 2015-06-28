@@ -1,9 +1,7 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayout;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;

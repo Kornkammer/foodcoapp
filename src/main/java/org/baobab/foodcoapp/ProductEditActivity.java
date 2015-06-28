@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
 import android.app.Activity;

@@ -7,6 +7,6 @@
     android:paddingRight="@dimen/medium"
     android:paddingTop="@dimen/small"
     android:paddingBottom="@dimen/small"
-    tools:context="org.baobab.pos.AccountActivity">
+    tools:context="org.baobab.foodcoapp.AccountActivity">
 
 </RelativeLayout>

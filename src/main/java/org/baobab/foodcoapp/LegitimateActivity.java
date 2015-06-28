@@ -1,8 +1,7 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -100,7 +99,7 @@ public class LegitimateActivity extends ActionBarActivity {
 
     private boolean legitimate(String pin) {
         final Cursor auth = getContentResolver().query(Uri.parse(
-                        "content://org.baobab.pos/legitimate?pin=" + pin),
+                        "content://org.baobab.foodcoapp/legitimate?pin=" + pin),
                 null, null, null, null);
         if (auth.getCount() != 1) {
             fail.start();
@@ -121,7 +120,7 @@ public class LegitimateActivity extends ActionBarActivity {
                 @Override
                 public void onClick(View v) {
                     startActivity(new Intent(Intent.ACTION_EDIT,
-                            Uri.parse("content://org.baobab.pos/accounts/" + auth.getLong(0))));
+                            Uri.parse("content://org.baobab.foodcoapp/accounts/" + auth.getLong(0))));
                 }
             });
 

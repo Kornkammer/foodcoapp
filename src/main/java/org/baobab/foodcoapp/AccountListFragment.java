@@ -1,4 +1,4 @@
-package org.baobab.pos;
+package org.baobab.foodcoapp;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -88,7 +88,6 @@ public class AccountListFragment extends Fragment
                 .setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Log.d("POS", "foo");
                     }
                 });
 
@@ -112,7 +111,7 @@ public class AccountListFragment extends Fragment
             return new CursorLoader(getActivity(), uri, null, null, null, null);
         } else {
             return new CursorLoader(getActivity(), Uri.parse(
-                    "content://org.baobab.pos/accounts/" +
+                    "content://org.baobab.foodcoapp/accounts/" +
                             args.getString("group_guid") + "/accounts"),
                     null, null, null, null);
         }
@@ -140,7 +139,7 @@ public class AccountListFragment extends Fragment
         adapter.getCursor().moveToPosition((int)
                 ((ExpandableListView.ExpandableListContextMenuInfo) menuInfo).id);
         ((AccountActivity) getActivity()).editAccount(
-                Uri.parse("content://org.baobab.pos/accounts/"
+                Uri.parse("content://org.baobab.foodcoapp/accounts/"
                         + adapter.getCursor().getString(2)));
     }
 
@@ -196,7 +195,7 @@ public class AccountListFragment extends Fragment
                 TransactionView transaction = new TransactionView(getActivity());
                 transaction.showImages(false);
                 Cursor c = getActivity().getContentResolver().query(
-                        Uri.parse("content://org.baobab.pos/accounts/" + guid + "/products"),
+                        Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
                         null, null, null, null);
                 transaction.populate(c);
                 ((LinearLayout) v).addView(transaction);
