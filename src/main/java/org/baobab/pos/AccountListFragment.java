@@ -48,7 +48,7 @@ public class AccountListFragment extends Fragment
             @Override
             protected Cursor getChildrenCursor(Cursor groupCursor) {
                 Bundle b = new Bundle();
-                b.putLong("group_id", groupCursor.getLong(0));
+                b.putString("group_guid", groupCursor.getString(2));
                 getLoaderManager().restartLoader(groupCursor.getPosition(), b, AccountListFragment.this);
                 return null;
             }
@@ -78,7 +78,7 @@ public class AccountListFragment extends Fragment
             @Override
             protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
                 ((AccountView) view).populate(cursor);
-                ((AccountView) view).expand();
+                ((AccountView) view).makeExpandable();
             }
         };
         ((ExpandableListView) view.findViewById(android.R.id.list)).setAdapter(adapter);
@@ -113,7 +113,7 @@ public class AccountListFragment extends Fragment
         } else {
             return new CursorLoader(getActivity(), Uri.parse(
                     "content://org.baobab.pos/accounts/" +
-                            args.getLong("group_id") + "/accounts"),
+                            args.getString("group_guid") + "/accounts"),
                     null, null, null, null);
         }
     }
@@ -154,7 +154,7 @@ public class AccountListFragment extends Fragment
 
     }
 
-    private class AccountView extends LinearLayout {
+    private class AccountView extends LinearLayout implements View.OnClickListener {
         private boolean expanded;
         final TextView balance;
         final TextView name;
@@ -168,25 +168,14 @@ public class AccountListFragment extends Fragment
             name = (TextView) findViewById(R.id.name);
         }
 
-        public void expand() {
+        public void makeExpandable() {
             setClickable(true);
-            setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (expanded) {
-                       removeViewAt(1);
-                    } else {
-                        TransactionView transaction = new TransactionView(getActivity());
-                        transaction.showImages(false);
-                        Cursor c = getActivity().getContentResolver().query(
-                                Uri.parse("content://org.baobab.pos/accounts/" + guid + "/products"),
-                                null, null, null, null);
-                        transaction.populate(c);
-                        ((LinearLayout) v).addView(transaction);
-                    }
-                    expanded = !expanded;
-                }
-            });
+            setOnClickListener(this);
+        }
+
+        public void expand() {
+            makeExpandable();
+            onClick(this);
         }
 
         public void populate(Cursor cursor) {
@@ -197,6 +186,22 @@ public class AccountListFragment extends Fragment
                 balance.setText(String.format("%.2f", cursor.getFloat(4)));
             }
             name.setText(cursor.getString(1));
+        }
+
+        @Override
+        public void onClick(View v) {
+            if (expanded) {
+                removeViewAt(1);
+            } else {
+                TransactionView transaction = new TransactionView(getActivity());
+                transaction.showImages(false);
+                Cursor c = getActivity().getContentResolver().query(
+                        Uri.parse("content://org.baobab.pos/accounts/" + guid + "/products"),
+                        null, null, null, null);
+                transaction.populate(c);
+                ((LinearLayout) v).addView(transaction);
+            }
+            expanded = !expanded;
         }
     }
 }
