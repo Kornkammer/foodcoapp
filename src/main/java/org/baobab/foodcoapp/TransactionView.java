@@ -248,7 +248,15 @@ public class TransactionView extends GridLayout {
 
         TextView details = new TextView(getContext());
         details.setTextColor(getResources().getColor(android.R.color.black));
-        details.setText(String.format("%.2f", price) + "/St");
+        if (data.getLong(3) <= 16 && !data.isNull(6) &&
+                data.getString(6).equals(getContext().getString(R.string.weight))) {
+            details.setText(String.format("%.2f", price) + "/Kg");
+        } else if (data.getLong(3) <= 16 && !data.isNull(6) &&
+                data.getString(6).equals(getContext().getString(R.string.volume))) {
+            details.setText(String.format("%.2f", price) + "/L");
+        } else {
+            details.setText(String.format("%.2f", price) + "/St");
+        }
         details.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xsmall));
         lp = new GridLayout.LayoutParams();
         lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
