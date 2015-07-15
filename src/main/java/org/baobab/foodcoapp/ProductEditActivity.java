@@ -14,7 +14,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -29,7 +29,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class ProductEditActivity extends ActionBarActivity
+public class ProductEditActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final int REQUEST_IMAGE_CAPTURE = 42;

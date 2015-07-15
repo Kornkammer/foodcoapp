@@ -14,7 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -24,7 +24,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class LegitimateActivity extends ActionBarActivity {
+public class LegitimateActivity extends AppCompatActivity {
 
     private MediaPlayer win;
     private MediaPlayer fail;

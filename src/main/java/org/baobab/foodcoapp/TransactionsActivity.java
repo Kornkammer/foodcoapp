@@ -2,10 +2,10 @@ package org.baobab.foodcoapp;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 
-public class TransactionsActivity extends ActionBarActivity {
+public class TransactionsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

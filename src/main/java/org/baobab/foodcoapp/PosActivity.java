@@ -12,7 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,7 +25,7 @@ import android.widget.TextView;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PosActivity extends ActionBarActivity
+public class PosActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, View.OnLongClickListener {
 
