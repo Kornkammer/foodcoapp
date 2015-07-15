@@ -93,9 +93,9 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (2, '', 'passiva','Passiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (3, 'aktiva', 'lager','Lager');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (300000, 'aktiva', 'kasse','Kasse');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (6, 'passiva', 'sepp','Sepp');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (7, 'passiva', 'susi','Susi');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (8, 'passiva', 'flo','Flo');");
+//            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (6, 'passiva', 'sepp','Sepp');");
+//            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (7, 'passiva', 'susi','Susi');");
+//            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (8, 'passiva', 'flo','Flo');");
             db.execSQL("INSERT INTO transactions (_id, status) VALUES (1, 'foo');");
             db.execSQL("INSERT INTO transaction_products (_id, account_guid) VALUES (1, 'lager');");
             Log.d(TAG, "created DB");
@@ -182,11 +182,16 @@ public class AccountingProvider extends ContentProvider {
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT accounts._id AS _id, name, guid, max(accounts._id)," +
-                            " sum(transaction_products.quantity * transaction_products.price) AS balance, parent_guid" +
-                        " FROM (SELECT _id, name, guid, max(_id), parent_guid FROM accounts GROUP BY guid) AS accounts" +
-                        " LEFT OUTER JOIN transaction_products ON transaction_products.account_guid = accounts.guid" +
-                        " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
-                        " WHERE parent_guid IS ? AND transactions.status IS NOT 'draft'" +
+                            " sum(txn.quantity * txn.price) AS balance, parent_guid" +
+                        " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
+                                " FROM accounts GROUP BY guid" +
+                                ") AS accounts" +
+                        " LEFT OUTER JOIN (" +
+                                "SELECT * FROM transaction_products" +
+                                " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
+                                " WHERE transactions.status IS NOT 'draft'" +
+                                ") AS txn ON txn.account_guid = accounts.guid" +
+                        " WHERE parent_guid IS ?" +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
                         " ORDER BY name",
