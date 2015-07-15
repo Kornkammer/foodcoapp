@@ -188,6 +188,9 @@ public class TransactionView extends GridLayout {
             } else {
                 x.setText("kg ");
             }
+        } else if (data.getLong(3) <= 16 && !data.isNull(6) &&
+                data.getString(6).equals(getContext().getString(R.string.volume))) {
+            x.setText("l ");
         } else {
             x.setText("x ");
         }

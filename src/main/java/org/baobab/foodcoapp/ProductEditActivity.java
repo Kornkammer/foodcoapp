@@ -63,6 +63,8 @@ public class ProductEditActivity extends ActionBarActivity
             public void onClick(View v) {
                 if (unit.getText().toString().equals(getString(R.string.weight))) {
                     unit.setText(R.string.piece);
+                } else if (unit.getText().toString().equals(getString(R.string.piece))) {
+                    unit.setText(R.string.volume);
                 } else {
                     unit.setText(R.string.weight);
                 }
@@ -147,6 +149,8 @@ public class ProductEditActivity extends ActionBarActivity
             }
             if (!data.isNull(3) && data.getString(3).equals(getString(R.string.weight))) {
                 unit.setText(R.string.weight);
+            } else if (!data.isNull(3) && data.getString(3).equals(getString(R.string.volume))) {
+                    unit.setText(R.string.volume);
             } else {
                 unit.setText(R.string.piece);
             }
