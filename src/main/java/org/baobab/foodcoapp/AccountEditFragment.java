@@ -220,9 +220,6 @@ public class AccountEditFragment extends Fragment
             return;
         }
         String hash = Crypt.hash(pin, getActivity());
-        Log.d("ui", "pin: " + pin);
-        Log.d("ui", "hash: " + hash);
-        Log.d("ui", "field: " + getArguments().getString("pin"));
         if (getArguments().containsKey("pin") &&
                 getArguments().getString("pin") != null &&
                 getArguments().getString("pin").equals(pin)) {
