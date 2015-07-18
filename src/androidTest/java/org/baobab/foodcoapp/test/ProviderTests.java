@@ -40,6 +40,16 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("one account", 1, accounts.getCount());
     }
 
+    public void testFindAccountByName() {
+        createDummyAccount();
+        Cursor accounts = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, "name IS 'foo'", null, null);
+        assertEquals("no account", 0, accounts.getCount());
+        accounts = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, "name IS 'Dummy'", null, null);
+        assertEquals("one account", 1, accounts.getCount());
+    }
+
     private Uri createDummyAccount() {
         ContentValues values = new ContentValues();
         values.put("name", "Dummy");

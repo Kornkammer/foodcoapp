@@ -58,7 +58,7 @@ public class AccountingProvider extends ContentProvider {
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "parent_guid, " +
                     "guid TEXT, " +
-                    "name TEXT, " +
+                    "name TEXT UNIQUE, " +
                     "skr INTEGER," +
                     "status TEXT, " +
                     "contact TEXT, " +
@@ -176,7 +176,7 @@ public class AccountingProvider extends ContentProvider {
                         new String[] { uri.getPathSegments().get(1) });
                 break;
             case ACCOUNTS:
-                String parent_guid = "0";
+                String parent_guid = "NULL";
                 if (uri.getPathSegments().size() > 1) {
                     parent_guid = uri.getPathSegments().get(1);
                 }

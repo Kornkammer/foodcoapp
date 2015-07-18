@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.ContactsContract;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -24,7 +25,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class AccountEditFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -207,15 +207,28 @@ public class AccountEditFragment extends Fragment
 
     public void store() {
         ContentValues values = new ContentValues();
+        String name = ((EditText) getView().findViewById(R.id.name)).getText().toString();
+        if (!name.equals("")) {
+            values.put("name", name);
+        } else {
+            values.put("name", values.getAsString("guid"));
+        }
+        Cursor accounts = getActivity().getContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null,
+                "name IS '"+name+"'", null, null);
+        if (accounts.getCount() > 0) {
+            Snackbar.make(getView(), "Name bereits vergeben!", Snackbar.LENGTH_LONG).show();
+            return;
+        }
         String pin = ((EditText) getView().findViewById(R.id.pin)).getText().toString();
         String pin2 = ((EditText) getView().findViewById(R.id.pin2)).getText().toString();
         if (pin.equals("") || pin2.equals("")) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);
-            Toast.makeText(getActivity(), "Pin brauchts!", Toast.LENGTH_LONG).show();
+            Snackbar.make(getView(), "Pin brauchts!", Snackbar.LENGTH_LONG).show();
             return;
         } else if (!pin.equals(pin2)) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(250);
-            Toast.makeText(getActivity(), "pins nicht gleich", Toast.LENGTH_LONG).show();
+            Snackbar.make(getView(), "pins nicht gleich", Snackbar.LENGTH_LONG).show();
             return;
         }
         String hash = Crypt.hash(pin, getActivity());
@@ -225,7 +238,7 @@ public class AccountEditFragment extends Fragment
             values.put("pin", pin); // keep
         }  else {
             if (lockAccountIfAlreadyTaken(hash)) {
-                Toast.makeText(getActivity(), "PIN gibts schon!!!", Toast.LENGTH_LONG).show();
+                Snackbar.make(getView(), "PIN gibts schon!!!", Snackbar.LENGTH_LONG).show();
                 return;
             }
             values.put("pin", hash);
@@ -241,17 +254,11 @@ public class AccountEditFragment extends Fragment
         if (getArguments().containsKey("contact")) {
             values.put("contact", getArguments().getString("contact"));
         }
-        String name = ((EditText) getView().findViewById(R.id.name)).getText().toString();
-        if (!name.equals("")) {
-            values.put("name", name);
-        } else {
-            values.put("name", values.getAsString("guid"));
-        }
         values.put("status", "foo");
         if (getArguments().containsKey("qr") &&
                 getArguments().getString("qr") != null) {
             if (lockAccountIfAlreadyTaken(getArguments().getString("qr"))) {
-                Toast.makeText(getActivity(), "QR code gibts schon!!!", Toast.LENGTH_LONG).show();
+                Snackbar.make(getView(), "QR code gibts schon!!!", Snackbar.LENGTH_LONG).show();
                 return;
             }
             values.put("qr", getArguments().getString("qr"));
@@ -259,7 +266,7 @@ public class AccountEditFragment extends Fragment
         getActivity().getContentResolver().insert(
                 Uri.parse("content://org.baobab.foodcoapp/accounts/passiva/accounts"),
                 values);
-        Toast.makeText(getActivity(), "Gespeichert", Toast.LENGTH_SHORT).show();
+        Snackbar.make(getView(), "Gespeichert", Snackbar.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();
         return;
     }
