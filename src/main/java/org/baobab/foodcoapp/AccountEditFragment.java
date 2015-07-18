@@ -208,27 +208,33 @@ public class AccountEditFragment extends Fragment
     public void store() {
         ContentValues values = new ContentValues();
         String name = ((EditText) getView().findViewById(R.id.name)).getText().toString();
+        Cursor accounts = getActivity().getContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null,
+                "name IS '"+name+"'", null, null);
+        if (accounts.getCount() > 0) {
+            accounts.moveToFirst();
+            if (!accounts.getString(2).equals(getArguments().getString("guid"))) {
+                Snackbar.make(getView().findViewById(R.id.name),
+                        "Name vergeben!", Snackbar.LENGTH_LONG).show();
+                return;
+            }
+        }
         if (!name.equals("")) {
             values.put("name", name);
         } else {
             values.put("name", values.getAsString("guid"));
         }
-        Cursor accounts = getActivity().getContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null,
-                "name IS '"+name+"'", null, null);
-        if (accounts.getCount() > 0) {
-            Snackbar.make(getView(), "Name bereits vergeben!", Snackbar.LENGTH_LONG).show();
-            return;
-        }
         String pin = ((EditText) getView().findViewById(R.id.pin)).getText().toString();
         String pin2 = ((EditText) getView().findViewById(R.id.pin2)).getText().toString();
         if (pin.equals("") || pin2.equals("")) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);
-            Snackbar.make(getView(), "Pin brauchts!", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView().findViewById(R.id.pin),
+                    "Pin brauchts!", Snackbar.LENGTH_LONG).show();
             return;
         } else if (!pin.equals(pin2)) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(250);
-            Snackbar.make(getView(), "pins nicht gleich", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getView().findViewById(R.id.pin2),
+                    "pins nicht gleich", Snackbar.LENGTH_LONG).show();
             return;
         }
         String hash = Crypt.hash(pin, getActivity());

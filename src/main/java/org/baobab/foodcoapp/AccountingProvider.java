@@ -58,7 +58,7 @@ public class AccountingProvider extends ContentProvider {
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "parent_guid, " +
                     "guid TEXT, " +
-                    "name TEXT UNIQUE, " +
+                    "name TEXT, " +
                     "skr INTEGER," +
                     "status TEXT, " +
                     "contact TEXT, " +

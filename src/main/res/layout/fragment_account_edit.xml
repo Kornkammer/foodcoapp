@@ -30,9 +30,9 @@
       android:textColor="#fff"
       android:layout_width="0dp"
       android:layout_weight="618"
+      android:inputType="textNoSuggestions|textCapWords"
       android:layout_height="wrap_content"
       android:imeOptions="flagNoExtractUi"
-      android:inputType="textNoSuggestions"
       android:hint="name" />
   </LinearLayout>
 

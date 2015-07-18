@@ -21,6 +21,7 @@
     android:textSize="42sp"
     android:textStyle="bold"
     android:textColor="#fff"
+    android:inputType="textPersonName"
     android:layout_marginRight="16dp"
     android:layout_toRightOf="@id/contact"
     android:layout_width="fill_parent"

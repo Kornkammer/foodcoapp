@@ -1,8 +1,10 @@
 package org.baobab.foodcoapp;
 
+import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -26,6 +28,15 @@ public class AccountActivity extends AppCompatActivity {
                 .setEditable(true);
         if (getIntent().getData() != null && getIntent().getData().toString().startsWith("content://org.baobab.foodcoapp/accounts/")) {
             editAccount(getIntent().getData());
+            getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+                    if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                        startActivity(new Intent(AccountActivity.this, PosActivity.class)
+                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                    }
+                }
+            });
         }
     }
 
@@ -34,6 +45,7 @@ public class AccountActivity extends AppCompatActivity {
                 .replace(R.id.container, AccountEditFragment.newInstance(uri))
                 .addToBackStack("add")
                 .commit();
+
     }
 
 

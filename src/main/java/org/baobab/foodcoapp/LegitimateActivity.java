@@ -87,6 +87,12 @@ public class LegitimateActivity extends AppCompatActivity {
                         return false;
                     }
                 });
+        findViewById(R.id.forgot_pin).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LegitimateActivity.this, ResetPinActivity.class));
+            }
+        });
     }
 
     @Override

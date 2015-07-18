@@ -20,6 +20,7 @@
       android:name="org.baobab.foodcoapp.PosActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/shopping"
+      android:launchMode="singleTask"
       android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -42,8 +43,12 @@
       android:windowSoftInputMode="stateAlwaysVisible" >
     </activity>
     <activity
+      android:name="org.baobab.foodcoapp.ResetPinActivity"
+      android:theme="@style/AppTheme"
+      android:windowSoftInputMode="stateAlwaysVisible" >
+    </activity>
+    <activity
       android:name="org.baobab.foodcoapp.WinActivity"
-      android:screenOrientation="reverseLandscape"
       android:theme="@style/FullscreenTheme" >
     </activity>
     <activity
