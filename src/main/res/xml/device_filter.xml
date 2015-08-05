@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!--Dymo M5-->
+    <usb-device vendor-id="2338" product-id="32773" />
+</resources>

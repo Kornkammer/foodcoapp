@@ -27,10 +27,11 @@ import java.util.Date;
 
 public class PosActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener, View.OnLongClickListener {
+        View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener {
 
     private static final String TAG = "FoodCoApp";
     private StretchableGrid products;
+    private Scale scale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,7 @@ public class PosActivity extends AppCompatActivity
         }
         getSupportLoaderManager().initLoader(0, null, this);
         products = (StretchableGrid) findViewById(R.id.products);
+
         findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,6 +76,7 @@ public class PosActivity extends AppCompatActivity
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
             }
         });
+        scale = new Scale(this);
     }
 
     public void resetTransaction() {
@@ -83,11 +86,13 @@ public class PosActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         fullscreen();
         ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        scale.registerForDetach();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -146,6 +151,11 @@ public class PosActivity extends AppCompatActivity
                 Uri.parse("content://org.baobab.foodcoapp/products/" +
                         ((ProductButton) v).id)));
         return false;
+    }
+
+    @Override
+    public void onWeight(String weight) {
+        getSupportActionBar().setTitle(weight);
     }
 
     class ProductButton extends FrameLayout {
