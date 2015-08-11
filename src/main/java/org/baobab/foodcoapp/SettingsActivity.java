@@ -16,9 +16,14 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.settings);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
-        addPreferencesFromResource(R.xml.settings);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         setMail();
     }
 
