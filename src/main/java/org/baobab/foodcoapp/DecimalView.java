@@ -31,7 +31,7 @@ public class DecimalView extends LinearLayout {
         point = new TextView(getContext());
         point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xlarge));
         point.setTextColor(getResources().getColor(R.color.xlight_blue));
-        point.setPadding(-small, -large, -small, -large);
+        point.setPadding(-5, -large, -5, -large);
         point.setVisibility(GONE);
         point.setText(".");
         addView(point);
@@ -39,7 +39,7 @@ public class DecimalView extends LinearLayout {
         decimals = new TextView(getContext());
         decimals.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
         decimals.setTextColor(getResources().getColor(R.color.xlight_blue));
-        decimals.setPadding(0, -large, 3, -small);
+        decimals.setPadding(0, -small, 3, -small);
         addView(decimals);
 
         setFocusable(true);

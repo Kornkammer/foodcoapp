@@ -22,15 +22,19 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PosActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener, View.OnLongClickListener {
+        View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener {
 
     private static final String TAG = "FoodCoApp";
     private StretchableGrid products;
+    private TextView scaleView;
+    private Scale scale;
+    private int weight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,7 @@ public class PosActivity extends AppCompatActivity
         }
         getSupportLoaderManager().initLoader(0, null, this);
         products = (StretchableGrid) findViewById(R.id.products);
+
         findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,6 +79,7 @@ public class PosActivity extends AppCompatActivity
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
             }
         });
+        scale = new Scale(this);
     }
 
     public void resetTransaction() {
@@ -83,11 +89,13 @@ public class PosActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
         fullscreen();
         ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        scale.registerForUsb();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -132,6 +140,7 @@ public class PosActivity extends AppCompatActivity
         }
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
+        cv.put("quantity", ((float) weight) / 1000);
 
         getContentResolver().insert(
                 getIntent().getData().buildUpon()
@@ -146,6 +155,24 @@ public class PosActivity extends AppCompatActivity
                 Uri.parse("content://org.baobab.foodcoapp/products/" +
                         ((ProductButton) v).id)));
         return false;
+    }
+
+    static final DecimalFormat df = new DecimalFormat("0.000");
+
+    @Override
+    public void onWeight(int gramms) {
+        if (gramms == -1) {
+            scaleView.setText("");
+            weight = 0;
+            return;
+        }
+        weight = gramms;
+        if (scaleView == null) return;
+        if (gramms < 1000) {
+            scaleView.setText("Waage: " + gramms + "g");
+        } else {
+            scaleView.setText("Waage: " + df.format(((float) gramms) / 1000) + "kg");
+        }
     }
 
     class ProductButton extends FrameLayout {
@@ -174,6 +201,7 @@ public class PosActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.pos, menu);
+        scaleView = (TextView) menu.findItem(R.id.scale).getActionView().findViewById(R.id.weight);
         return super.onCreateOptionsMenu(menu);
     }
 

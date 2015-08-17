@@ -165,7 +165,7 @@ public class AccountingProvider extends ContentProvider {
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid " +
                         " WHERE transaction_id = ?" +
                         " GROUP BY accounts.guid, product_id" +
-                        " ORDER BY accounts._id, transaction_products._id",
+                        " ORDER BY accounts._id, transaction_products.product_id",
                         new String[] { uri.getLastPathSegment() });
                 break;
             case SUM:
@@ -279,25 +279,45 @@ public class AccountingProvider extends ContentProvider {
                 double price = product.getFloat(2);
                 double quantity = values.containsKey("quantity")?
                         values.getAsFloat("quantity") : 1.0;
-                db.getWritableDatabase().execSQL(
-                        "INSERT OR REPLACE INTO transaction_products" +
-                                " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
-                                " VALUES (?, ?, ?, ?, ?, ?, ?, " +
-                                "COALESCE(" +
-                                "(SELECT quantity FROM transaction_products" +
-                                " WHERE transaction_id = ? AND product_id = ?)," +
-                                "0) - ?);", new String[] {
-                                uri.getPathSegments().get(1),
-                                values.getAsString("account_guid"),
-                                product.getString(0),
-                                product.getString(1),
-                                String.valueOf(price),
-                                product.getString(3),
-                                product.getString(4),
-                                uri.getPathSegments().get(1),
-                                uri.getLastPathSegment(),
-                                String.valueOf(quantity) }
-                );
+                if (quantity != 0 && (product.getString(3) != null &&
+                        product.getString(3).equals(getContext().getString(R.string.weight)))) {
+                    db.getWritableDatabase().execSQL(
+                            "INSERT OR REPLACE INTO transaction_products" +
+                                    " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
+                                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?);", new String[] {
+                                    uri.getPathSegments().get(1),
+                                    values.getAsString("account_guid"),
+                                    product.getString(0),
+                                    product.getString(1),
+                                    String.valueOf(price),
+                                    product.getString(3),
+                                    product.getString(4),
+                                    String.valueOf(- quantity) }
+                    );
+                } else {
+                    if (product.getString(3) != null) { // not cash
+                        quantity = 1.0;
+                    }
+                    db.getWritableDatabase().execSQL(
+                            "INSERT OR REPLACE INTO transaction_products" +
+                                    " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
+                                    " VALUES (?, ?, ?, ?, ?, ?, ?, " +
+                                    "COALESCE(" +
+                                    "(SELECT quantity FROM transaction_products" +
+                                    " WHERE transaction_id = ? AND product_id = ?)," +
+                                    "0) - ?);", new String[] {
+                                    uri.getPathSegments().get(1),
+                                    values.getAsString("account_guid"),
+                                    product.getString(0),
+                                    product.getString(1),
+                                    String.valueOf(price),
+                                    product.getString(3),
+                                    product.getString(4),
+                                    uri.getPathSegments().get(1),
+                                    uri.getLastPathSegment(),
+                                    String.valueOf(quantity) }
+                    );
+                }
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
             case ACCOUNTS:
