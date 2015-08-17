@@ -22,6 +22,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -31,7 +32,9 @@ public class PosActivity extends AppCompatActivity
 
     private static final String TAG = "FoodCoApp";
     private StretchableGrid products;
+    private TextView scaleView;
     private Scale scale;
+    private int weight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +95,7 @@ public class PosActivity extends AppCompatActivity
         ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        scale.registerForDetach();
+        scale.registerForUsb();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -137,6 +140,7 @@ public class PosActivity extends AppCompatActivity
         }
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
+        cv.put("quantity", ((float) weight) / 1000);
 
         getContentResolver().insert(
                 getIntent().getData().buildUpon()
@@ -153,9 +157,22 @@ public class PosActivity extends AppCompatActivity
         return false;
     }
 
+    static final DecimalFormat df = new DecimalFormat("0.000");
+
     @Override
-    public void onWeight(String weight) {
-        getSupportActionBar().setTitle(weight);
+    public void onWeight(int gramms) {
+        if (gramms == -1) {
+            scaleView.setText("");
+            weight = 0;
+            return;
+        }
+        weight = gramms;
+        if (scaleView == null) return;
+        if (gramms < 1000) {
+            scaleView.setText("Waage: " + gramms + "g");
+        } else {
+            scaleView.setText("Waage: " + df.format(((float) gramms) / 1000) + "kg");
+        }
     }
 
     class ProductButton extends FrameLayout {
@@ -184,6 +201,7 @@ public class PosActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.pos, menu);
+        scaleView = (TextView) menu.findItem(R.id.scale).getActionView().findViewById(R.id.weight);
         return super.onCreateOptionsMenu(menu);
     }
 

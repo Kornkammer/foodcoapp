@@ -4,21 +4,32 @@
   xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <item android:id="@+id/settings"
-        android:title="@string/settings"
-        android:icon="@drawable/ic_menu_preferences"
-        android:showAsAction="always"
-        app:showAsAction="always" />
+  <item
+    android:id="@+id/scale"
+    app:showAsAction="always"
+    android:showAsAction="always"
+    android:title="@string/weight"
+    app:actionLayout="@layout/scale"
+    android:actionLayout="@layout/scale" />
 
-  <item android:id="@+id/accounts"
-        android:title="@string/accounts"
-        android:icon="@drawable/ic_menu_cc_am"
-        android:showAsAction="always"
-        app:showAsAction="always" />
+  <item
+    android:id="@+id/accounts"
+    android:title="@string/accounts"
+    android:icon="@drawable/ic_menu_cc_am"
+    android:showAsAction="always"
+    app:showAsAction="always" />
 
-  <item android:id="@+id/export"
-        android:title="@string/export"
-        android:icon="@android:drawable/ic_menu_share"
-        android:showAsAction="always"
-        app:showAsAction="always" />
+  <item
+    android:id="@+id/settings"
+    android:title="@string/settings"
+    android:icon="@drawable/ic_menu_preferences"
+    android:showAsAction="always"
+    app:showAsAction="always" />
+
+  <item
+    android:id="@+id/export"
+    android:title="@string/export"
+    android:icon="@android:drawable/ic_menu_share"
+    android:showAsAction="always"
+    app:showAsAction="always" />
 </menu>

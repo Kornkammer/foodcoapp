@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
 public class Scale implements Runnable {
@@ -27,6 +28,7 @@ public class Scale implements Runnable {
     public static final String USB_PERMISSION = "org.baobab.foodcoapp.USB_PERMISSION";
 
     private final UsbManager mUsbManager;
+    private final Handeler mHandler;
     private PendingIntent mPermissionIntent;
     private final AppCompatActivity activity;
     private boolean mRunning;
@@ -36,7 +38,7 @@ public class Scale implements Runnable {
     private int mWeightLimit;
 
     public interface ScaleListener {
-        public void onWeight(String weight);
+        public void onWeight(int gramms);
     }
 
     public Scale(AppCompatActivity activity) {
@@ -50,9 +52,10 @@ public class Scale implements Runnable {
         } else {
             searchForDevice();
         }
+        mHandler = new Handeler((ScaleListener) activity);
     }
 
-    public void registerForDetach() {
+    public void registerForUsb() {
         IntentFilter filter = new IntentFilter("org.baobab.foodcoapp.USB_PERMISSION");
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
@@ -68,6 +71,7 @@ public class Scale implements Runnable {
             if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 Toast.makeText(activity, "DETACHED", Toast.LENGTH_LONG).show();
                 Log.i(TAG, "Device Detached");
+                ((ScaleListener) activity).onWeight(-1);
                 if (mDevice != null && mDevice.equals(device)) {
                     setDevice(null);
                 }
@@ -146,8 +150,8 @@ public class Scale implements Runnable {
         UsbDeviceConnection connection = mUsbManager.openDevice(device);
         if (connection != null && connection.claimInterface(intf, true)) {
             mConnection = connection;
-            updateAttributesData(mConnection);
-            updateLimitData(mConnection);
+//            updateAttributesData(mConnection);
+//            updateLimitData(mConnection);
 
             mRunning = true;
             Thread thread = new Thread(null, this, "ScaleMonitor");
@@ -160,76 +164,69 @@ public class Scale implements Runnable {
 
     @Override
     public void run() {
-//        byte[] buffer = new byte[6];
+        byte[] buffer = new byte[6];
         while (mRunning) {
             int requestType = 0xA1; // 1010 0001b
             int request = 0x01; //HID GET_REPORT
             int value = 0x0103; //Input report, ID = 3
             int index = 0; //Interface 0
             int length = 6;
-            byte[] buffer = new byte[6];
-            mConnection.controlTransfer(requestType, request, value, index, buffer, length, 2000);
+            mConnection.bulkTransfer(mEndpointIntr, buffer, length, 2000);
+//            mConnection.controlTransfer(requestType, request, value, index, buffer, length, 2000);
             mHandler.sendMessage(Message.obtain(mHandler, MSG_DATA, buffer));
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 Log.w(TAG, "Read Interrupted");
             }
         }
     }
-    int counter = 0;
+
     private static final int MSG_DATA = 101;
-    private Handler mHandler = new Handler() {
+    private static class Handeler extends Handler {
+        private final WeakReference<ScaleListener> callback;
+
+        public Handeler(ScaleListener callback) {
+            this.callback = new WeakReference<ScaleListener>(callback);
+        }
+
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_DATA:
                     byte[] data = (byte[]) msg.obj;
-                    Log.d(TAG, "Raw: " + bytesToHex(data));
                     byte reportId = data[0];
                     byte status = data[1];
                     int units = (data[2] & 0xFF);
                     byte scaling = data[3];
 
-                    //Two byte value representing the weight itself
                     int weight = (data[5] & 0xFF) << 8;
                     weight += (data[4] & 0xFF);
-                    ((ScaleListener) activity).onWeight(++counter + "status=" + status + " unit=" + units +" WEIGHT: " + weight);
-                    Log.d(TAG, counter + "status=" + status + " unit=" + units +" WEIGHT: " + weight);
+                    Log.d(TAG, "status=" + status + " unit=" + units +" WEIGHT: " + weight);
+//                    callback.get().onWeight("status=" + status + " unit=" + units + " WEIGHT: " + weight);
 
-
-                    //Validate result
-//                    if (mWeightLimit > 0 && weight > mWeightLimit) {
-//                        Toast.makeText(activity, "TOO Much!!! " + weight, Toast.LENGTH_LONG).show();
-//                        return;
-//                    }
-
-//                    switch (units) {
-//                        case UNITS_GRAM:
-//                            updateWeightGrams(weight);
-//                            break;
-//                        case UNITS_OUNCE:
-//                            updateWeightPounds(weight);
-//                            break;
-//                        default:
-//                            mWeight.setText("---");
-//                            break;
-//                    }
+                    switch (units) {
+                        case UNITS_GRAM:
+                            callback.get().onWeight(weight);
+                            break;
+                        case UNITS_OUNCE:
+                            callback.get().onWeight(Math.round(weight * GRAMMS_PER_OUNZE / 10));
+                            break;
+                    }
                     break;
                 default:
                     break;
             }
         }
-    };
 
-    private String bytesToHex(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for(byte b : bytes) {
-            Log.d("Foo", "byte: " + b);
-            sb.append(String.format("%02X ", b));
+        private String bytesToHex(byte[] bytes) {
+            StringBuilder sb = new StringBuilder();
+            for(byte b : bytes) {
+                sb.append(String.format("%02X ", b));
+            }
+            return sb.toString();
         }
-        return sb.toString();
-    }
+    };
 
     private void updateAttributesData(UsbDeviceConnection connection) {
         int requestType = 0xA1; // 1010 0001b
@@ -321,6 +318,8 @@ public class Scale implements Runnable {
     private static final int UNITS_TROYOUNCE = 0x0A;
     private static final int UNITS_OUNCE = 0x0B;
     private static final int UNITS_POUND = 0x0C;
+
+    private static final float GRAMMS_PER_OUNZE = 28.3495231f;
 
     private static final int STATUS_FAULT = 0x01;
     private static final int STATUS_STABLEZERO = 0x02;
