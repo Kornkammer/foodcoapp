@@ -84,10 +84,8 @@
 
   </LinearLayout>
 
-  <org.baobab.foodcoapp.StretchableGrid
-    android:id="@+id/products"
-    app:rowCount="4"
-    app:columnCount="4"
+  <android.support.v4.view.ViewPager
+    android:id="@+id/pager"
     android:layout_weight="1"
     android:layout_width="0dp"
     android:layout_height="match_parent"

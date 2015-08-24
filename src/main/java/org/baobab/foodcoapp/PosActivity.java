@@ -1,6 +1,7 @@
 package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -12,11 +13,14 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -31,7 +35,7 @@ public class PosActivity extends AppCompatActivity
         View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener {
 
     private static final String TAG = "FoodCoApp";
-    private StretchableGrid products;
+    private ViewPager pager;
     private TextView scaleView;
     private Scale scale;
     private int weight;
@@ -44,7 +48,7 @@ public class PosActivity extends AppCompatActivity
             resetTransaction();
         }
         getSupportLoaderManager().initLoader(0, null, this);
-        products = (StretchableGrid) findViewById(R.id.products);
+        pager = (ViewPager) findViewById(R.id.pager);
 
         findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,27 +122,55 @@ public class PosActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         Log.d("Foo", "cursor " + data.getCount());
         data.moveToLast();
         Log.d("Foo", " largest " + data.getInt(5));
-        int pages = (data.getCount() / 16) + 1;
+        final int pages = (data.getInt(5) / 16) + 1;
         data.moveToFirst();
-        for (int i = 1; i <= pages * 16; i++) {
-            if (data.getInt(5) == i) {
-                products.addView(new ProductButton(
-                        PosActivity.this,
-                        data.getLong(0),
-                        data.getString(1),
-                        data.getString(4), i), i);
-                if (!data.isLast()) {
-                    data.moveToNext();
-                }
-            } else {
-                products.addView(new ProductButton(
-                        PosActivity.this, 0, "", "", i), i);
+        pager.setOffscreenPageLimit(42);
+        pager.setAdapter(new PagerAdapter() {
+            @Override
+            public int getCount() {
+                return pages;
             }
-        }
+
+            @Override
+            public Object instantiateItem(ViewGroup container, int position) {
+                StretchableGrid page = new StretchableGrid(PosActivity.this, 4, 4);
+                for (int i = 1; i <= 16; i++) {
+                    int button = (int) position * 16 + i;
+                    if (data.getInt(5) == button) {
+                        page.addView(new ProductButton(
+                                PosActivity.this,
+                                data.getLong(0),
+                                data.getString(1),
+                                data.getString(4), button), i);
+                        if (!data.isLast()) {
+                            data.moveToNext();
+                        }
+                    } else {
+                        page.addView(new ProductButton(
+                                PosActivity.this, 0, "", "", button), i);
+                    }
+                }
+                ((ViewPager) container).addView(page);
+                return page;
+
+            }
+
+            @Override
+            public void destroyItem(View collection, int position, Object o) {
+                View view = (View)o;
+                ((ViewPager) collection).removeView(view);
+                view = null;
+            }
+
+            @Override
+            public boolean isViewFromObject(View view, Object object) {
+                return view == object;
+            }
+        });
     }
 
     @Override
@@ -166,7 +198,7 @@ public class PosActivity extends AppCompatActivity
         startActivity(new Intent(Intent.ACTION_EDIT,
                 Uri.parse("content://org.baobab.foodcoapp/products/" +
                         ((ProductButton) v).id))
-                .putExtra("button", ((ProductButton) v).position));
+                .putExtra("button", ((ProductButton) v).button));
         return false;
     }
 
@@ -191,13 +223,13 @@ public class PosActivity extends AppCompatActivity
     class ProductButton extends FrameLayout {
 
         boolean empty;
-        int position;
+        int button;
         long id;
 
-        public ProductButton(Context context, long id, String title, String img, int pos) {
+        public ProductButton(Context context, long id, String title, String img, int button) {
             super(context);
             this.id = id;
-            this.position = pos;
+            this.button = button;
             View.inflate(getContext(), R.layout.view_product_button, this);
             ((TextView) findViewById(R.id.title)).setText(title);
             if (img != null) {

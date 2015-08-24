@@ -276,8 +276,8 @@ public class AccountingProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         switch (router.match(uri)) {
             case PRODUCTS:
-                db.getWritableDatabase().insert("products", null, values);
-                uri = ContentUris.withAppendedId(uri, values.getAsInteger("button"));
+                uri = ContentUris.withAppendedId(uri,
+                        db.getWritableDatabase().insert("products", null, values));
                 break;
             case TRANSACTION_PRODUCT:
                 Cursor product = query(Uri.parse(

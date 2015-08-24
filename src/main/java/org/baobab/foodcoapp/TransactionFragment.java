@@ -125,8 +125,6 @@ public class TransactionFragment extends Fragment
                     if (t.getCount() == 0) return;
                     for (int i = 0; i < t.getCount(); i++) {
                         t.moveToPosition(i);
-                        System.out.println(t.getString(7));
-                        System.out.println(t.getString(4));
                         Cursor stocks = getActivity().getContentResolver().query(
                                 Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
                                 null, "title IS '" + t.getString(7) + "'", null, null);
@@ -176,8 +174,14 @@ public class TransactionFragment extends Fragment
                             MediaPlayer.create(getActivity(), R.raw.error_2).start();
                         }
                     } else {
-                        MediaPlayer.create(getActivity(), R.raw.yay).start();
                         MediaPlayer.create(getActivity(), R.raw.chaching).start();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                MediaPlayer.create(getActivity(), R.raw.yay).start();
+                            }
+                        }, 700);
+
                         saveStatus("final");
                         Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
                         ((PosActivity) getActivity()).resetTransaction();

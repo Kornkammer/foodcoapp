@@ -11,11 +11,22 @@ public class StretchableGrid extends LinearLayout {
     private int columnCount;
     private int rowCount;
 
+    public StretchableGrid(Context context, int rows, int cols) {
+        super(context);
+        rowCount = rows;
+        columnCount = cols;
+        init();
+    }
+
     public StretchableGrid(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setOrientation(VERTICAL);
         rowCount = attrs.getAttributeIntValue(namespace, "rowCount", 2);
         columnCount = attrs.getAttributeIntValue(namespace, "columnCount", 2);
+        init();
+    }
+
+    private void init() {
+        setOrientation(VERTICAL);
         for(int i = 0; i < rowCount; i++) {
             LinearLayout row = new LinearLayout(getContext());
             row.setOrientation(LinearLayout.HORIZONTAL);
