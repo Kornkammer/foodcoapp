@@ -162,7 +162,7 @@ public class TransactionView extends GridLayout {
         addView(images, lp);
 
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
-        if (data.getLong(3) <= 16) {
+        if (data.getLong(3) > 5) {
             if (Math.abs(quantity) < 1.0) {
                 amount.setNumber(quantity * 1000);
             } else {
@@ -178,7 +178,7 @@ public class TransactionView extends GridLayout {
 
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
-        if (data.getLong(3) <= 16 && !data.isNull(6) &&
+        if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
 //            if (data.getPosition() == data.getCount() && Math.abs(quantity) == 1) {
 //                onAmountClick.onClick(amount);
@@ -188,7 +188,7 @@ public class TransactionView extends GridLayout {
             } else {
                 x.setText("kg ");
             }
-        } else if (data.getLong(3) <= 16 && !data.isNull(6) &&
+        } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
             x.setText("l ");
         } else {
@@ -248,10 +248,10 @@ public class TransactionView extends GridLayout {
 
         TextView details = new TextView(getContext());
         details.setTextColor(getResources().getColor(android.R.color.black));
-        if (data.getLong(3) <= 16 && !data.isNull(6) &&
+        if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
             details.setText(String.format("%.2f", price) + "/Kg");
-        } else if (data.getLong(3) <= 16 && !data.isNull(6) &&
+        } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
             details.setText(String.format("%.2f", price) + "/L");
         } else {
@@ -273,15 +273,5 @@ public class TransactionView extends GridLayout {
         lp.setGravity(Gravity.RIGHT);
         addView(eq, lp);
 
-//        if (account == 4) { // Kasse
-//            if (sum != 0.0) {
-//                ContentValues b = new ContentValues();
-//                b.put("quantity", - sum);
-//                b.put("account_id", 4); // Kasse
-//                getContext().getContentResolver().insert(
-//                        ((FragmentActivity) getContext()).getIntent().getData()
-//                                .buildUpon().appendEncodedPath("products/17").build(), b);
-//            }
-//        }
     }
 }

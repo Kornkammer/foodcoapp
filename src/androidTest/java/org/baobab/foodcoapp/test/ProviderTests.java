@@ -34,7 +34,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         b.put("account_guid", "dummid");
         b.put("quantity", 42);
         getMockContentResolver().insert(transaction.buildUpon()
-                        .appendEncodedPath("products/18").build(), b);
+                        .appendEncodedPath("products/2").build(), b);
         accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, null, null, null);
         assertEquals("one account", 1, accounts.getCount());
@@ -68,7 +68,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         b.put("account_guid", "dummid");
         b.put("quantity", 42);
         getMockContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products/18").build(), b);
+                .appendEncodedPath("products/2").build(), b);
         return transaction;
     }
 

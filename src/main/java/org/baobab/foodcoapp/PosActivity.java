@@ -57,7 +57,7 @@ public class PosActivity extends AppCompatActivity
                 b.put("quantity", sum.getFloat(2));
                 b.put("account_guid", "kasse");
                 getContentResolver().insert(getIntent().getData().buildUpon()
-                        .appendEncodedPath("products/17").build(), b);
+                        .appendEncodedPath("products/1").build(), b);
             }
         });
         findViewById(R.id.pin).setOnClickListener(new View.OnClickListener() {
@@ -114,18 +114,30 @@ public class PosActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
                 Uri.parse("content://org.baobab.foodcoapp/products"),
-                null, null, null, null);
+                null, "button != 0", null, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        for (int i = 0; i < data.getCount(); i++) {
-            data.moveToPosition(i);
-            products.addView(new ProductButton(
-                    PosActivity.this,
-                    data.getLong(0),
-                    data.getString(1),
-                    data.getString(4)), i);
+        Log.d("Foo", "cursor " + data.getCount());
+        data.moveToLast();
+        Log.d("Foo", " largest " + data.getInt(5));
+        int pages = (data.getCount() / 16) + 1;
+        data.moveToFirst();
+        for (int i = 1; i <= pages * 16; i++) {
+            if (data.getInt(5) == i) {
+                products.addView(new ProductButton(
+                        PosActivity.this,
+                        data.getLong(0),
+                        data.getString(1),
+                        data.getString(4), i), i);
+                if (!data.isLast()) {
+                    data.moveToNext();
+                }
+            } else {
+                products.addView(new ProductButton(
+                        PosActivity.this, 0, "", "", i), i);
+            }
         }
     }
 
@@ -153,7 +165,8 @@ public class PosActivity extends AppCompatActivity
     public boolean onLongClick(View v) {
         startActivity(new Intent(Intent.ACTION_EDIT,
                 Uri.parse("content://org.baobab.foodcoapp/products/" +
-                        ((ProductButton) v).id)));
+                        ((ProductButton) v).id))
+                .putExtra("button", ((ProductButton) v).position));
         return false;
     }
 
@@ -178,11 +191,13 @@ public class PosActivity extends AppCompatActivity
     class ProductButton extends FrameLayout {
 
         boolean empty;
+        int position;
         long id;
 
-        public ProductButton(Context context, long id, String title, String img) {
+        public ProductButton(Context context, long id, String title, String img, int pos) {
             super(context);
             this.id = id;
+            this.position = pos;
             View.inflate(getContext(), R.layout.view_product_button, this);
             ((TextView) findViewById(R.id.title)).setText(title);
             if (img != null) {

@@ -136,6 +136,15 @@ public class ProductEditActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data.getCount() == 0) {
+            ContentValues cv = new ContentValues();
+            cv.put("button", getIntent().getIntExtra("button", 0));
+            Uri uri = getContentResolver().insert(Uri.parse(
+                    "content://org.baobab.foodcoapp/products"), cv);
+            setIntent(getIntent().setData(uri));
+            getSupportLoaderManager().restartLoader(0, null, this);
+            return;
+        }
         if (data.moveToFirst()) {
             if (!data.isNull(1)) {
                 title.setText(data.getString(1));
@@ -150,7 +159,7 @@ public class ProductEditActivity extends AppCompatActivity
             if (!data.isNull(3) && data.getString(3).equals(getString(R.string.weight))) {
                 unit.setText(R.string.weight);
             } else if (!data.isNull(3) && data.getString(3).equals(getString(R.string.volume))) {
-                    unit.setText(R.string.volume);
+                unit.setText(R.string.volume);
             } else {
                 unit.setText(R.string.piece);
             }
@@ -178,7 +187,6 @@ public class ProductEditActivity extends AppCompatActivity
         cv.put("title", title.getText().toString());
         cv.put("img", img.toString());
         cv.put("price", Float.valueOf(price.getText().toString()));
-
         cv.put("unit", unit.getText().toString());
         getContentResolver().update(getIntent().getData(), cv, null, null);
         finish();

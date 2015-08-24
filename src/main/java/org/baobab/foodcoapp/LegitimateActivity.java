@@ -147,12 +147,8 @@ public class LegitimateActivity extends AppCompatActivity {
         b.put("quantity", sum.getFloat(2));
         getContentResolver().insert(
                 getIntent().getData().buildUpon()
-                        .appendEncodedPath("products/18")
+                        .appendEncodedPath("products/2")
                         .build(), b);
-//        startActivity(new Intent(LegitimateActivity.this,
-//                PosActivity.class).setData(getIntent().getData())
-//                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
-//                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         finish();
         return true;
     }

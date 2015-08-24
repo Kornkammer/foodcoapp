@@ -34,6 +34,7 @@ public class StretchableGrid extends LinearLayout {
 
     @Override
     public void addView(View view, int index) {
+        index = index - 1;
         if (index < 0) {
             return;
         }

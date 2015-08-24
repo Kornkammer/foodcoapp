@@ -21,7 +21,7 @@ public class AccountingProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context) {
-            super(context, "foodcoapp.db", null, 1);
+            super(context, "foodcoapp.db", null, 2);
         }
 
         @Override
@@ -31,7 +31,9 @@ public class AccountingProvider extends ContentProvider {
                     "title TEXT, " +
                     "price FLOAT, " +
                     "unit TEXT, " +
-                    "img TEXT" +
+                    "img TEXT," +
+                    "button INTEGER," +
+                    "ean TEXT" +
                     ");");
             db.execSQL("CREATE TABLE transactions (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -71,24 +73,26 @@ public class AccountingProvider extends ContentProvider {
                     "start INTEGER, " +
                     "stop INTEGER" +
                     ");");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Baola', 1.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/baola');");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title, price, unit, img) VALUES ('Reis', 1.3, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/rice');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.foodcoapp/drawable/cash');");
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Credits', 1, 'android.resource://org.baobab.foodcoapp/drawable/coin');");
+            db.execSQL("INSERT INTO products (title) VALUES ('');");
+            db.execSQL("INSERT INTO products (title) VALUES ('');");
+            db.execSQL("INSERT INTO products (title) VALUES ('');");
+            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (1, 'Baola', 1.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/baola');");
+            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (2, 'Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
+            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (3, 'Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
+            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (7, 'Reis', 1.3, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/rice');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
+//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (1, '', 'aktiva','Aktiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (2, '', 'passiva','Passiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (3, 'aktiva', 'lager','Lager');");
@@ -150,7 +154,7 @@ public class AccountingProvider extends ContentProvider {
         switch (router.match(uri)) {
             case PRODUCTS:
                 result = db.getReadableDatabase().query("products",
-                        projection, selection, selectionArgs, null, null, null, "16");
+                        projection, selection, selectionArgs, null, null, "button", null);
                 break;
             case PRODUCT:
                 result = db.getReadableDatabase().query("products", projection,
@@ -271,10 +275,17 @@ public class AccountingProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         switch (router.match(uri)) {
+            case PRODUCTS:
+                db.getWritableDatabase().insert("products", null, values);
+                uri = ContentUris.withAppendedId(uri, values.getAsInteger("button"));
+                break;
             case TRANSACTION_PRODUCT:
                 Cursor product = query(Uri.parse(
                         "content://org.baobab.foodcoapp/products/" + uri.getLastPathSegment()),
                         null, null, null, null);
+                if (product.getCount() == 0) {
+                    return null;
+                }
                 product.moveToFirst();
                 double price = product.getFloat(2);
                 double quantity = values.containsKey("quantity")?
@@ -314,7 +325,7 @@ public class AccountingProvider extends ContentProvider {
                                     product.getString(3),
                                     product.getString(4),
                                     uri.getPathSegments().get(1),
-                                    uri.getLastPathSegment(),
+                                    product.getString(0),
                                     String.valueOf(quantity) }
                     );
                 }
