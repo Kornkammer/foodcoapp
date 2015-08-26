@@ -33,7 +33,7 @@ public class AccountingProvider extends ContentProvider {
                     "unit TEXT, " +
                     "img TEXT," +
                     "button INTEGER," +
-                    "ean TEXT" +
+                    "ean TEXT UNIQUE" +
                     ");");
             db.execSQL("CREATE TABLE transactions (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -270,6 +270,25 @@ public class AccountingProvider extends ContentProvider {
                 return "org.baobab.foodcoapp/accounts";
         }
         return null;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] values) {
+        int count = 0;
+        db.getWritableDatabase().beginTransaction();
+        switch (router.match(uri)) {
+            case PRODUCTS:
+                for (ContentValues cv : values) {
+                    long result = db.getWritableDatabase().insert("products", null, cv);
+                    if (result != -1) {
+                        count++;
+                    }
+                }
+                break;
+        }
+        db.getWritableDatabase().setTransactionSuccessful();
+        db.getWritableDatabase().endTransaction();
+        return count;
     }
 
     @Override
