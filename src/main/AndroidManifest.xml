@@ -61,6 +61,7 @@
     <activity
       android:label="@string/transactions"
       android:clearTaskOnLaunch="true"
+      android:screenOrientation="portrait"
       android:taskAffinity="accounts.transactions"
       android:name="org.baobab.foodcoapp.TransactionsActivity" >
       <intent-filter>

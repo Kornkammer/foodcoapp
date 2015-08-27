@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -37,19 +38,19 @@ public class TransactionsActivity extends AppCompatActivity {
             dialog.setIndeterminate(true);
             dialog.setCanceledOnTouchOutside(false);
             dialog.show();
-            new AsyncTask<String, String, String>() {
+            new AsyncTask<Uri, String, String>() {
 
                 @Override
-                protected String doInBackground(String... params) {
-                    Import.file(TransactionsActivity.this, getIntent().getData());
-                    return null;
+                protected String doInBackground(Uri... uri) {
+                    return Import.file(TransactionsActivity.this, uri[0]);
                 }
 
                 @Override
-                protected void onPostExecute(String s) {
+                protected void onPostExecute(String message) {
+                    Toast.makeText(TransactionsActivity.this, message, Toast.LENGTH_LONG).show();
                     dialog.dismiss();
                 }
-            }.execute("");
+            }.execute(getIntent().getData());
 
         }
 
