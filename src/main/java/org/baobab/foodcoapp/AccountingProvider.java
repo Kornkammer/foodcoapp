@@ -77,7 +77,7 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Credits', 1, 'android.resource://org.baobab.foodcoapp/drawable/coin');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
-            db.execSQL("INSERT INTO products (title) VALUES ('');");
+            db.execSQL("INSERT INTO products (button, title, price, img) VALUES (16, 'Scan EAN', 1, 'android.resource://org.baobab.foodcoapp/drawable/scan');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (1, 'Baola', 1.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/baola');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (2, 'Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (3, 'Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");

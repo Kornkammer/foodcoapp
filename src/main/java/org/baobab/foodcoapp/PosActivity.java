@@ -1,7 +1,6 @@
 package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
-import android.app.ActionBar;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -123,9 +123,7 @@ public class PosActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
-        Log.d("Foo", "cursor " + data.getCount());
         data.moveToLast();
-        Log.d("Foo", " largest " + data.getInt(5));
         final int pages = (data.getInt(5) / 16) + 1;
         data.moveToFirst();
         pager.setOffscreenPageLimit(42);
@@ -182,15 +180,39 @@ public class PosActivity extends AppCompatActivity
         if (((ProductButton) v).empty) {
             return;
         }
+        if (((ProductButton) v).id == 5) {
+            Barcode.scan(this, "EAN_8");
+            return;
+        }
+        addProductToTransaction(((ProductButton) v).id);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            String ean = data.getStringExtra("SCAN_RESULT");
+            Cursor p = getContentResolver().query(Uri.parse(
+                            "content://org.baobab.foodcoapp/products"),
+                    null, "ean IS ?", new String[] { ean }, null);
+            if (p.getCount() > 0) {
+                p.moveToFirst();
+                addProductToTransaction(p.getLong(0));
+                Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private void addProductToTransaction(long id) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
         cv.put("quantity", ((float) weight) / 1000);
 
         getContentResolver().insert(
                 getIntent().getData().buildUpon()
-                .appendEncodedPath("products/" + ((ProductButton) v).id)
-                .build(), cv);
-
+                        .appendEncodedPath("products/" + id)
+                        .build(), cv);
     }
 
     @Override
