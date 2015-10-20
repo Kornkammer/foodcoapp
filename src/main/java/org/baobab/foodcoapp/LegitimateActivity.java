@@ -112,17 +112,20 @@ public class LegitimateActivity extends AppCompatActivity {
             win.start();
         }
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(70);
-        Cursor sum = getContentResolver().query(getIntent().getData().buildUpon()
-                .appendEncodedPath("sum").build(), null, null, null, null);
-        sum.moveToFirst();
-        Log.d(TAG, "sum " + sum.getFloat(2));
-        ContentValues b = new ContentValues();
-        b.put("account_guid", auth.getString(3));
-        b.put("quantity", sum.getFloat(2));
-        getContentResolver().insert(
-                getIntent().getData().buildUpon()
-                        .appendEncodedPath("products/2")
-                        .build(), b);
+        if (getIntent().getData() != null) {
+            Cursor sum = getContentResolver().query(getIntent().getData().buildUpon()
+                    .appendEncodedPath("sum").build(), null, null, null, null);
+            sum.moveToFirst();
+            Log.d(TAG, "sum " + sum.getFloat(2));
+            ContentValues b = new ContentValues();
+            b.put("account_guid", auth.getString(3));
+            b.put("quantity", sum.getFloat(2));
+            getContentResolver().insert(
+                    getIntent().getData().buildUpon()
+                            .appendEncodedPath("products/2")
+                            .build(), b);
+        }
+        setResult(RESULT_OK, getIntent().putExtra("guid", auth.getString(3)));
         finish();
         return true;
     }
