@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -27,6 +28,7 @@ public class TransactionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transactions);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (getIntent().getData() == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, TransactionListFragment.newInstance(
@@ -57,9 +59,15 @@ public class TransactionsActivity extends AppCompatActivity {
                     dialog.dismiss();
                 }
             }.execute(getIntent().getData());
-
         }
-
     }
 
+    @Override
+    public boolean onOptionsItemSelected(final MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
