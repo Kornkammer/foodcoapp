@@ -38,7 +38,7 @@ public class TransactionListFragment extends ListFragment
 
     public TransactionListFragment() { }
 
-    static SimpleDateFormat df = new SimpleDateFormat();
+    static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy  HH:mm");
 
     @Override
     public View onCreateView(LayoutInflater inf, ViewGroup p, Bundle state) {
@@ -54,11 +54,16 @@ public class TransactionListFragment extends ListFragment
                     @Override
                     public void bindView(View view, Context context, Cursor cursor) {
                         TransactionView v = (TransactionView) view;
-                        v.session.setText(cursor.getString(1));
                         v.time.setText(df.format(new Date(cursor.getLong(2))));
-                        v.account.setText(cursor.getString(3));
+                        v.who.setText(cursor.getString(3));
                         v.what.setText(cursor.getString(4));
-                        v.sum.setText(String.format("%.2f", cursor.getFloat(5)));
+                        String sign;
+                        if (cursor.getString(8).equals("aktiva")) {
+                            sign = cursor.getInt(7) > 0? "+" : "-";
+                        } else {
+                            sign = cursor.getInt(7) > 0? "-" : "+";
+                        }
+                        v.sum.setText(sign + String.format("%.2f", cursor.getFloat(5)));
                     }
                 }
         );
@@ -80,7 +85,6 @@ public class TransactionListFragment extends ListFragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        System.out.println("data "+data.getCount());
         ((CursorAdapter) getListAdapter()).swapCursor(data);
     }
 
@@ -90,9 +94,8 @@ public class TransactionListFragment extends ListFragment
     }
 
     private class TransactionView extends LinearLayout {
-        final TextView account;
-        final TextView session;
         final TextView time;
+        final TextView who;
         final TextView sum;
         final TextView what;
 
@@ -100,9 +103,8 @@ public class TransactionListFragment extends ListFragment
             super(ctx);
             setOrientation(HORIZONTAL);
             View.inflate(ctx, R.layout.transaction_list_item, this);
-            session = (TextView) findViewById(R.id.session);
-            account = (TextView) findViewById(R.id.account);
             time = (TextView) findViewById(R.id.time);
+            who = (TextView) findViewById(R.id.who);
             sum = (TextView) findViewById(R.id.sum);
             what = (TextView) findViewById(R.id.what);
         }

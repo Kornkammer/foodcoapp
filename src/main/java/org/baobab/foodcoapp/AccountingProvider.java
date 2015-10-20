@@ -242,17 +242,21 @@ public class AccountingProvider extends ContentProvider {
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, " +
                                 "GROUP_CONCAT(quantity || ' x ' || title || ' a ' || price || ' = ' || (quantity * price), ',  \n'), " +
-                                "sum(transaction_products.quantity * transaction_products.price)" +
+                                "sum(abs(transaction_products.quantity) * transaction_products.price)/2, " +
+                                "max(accounts._id), transaction_products.quantity, accounts.parent_guid" +
                         " FROM transactions" +
                         " LEFT OUTER JOIN sessions ON transactions.session_id = sessions._id" +
                         " LEFT JOIN accounts AS session ON sessions.account_guid = session.guid" +
                         " JOIN transaction_products ON transaction_products.transaction_id = transactions._id" +
-                                " LEFT JOIN (" +
+                        " LEFT JOIN (" +
                                 "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
-                                ") AS accounts ON transaction_products.account_guid = accounts.guid" +
+                        ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " WHERE transactions.status IS NOT 'draft'" +
+//                                " AND transaction_products.title IS NOT 'Credits'" +
                                 (selection != null? " AND " + selection : "") +
                         " GROUP BY transactions._id" +
+                        (uri.getPathSegments().size() == 3?
+                                " HAVING accounts.guid IS '" + uri.getPathSegments().get(1) + "'" : "") +
                         " ORDER BY transactions._id",
                         null);
                 break;

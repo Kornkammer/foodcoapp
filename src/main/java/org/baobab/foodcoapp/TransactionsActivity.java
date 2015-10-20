@@ -27,11 +27,17 @@ public class TransactionsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transactions);
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.container, TransactionListFragment.newInstance(
-                        Uri.parse("content://org.baobab.foodcoapp/transactions")))
-                .commit();
-        if (getIntent().getScheme().equals("content")) {
+        if (getIntent().getData() == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, TransactionListFragment.newInstance(
+                            Uri.parse("content://org.baobab.foodcoapp/transactions")))
+                    .commit();
+        } else if (getIntent().getDataString().contains("/transactions")) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, TransactionListFragment.newInstance(
+                            getIntent().getData()))
+                    .commit();
+        } else if (getIntent().getScheme().equals("content")) {
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             dialog.setMessage("Importing. Please wait...");

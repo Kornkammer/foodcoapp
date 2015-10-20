@@ -10,62 +10,87 @@ import org.baobab.foodcoapp.AccountingProvider;
 
 public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
 
+    static {
+        AccountingProvider.AUTHORITY = "org.baobab.foodcoapp.test";
+    }
+
     public ProviderTests() {
-        super(AccountingProvider.class, "org.baobab.foodcoapp");
+        super(AccountingProvider.class, "org.baobab.foodcoapp.test");
     }
 
     public void testAccountBalance() {
-        createDummyAccount();
-        insertTransaction("final");
+        createDummyAccount("dummy");
+        insertTransaction("final", "dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, null, null, null);
+                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
         accounts.moveToFirst();
-        assertEquals("name", "Dummy", accounts.getString(1));
+        assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", -42.0, accounts.getDouble(4));
     }
 
     public void testEmptyAccount() {
-        createDummyAccount();
+        createDummyAccount("dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, null, null, null);
+                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
         assertEquals("one account", 1, accounts.getCount());
-        Uri transaction = insertTransaction("draft");
+        Uri transaction = insertTransaction("draft", "dummy");
         ContentValues b = new ContentValues();
-        b.put("account_guid", "dummid");
+        b.put("account_guid", "dummy");
         b.put("quantity", 42);
         getMockContentResolver().insert(transaction.buildUpon()
-                        .appendEncodedPath("products/2").build(), b);
+                .appendEncodedPath("products/2").build(), b);
         accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, null, null, null);
+                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
         assertEquals("one account", 1, accounts.getCount());
     }
 
     public void testFindAccountByName() {
-        createDummyAccount();
+        createDummyAccount("dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, "name IS 'foo'", null, null);
+                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, "name IS 'foo'", null, null);
         assertEquals("no account", 0, accounts.getCount());
         accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null, "name IS 'Dummy'", null, null);
+                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, "name IS 'dummy'", null, null);
         assertEquals("one account", 1, accounts.getCount());
     }
 
-    private Uri createDummyAccount() {
-        ContentValues values = new ContentValues();
-        values.put("name", "Dummy");
-        values.put("guid", "dummid");
-        values.put("parent_guid", "passiva");
-        return getMockContentResolver().insert(
-                Uri.parse("content://org.baobab.foodcoapp/accounts/passiva/accounts"), values);
+    public void testKontoauszug() {
+        createDummyAccount("dummy");
+        createDummyAccount("another");
+        insertTransaction("final", "dummy");
+        insertTransaction("final", "another");
+        Cursor transactions = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp.test/accounts/dummy/transactions"), null, null, null, null);
+        assertEquals("one transaction", 1, transactions.getCount());
+        transactions.moveToFirst();
+        assertEquals("time", 1, transactions.getLong(2));
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("sum", 42.0, transactions.getDouble(5));
+        assertEquals("Bilanzerniedrigung", true, transactions.getInt(7) < 0);
     }
 
-    private Uri insertTransaction(String status) {
+    private Uri createDummyAccount(String name) {
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("guid", name);
+        values.put("parent_guid", "passiva");
+        return getMockContentResolver().insert(
+                Uri.parse("content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), values);
+    }
+
+    private Uri insertTransaction(String status, String account) {
         ContentValues t = new ContentValues();
         t.put("status", status);
+        t.put("stop", 1);
         Uri transaction = getMockContentResolver().insert(Uri.parse(
-                "content://org.baobab.foodcoapp/transactions"), t);
+                "content://org.baobab.foodcoapp.test/transactions"), t);
         ContentValues b = new ContentValues();
-        b.put("account_guid", "dummid");
+        b.put("account_guid", "lager");
+        b.put("quantity", -42);
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products/5").build(), b);
+        b = new ContentValues();
+        b.put("account_guid", account);
         b.put("quantity", 42);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products/2").build(), b);
