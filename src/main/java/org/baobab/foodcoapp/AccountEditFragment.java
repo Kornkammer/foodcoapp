@@ -81,10 +81,7 @@ public class AccountEditFragment extends Fragment
         getView().findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(
-                        "com.google.zxing.client.android.SCAN");
-                intent.putExtra("SCAN_MODE", "QR_CODE_MODE");
-                startActivityForResult(intent, SCAN);
+                Barcode.scan((AppCompatActivity) getActivity(), "QR_CODE_MODE");
             }
         });
         setHasOptionsMenu(true);
