@@ -124,20 +124,7 @@ public class AccountingProvider extends ContentProvider {
 
     private static final short SUM = 10;
 
-    static {
-        router.addURI("org.baobab.foodcoapp", "accounts/*", ACCOUNT);
-        router.addURI("org.baobab.foodcoapp", "accounts", ACCOUNTS);
-        router.addURI("org.baobab.foodcoapp", "accounts/*/accounts", ACCOUNTS);
-        router.addURI("org.baobab.foodcoapp", "accounts/*/products", ACCOUNT_PRODUCTS);
-        router.addURI("org.baobab.foodcoapp", "products", PRODUCTS);
-        router.addURI("org.baobab.foodcoapp", "sessions", SESSIONS);
-        router.addURI("org.baobab.foodcoapp", "products/#", PRODUCT);
-        router.addURI("org.baobab.foodcoapp", "legitimate", LEGITIMATE);
-        router.addURI("org.baobab.foodcoapp", "transactions", TRANSACTIONS);
-        router.addURI("org.baobab.foodcoapp", "transactions/#", TRANSACTION);
-        router.addURI("org.baobab.foodcoapp", "transactions/#/products/#", TRANSACTION_PRODUCT);
-        router.addURI("org.baobab.foodcoapp", "transactions/#/sum", SUM);
-    }
+    public static String AUTHORITY = "org.baobab.foodcoapp";
 
     private DatabaseHelper db;
     private SQLiteStatement insert;
@@ -145,6 +132,19 @@ public class AccountingProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         db = new DatabaseHelper(getContext());
+        router.addURI(AUTHORITY, "accounts/*", ACCOUNT);
+        router.addURI(AUTHORITY, "accounts", ACCOUNTS);
+        router.addURI(AUTHORITY, "accounts/*/accounts", ACCOUNTS);
+        router.addURI(AUTHORITY, "accounts/*/products", ACCOUNT_PRODUCTS);
+        router.addURI(AUTHORITY, "products", PRODUCTS);
+        router.addURI(AUTHORITY, "sessions", SESSIONS);
+        router.addURI(AUTHORITY, "products/#", PRODUCT);
+        router.addURI(AUTHORITY, "legitimate", LEGITIMATE);
+        router.addURI(AUTHORITY, "transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
+        router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCT);
+        router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         return false;
     }
 
@@ -265,9 +265,9 @@ public class AccountingProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (router.match(uri)) {
             case PRODUCT:
-                return "org.baobab.foodcoapp/products";
+                return AUTHORITY + "/products";
             case ACCOUNT:
-                return "org.baobab.foodcoapp/accounts";
+                return AUTHORITY + "/accounts";
         }
         return null;
     }
@@ -300,7 +300,7 @@ public class AccountingProvider extends ContentProvider {
                 break;
             case TRANSACTION_PRODUCT:
                 Cursor product = query(Uri.parse(
-                        "content://org.baobab.foodcoapp/products/" + uri.getLastPathSegment()),
+                        "content://" + AUTHORITY + "/products/" + uri.getLastPathSegment()),
                         null, null, null, null);
                 if (product.getCount() == 0) {
                     return null;
@@ -370,7 +370,7 @@ public class AccountingProvider extends ContentProvider {
                     b.put("account_guid", 1);
                     b.put("start", System.currentTimeMillis());
                     Uri session = insert(Uri.parse(
-                            "content://org.baobab.foodcoapp/sessions"), b);
+                            "content://" + AUTHORITY + "/sessions"), b);
                     values.put("session_id", session.getLastPathSegment());
                 }
                 if (!values.containsKey("status")) {
