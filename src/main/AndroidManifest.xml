@@ -14,7 +14,7 @@
 
   <application
     android:allowBackup="true"
-    android:icon="@drawable/ic_launcher"
+    android:icon="@drawable/ic_ok"
     android:label="@string/app_name"
     android:name=".FoodcoApplication"
     android:theme="@style/AppTheme" >
@@ -22,6 +22,7 @@
       android:name="org.baobab.foodcoapp.PosActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/shopping"
+      android:icon="@drawable/kasse_4"
       android:launchMode="singleTask"
       android:screenOrientation="landscape" >
       <intent-filter>
@@ -60,6 +61,7 @@
     </activity>
     <activity
       android:label="@string/transactions"
+      android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="portrait"
       android:taskAffinity="accounts.transactions"
@@ -83,6 +85,7 @@
 
     <activity
       android:name="org.baobab.foodcoapp.AccountActivity"
+      android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="landscape"
       android:taskAffinity="accounts.accounts"

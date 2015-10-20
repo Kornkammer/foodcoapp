@@ -95,7 +95,7 @@ public class TransactionFragment extends Fragment
         if (sum < 0.01 && sum > -0.01) {
             header.setText("");
             header.setBackgroundResource(R.drawable.background_translucent);
-            ok.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_launcher, 0, 0, 0);
+            ok.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ok, 0, 0, 0);
             ok.setText("");
         } else {
             ok.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
