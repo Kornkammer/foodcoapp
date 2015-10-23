@@ -54,6 +54,7 @@ public class TransactionListFragment extends ListFragment
                     @Override
                     public void bindView(View view, Context context, Cursor cursor) {
                         TransactionView v = (TransactionView) view;
+                        v.id = cursor.getLong(0);
                         v.time.setText(df.format(new Date(cursor.getLong(2))));
                         v.who.setText(cursor.getString(3));
                         String sign;
@@ -101,21 +102,42 @@ public class TransactionListFragment extends ListFragment
 
     }
 
-    private class TransactionView extends LinearLayout {
+    private class TransactionView extends LinearLayout implements View.OnClickListener {
+        long id;
         final TextView time;
         final TextView who;
         final TextView sum;
         final TextView comment;
+        private boolean expanded;
 
         public TransactionView(Context ctx) {
             super(ctx);
-            setOrientation(HORIZONTAL);
+            setOrientation(VERTICAL);
             View.inflate(ctx, R.layout.transaction_list_item, this);
             time = (TextView) findViewById(R.id.time);
             who = (TextView) findViewById(R.id.who);
             sum = (TextView) findViewById(R.id.sum);
             comment = (TextView) findViewById(R.id.comment);
+            setOnClickListener(this);
+            setClickable(true);
         }
+
+        @Override
+        public void onClick(View v) {
+            if (expanded) {
+                removeViewAt(1);
+            } else {
+                org.baobab.foodcoapp.TransactionView transaction = new org.baobab.foodcoapp.TransactionView(getActivity());
+                transaction.showImages(true);
+                Cursor c = getActivity().getContentResolver().query(
+                        Uri.parse("content://org.baobab.foodcoapp/transactions/" + id),
+                        null, null, null, null);
+                transaction.populate(c);
+                ((LinearLayout) v).addView(transaction);
+            }
+            expanded = !expanded;
+        }
+
     }
 
 }
