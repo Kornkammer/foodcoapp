@@ -45,6 +45,7 @@ public class ResetPinActivity extends AppCompatActivity {
                                         AccountActivity.class).setData(Uri.parse(
                                         "content://org.baobab.foodcoapp/accounts/"
                                                 + accounts.getString(2))));
+                                finish();
                             } else {
                                 Snackbar.make(findViewById(R.id.name), "Not Found!",
                                         Snackbar.LENGTH_LONG).show();

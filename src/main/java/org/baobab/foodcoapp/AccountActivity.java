@@ -32,8 +32,9 @@ public class AccountActivity extends AppCompatActivity {
                 @Override
                 public void onBackStackChanged() {
                     if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
-                        startActivity(new Intent(AccountActivity.this, PosActivity.class)
-                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                        finish();
+//                        startActivity(new Intent(AccountActivity.this, PosActivity.class)
+//                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     }
                 }
             });
