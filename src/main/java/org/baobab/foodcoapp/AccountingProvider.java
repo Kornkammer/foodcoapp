@@ -21,7 +21,7 @@ public class AccountingProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context) {
-            super(context, "foodcoapp.db", null, 2);
+            super(context, "foodcoapp.db", null, 3);
         }
 
         @Override
@@ -40,6 +40,7 @@ public class AccountingProvider extends ContentProvider {
                     "session_id INTEGER, " +
                     "start INTEGER, " +
                     "stop INTEGER, " +
+                    "comment TEXT, " +
                     "status TEXT" +
                     ");");
             db.execSQL("CREATE TABLE transaction_products (" +
@@ -107,6 +108,12 @@ public class AccountingProvider extends ContentProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
+            db.execSQL("DROP TABLE accounts;");
+            db.execSQL("DROP TABLE products;");
+            db.execSQL("DROP TABLE sessions;");
+            db.execSQL("DROP TABLE transactions;");
+            db.execSQL("DROP TABLE transaction_products;");
+            onCreate(db);
         }
     }
 
@@ -240,7 +247,7 @@ public class AccountingProvider extends ContentProvider {
                 break;
             case TRANSACTIONS:
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, " +
+                        "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(quantity || ' x ' || title || ' a ' || price || ' = ' || (quantity * price), ',  \n'), " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2, " +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid" +

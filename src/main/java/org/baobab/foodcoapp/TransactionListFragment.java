@@ -56,12 +56,20 @@ public class TransactionListFragment extends ListFragment
                         TransactionView v = (TransactionView) view;
                         v.time.setText(df.format(new Date(cursor.getLong(2))));
                         v.who.setText(cursor.getString(3));
-                        v.what.setText(cursor.getString(4));
                         String sign;
-                        if (cursor.getString(8).equals("aktiva")) {
-                            sign = cursor.getInt(7) > 0? "+" : "-";
+                        if (cursor.getString(9).equals("aktiva")) {
+                            sign = cursor.getInt(8) > 0? "+" : "-";
                         } else {
-                            sign = cursor.getInt(7) > 0? "-" : "+";
+                            if (cursor.getInt(8) < 0) {
+                                sign = "+";
+                                v.comment.setText("Einzahlung");
+                            } else {
+                                sign = "-";
+                                v.comment.setText("Einkaufung");
+                            }
+                        }
+                        if (!cursor.isNull(4)) {
+                            v.comment.append("\n" + cursor.getString(4));
                         }
                         v.sum.setText(sign + String.format("%.2f", cursor.getFloat(5)));
                     }
@@ -97,7 +105,7 @@ public class TransactionListFragment extends ListFragment
         final TextView time;
         final TextView who;
         final TextView sum;
-        final TextView what;
+        final TextView comment;
 
         public TransactionView(Context ctx) {
             super(ctx);
@@ -106,7 +114,7 @@ public class TransactionListFragment extends ListFragment
             time = (TextView) findViewById(R.id.time);
             who = (TextView) findViewById(R.id.who);
             sum = (TextView) findViewById(R.id.sum);
-            what = (TextView) findViewById(R.id.what);
+            comment = (TextView) findViewById(R.id.comment);
         }
     }
 

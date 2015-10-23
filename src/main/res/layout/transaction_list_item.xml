@@ -15,20 +15,21 @@
   <TextView
     android:id="@+id/who"
     android:textSize="12sp"
+    android:ellipsize="end"
     android:textStyle="bold"
-    android:layout_width="55dp"
+    android:layout_width="75dp"
     android:gravity="center_vertical"
     android:layout_gravity="center_vertical"
     android:layout_height="match_parent" />
 
   <TextView
-    android:id="@+id/what"
-    android:textSize="9sp"
-    android:textStyle="bold"
+    android:id="@+id/comment"
+    android:textSize="12sp"
     android:layout_width="128dp"
     android:layout_weight="3"
-    android:layout_gravity="center_vertical"
-    android:layout_height="match_parent" />
+    android:gravity="center_vertical"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical" />
 
   <TextView
     android:id="@+id/sum"
