@@ -39,6 +39,15 @@ public class TransactionFragment extends Fragment
             }
 
             @Override
+            int inputType(Cursor product) {
+                if (product.getString(3).equals(getString(R.string.piece))) {
+                    return InputType.TYPE_CLASS_NUMBER;
+                } else {
+                    return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+                }
+            }
+
+            @Override
             float quantity(float number, Cursor product) {
                 return number;
             }
@@ -50,8 +59,17 @@ public class TransactionFragment extends Fragment
             }
 
             @Override
+            int inputType(Cursor product) {
+                return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+            }
+
+            @Override
             float quantity(float number, Cursor product) {
-                return number / product.getFloat(2);
+                if (product.getString(3).equals(getString(R.string.piece))) {
+                    return (int) (number / product.getFloat(2));
+                } else {
+                    return number / product.getFloat(2);
+                }
             }
         });
         return frame;
@@ -61,6 +79,8 @@ public class TransactionFragment extends Fragment
 
         abstract String text(Cursor product);
 
+        abstract int inputType(Cursor product);
+
         abstract float quantity(float number, Cursor product);
 
         @Override
@@ -69,15 +89,9 @@ public class TransactionFragment extends Fragment
                     Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
                     null, null, null, null);
             c.moveToFirst();
-            int inputType;
-            if (c.getString(3).equals(getString(R.string.piece))) {
-                inputType = InputType.TYPE_CLASS_NUMBER;
-            } else {
-                inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
-            }
             getFragmentManager().beginTransaction()
                     .replace(v.getId(), new NumberDialogFragment(
-                            text(c), (String) v.getTag(), inputType) {
+                            text(c), (String) v.getTag(), inputType(c)) {
                         @Override
                         public void onNumber(float number) {
                             ContentValues cv = new ContentValues();
