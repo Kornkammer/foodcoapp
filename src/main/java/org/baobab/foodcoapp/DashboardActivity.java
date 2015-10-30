@@ -23,9 +23,7 @@ import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    public static final int SHOP = 23;
     public static final int LEGITIMATE = 55;
-    private Intent currentShopping;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,11 +39,9 @@ public class DashboardActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                startActivityForResult(
-                        currentShopping != null? currentShopping :
+                startActivity(
                         new Intent(DashboardActivity.this,
-                                PoSimpleActivity.class),
-                                SHOP);
+                                PoSimpleActivity.class));
             }
         });
         findViewById(R.id.bilanz).setOnClickListener(new View.OnClickListener() {
@@ -97,8 +93,6 @@ public class DashboardActivity extends AppCompatActivity {
             startActivity(new Intent(this, TransactionsActivity.class)
                 .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                         data.getStringExtra("guid") + "/transactions")));
-        } else if (resultCode == RESULT_OK && requestCode == SHOP) {
-            currentShopping = data;
         }
     }
 
@@ -107,6 +101,7 @@ public class DashboardActivity extends AppCompatActivity {
         super.onStart();
         fullscreen();
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.dashboard, menu);
