@@ -49,6 +49,7 @@
       android:layout_weight="382"
       android:layout_height="match_parent"
       android:textSize="22sp"
+      android:drawableLeft="@drawable/ic_qr_qcan"
       android:textColor="@color/blue" />
 
     <EditText
