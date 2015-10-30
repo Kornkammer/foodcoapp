@@ -29,7 +29,7 @@ public class DecimalView extends LinearLayout {
         addView(amount);
 
         point = new TextView(getContext());
-        point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
+        point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xlarge));
         point.setTextColor(getResources().getColor(R.color.xlight_blue));
         point.setPadding(-5, -large, -5, -large);
         point.setVisibility(GONE);
@@ -61,9 +61,11 @@ public class DecimalView extends LinearLayout {
         } else {
             point.setVisibility(VISIBLE);
             decimals.setVisibility(VISIBLE);
-            decimals.setText(String.valueOf(
-                    (int) ((number % 1) * 1000))
-                    .replaceAll("0+$", ""));
+            String dec = String.valueOf(number);
+            dec = dec.substring(dec.indexOf(".") + 1);
+            dec = dec.substring(0, Math.min(3, dec.length()));
+            dec = dec.replaceAll("0+$", "");
+            decimals.setText(dec);
         }
     }
 }
