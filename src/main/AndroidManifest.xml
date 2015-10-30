@@ -18,6 +18,11 @@
     android:name=".FoodcoApplication"
     android:theme="@style/AppTheme" >
     <activity
+      android:name="org.baobab.foodcoapp.DepositActivity"
+      android:windowSoftInputMode="stateAlwaysVisible"
+      android:screenOrientation="landscape" >
+    </activity>
+    <activity
       android:name="org.baobab.foodcoapp.PosActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/app_name"

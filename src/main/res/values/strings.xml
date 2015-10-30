@@ -27,5 +27,7 @@
   <string name="crash_toast_text">Ooooops! Crash happens.</string>
   <string name="crash_dialog_text">Bitte hilf mit einer Email...</string>
   <string name="crash_dialog_ok_toast">Danke!</string>
+  <string name="deposit">Einzahlen</string>
+  <string name="eur"> €</string>
 
 </resources>

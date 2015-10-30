@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="horizontal"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent" >
+
+  <EditText
+    android:id="@+id/amount"
+    android:layout_width="120dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:minHeight="123dp"
+    android:imeOptions="flagNoExtractUi|actionNext"
+    android:inputType="numberSigned|numberDecimal"
+    android:textSize="@dimen/font_size_xlarge"
+    android:textStyle="bold"
+    android:layout_margin="@dimen/padding_large"
+    android:background="@drawable/background_grey"
+    android:hint="@string/eur" />
+
+  <EditText
+    android:id="@+id/comment"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:textSize="@dimen/font_size_medium"
+    android:minHeight="123dp"
+    android:imeOptions="flagNoExtractUi"
+    android:layout_weight="3"
+    android:background="@drawable/background_grey"
+    android:hint="Kommentar" />
+
+  <Button
+    android:id="@+id/ok"
+    android:layout_width="155dp"
+    android:layout_height="155dp"
+    android:layout_gravity="center_vertical"
+    android:text="@string/deposit"
+    android:drawableBottom="@drawable/ic_ok" />
+</LinearLayout>
