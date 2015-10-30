@@ -194,6 +194,7 @@ public class AccountListFragment extends Fragment
             } else {
                 TransactionView transaction = new TransactionView(getActivity());
                 transaction.showImages(false);
+                transaction.headersClickable(false);
                 Cursor c = getActivity().getContentResolver().query(
                         Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
                         null, null, null, null);

@@ -129,6 +129,7 @@ public class TransactionListFragment extends ListFragment
             } else {
                 org.baobab.foodcoapp.TransactionView transaction = new org.baobab.foodcoapp.TransactionView(getActivity());
                 transaction.showImages(true);
+                transaction.headersClickable(false);
                 Cursor c = getActivity().getContentResolver().query(
                         Uri.parse("content://org.baobab.foodcoapp/transactions/" + id),
                         null, null, null, null);

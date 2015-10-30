@@ -26,6 +26,7 @@ public class TransactionView extends GridLayout {
     double sum;
     boolean positive;
     boolean showImages = true;
+    private boolean headersClickable = true;
 
     public TransactionView(Context context) {
         this(context, null);
@@ -47,6 +48,10 @@ public class TransactionView extends GridLayout {
 
     public void showImages(boolean showImages) {
         this.showImages = showImages;
+    }
+
+    public void headersClickable(boolean headersClickable) {
+        this.headersClickable = headersClickable;
     }
 
     public void populate(Cursor data) {
@@ -102,20 +107,22 @@ public class TransactionView extends GridLayout {
 
             f.addView(header, p);
             addView(f, lp);
-            f.setClickable(true);
             f.setId(data.getInt(3));
             f.setTag(String.valueOf(quantity));
-            f.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!showImages) return;
-                    ContentValues cv = new ContentValues();
-                    cv.put("quantity", -1);
-                    getContext().getContentResolver()
-                            .update(((FragmentActivity) getContext())
-                                    .getIntent().getData(), cv, null, null);
-                }
-            });
+            if (headersClickable) {
+                f.setClickable(true);
+                f.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!showImages) return;
+                        ContentValues cv = new ContentValues();
+                        cv.put("quantity", -1);
+                        getContext().getContentResolver()
+                                .update(((FragmentActivity) getContext())
+                                        .getIntent().getData(), cv, null, null);
+                    }
+                });
+            }
         }
         LinearLayout images = new LinearLayout(getContext());
         if (!data.isNull(8) && showImages) {
