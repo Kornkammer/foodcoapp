@@ -40,7 +40,7 @@ public class TransactionFragment extends Fragment
 
             @Override
             int inputType(Cursor product) {
-                if (product.getString(3).equals(getString(R.string.piece))) {
+                if (!product.isNull(3) && product.getString(3).equals(getString(R.string.piece))) {
                     return InputType.TYPE_CLASS_NUMBER;
                 } else {
                     return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
@@ -65,7 +65,7 @@ public class TransactionFragment extends Fragment
 
             @Override
             float quantity(float number, Cursor product) {
-                if (product.getString(3).equals(getString(R.string.piece))) {
+                if (!product.isNull(3) && product.getString(3).equals(getString(R.string.piece))) {
                     return (int) (number / product.getFloat(2));
                 } else {
                     return number / product.getFloat(2);
