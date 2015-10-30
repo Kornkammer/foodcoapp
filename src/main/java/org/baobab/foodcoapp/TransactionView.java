@@ -185,9 +185,6 @@ public class TransactionView extends GridLayout {
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
-//            if (data.getPosition() == data.getCount() && Math.abs(quantity) == 1) {
-//                onAmountClick.onClick(amount);
-//            } else
             if (Math.abs(quantity) < 1) {
                 x.setText("g ");
             } else {
@@ -195,7 +192,11 @@ public class TransactionView extends GridLayout {
             }
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
-            x.setText("l ");
+            if (Math.abs(quantity) < 1) {
+                x.setText("mL ");
+            } else {
+                x.setText("L ");
+            }
         } else {
             x.setText("x ");
         }
