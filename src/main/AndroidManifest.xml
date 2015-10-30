@@ -18,6 +18,19 @@
     android:name=".FoodcoApplication"
     android:theme="@style/AppTheme" >
     <activity
+      android:name="org.baobab.foodcoapp.DashboardActivity"
+      android:screenOrientation="landscape"
+      android:launchMode="singleTask"
+      android:label="KornkammR"
+      android:theme="@style/FullscreenTheme" >
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+        <category android:name="android.intent.category.HOME" />
+        <category android:name="android.intent.category.DEFAULT" />
+      </intent-filter>
+    </activity>
+    <activity
       android:name="org.baobab.foodcoapp.DepositActivity"
       android:windowSoftInputMode="stateAlwaysVisible"
       android:screenOrientation="landscape" >
