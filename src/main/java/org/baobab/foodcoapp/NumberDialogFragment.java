@@ -18,10 +18,12 @@ public abstract class NumberDialogFragment extends DialogFragment {
 
     private final String msg;
     private final String value;
+    private final int inputType;
 
-    public NumberDialogFragment(String msg, String value) {
+    public NumberDialogFragment(String msg, String value, int inputType) {
         this.msg = msg;
         this.value = value;
+        this.inputType = inputType;
     }
 
     @Override
@@ -41,6 +43,7 @@ public abstract class NumberDialogFragment extends DialogFragment {
         ((TextView) view.findViewById(R.id.message)).setText(msg);
         EditText number = (EditText) view.findViewById(R.id.number);
         number.setText("" + Math.abs(Float.valueOf(value)));
+        number.setInputType(inputType);
         number.selectAll();
         number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override

@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,9 +69,15 @@ public class TransactionFragment extends Fragment
                     Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
                     null, null, null, null);
             c.moveToFirst();
+            int inputType;
+            if (c.getString(3).equals(getString(R.string.piece))) {
+                inputType = InputType.TYPE_CLASS_NUMBER;
+            } else {
+                inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+            }
             getFragmentManager().beginTransaction()
                     .replace(v.getId(), new NumberDialogFragment(
-                            text(c), (String) v.getTag()) {
+                            text(c), (String) v.getTag(), inputType) {
                         @Override
                         public void onNumber(float number) {
                             ContentValues cv = new ContentValues();
