@@ -8,7 +8,7 @@
 
   <dimen name="font_size_xlarge">43sp</dimen>
   <dimen name="font_size_large">34sp</dimen>
-  <dimen name="font_size_medium">20sp</dimen>
+  <dimen name="font_size_medium">21sp</dimen>
   <dimen name="font_size_small">17sp</dimen>
   <dimen name="font_size_xsmall">10sp</dimen>
 
