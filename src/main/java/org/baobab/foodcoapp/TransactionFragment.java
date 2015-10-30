@@ -42,6 +42,17 @@ public class TransactionFragment extends Fragment
                 return number;
             }
         });
+        transaction.setOnSumClick(new NumberEditListener() {
+            @Override
+            String text(Cursor product) {
+                return product.getString(3) + " " + product.getString(1) + " für wie viel?";
+            }
+
+            @Override
+            float quantity(float number, Cursor product) {
+                return number / product.getFloat(2);
+            }
+        });
         return frame;
     }
 

@@ -20,6 +20,7 @@ import android.widget.TextView;
 public class TransactionView extends GridLayout {
 
     OnClickListener onAmountClick;
+    OnClickListener onSumClick;
     TextView header;
     String account;
     double sum;
@@ -38,6 +39,10 @@ public class TransactionView extends GridLayout {
 
     public void setOnAmountClick(OnClickListener onAmountClick) {
         this.onAmountClick = onAmountClick;
+    }
+
+    public void setOnSumClick(OnClickListener onSumClick) {
+        this.onSumClick = onSumClick;
     }
 
     public void showImages(boolean showImages) {
@@ -231,13 +236,8 @@ public class TransactionView extends GridLayout {
         f.setClickable(true);
         f.setId(data.getInt(3));
         f.setTag(String.valueOf(total));
-        if (onAmountClick != null) {
-            f.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onAmountClick.onClick(v);
-                }
-            });
+        if (onSumClick != null) {
+            f.setOnClickListener(onSumClick);
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
