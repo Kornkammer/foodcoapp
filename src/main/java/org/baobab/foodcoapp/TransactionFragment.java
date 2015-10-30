@@ -175,15 +175,12 @@ public class TransactionFragment extends Fragment
                         Cursor stocks = getActivity().getContentResolver().query(
                                 Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
                                 null, "title IS '" + t.getString(7) + "'", null, null);
-                        System.out.println("Check! " + t.getString(10));
                         int factor = 1;
                         if (t.getString(10).equals("passiva")) {
                             factor = -1;
                         }
                         if (stocks.getCount() > 0) {
                             stocks.moveToFirst();
-                            System.out.println(stocks.getString(4));
-                            System.out.println(t.getString(4));
                             if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
                                 msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(2) + "\n";
                             }
