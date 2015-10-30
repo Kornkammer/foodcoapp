@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.DecimalFormat;
+import java.util.Locale;
 
 public class DecimalView extends LinearLayout {
 
@@ -29,11 +29,15 @@ public class DecimalView extends LinearLayout {
         addView(amount);
 
         point = new TextView(getContext());
-        point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xlarge));
+        point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
         point.setTextColor(getResources().getColor(R.color.xlight_blue));
         point.setPadding(-5, -large, -5, -large);
         point.setVisibility(GONE);
-        point.setText(".");
+        if (Locale.getDefault().equals(Locale.GERMANY)) {
+            point.setText(",");
+        } else {
+            point.setText(".");
+        }
         addView(point);
 
         decimals = new TextView(getContext());
@@ -62,11 +66,9 @@ public class DecimalView extends LinearLayout {
         } else {
             point.setVisibility(VISIBLE);
             decimals.setVisibility(VISIBLE);
-            DecimalFormat df = new DecimalFormat("0.000");
-            String d = df.format(Math.abs(number));
-            d = d.substring(d.indexOf(".") +1).replaceAll("0+$", "");
-            decimals.setText(d);
-//            decimals.setText(String.valueOf((int) ((Math.abs(number) % 1) * 1000)));
+            decimals.setText(String.valueOf(
+                    (int) ((number % 1) * 1000))
+                    .replaceAll("0+$", ""));
         }
     }
 }
