@@ -31,33 +31,48 @@ public class TransactionFragment extends Fragment
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         View frame = flate.inflate(R.layout.fragment_transaction, null, false);
         transaction = (TransactionView) frame.findViewById(R.id.transaction);
-        transaction.setOnAmountClick(new View.OnClickListener() {
+        transaction.setOnAmountClick(new NumberEditListener() {
             @Override
-            public void onClick(final View v) {
-                Cursor c = getActivity().getContentResolver().query(
-                        Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
-                        null, null, null, null);
-                c.moveToFirst();
-                getFragmentManager().beginTransaction()
-                        .replace(v.getId(), new NumberDialogFragment(
-                                "Wie viel " + c.getString(3) + " " + c.getString(1),
-                                (String) v.getTag()) {
-                            @Override
-                            public void onNumber(float number) {
-                                ContentValues cv = new ContentValues();
-                                cv.put("quantity", number);
-                                getActivity().getContentResolver().update(
-                                        getActivity().getIntent().getData().buildUpon()
-                                            .appendEncodedPath("products/" + v.getId())
-                                            .build(), cv, null, null);
-                            }
-                        }, "amount")
-                        .addToBackStack("amount").commitAllowingStateLoss();
+            String text(Cursor product) {
+                return "Wie viel " + product.getString(3) + " " + product.getString(1);
+            }
+
+            @Override
+            float quantity(float number, Cursor product) {
+                return number;
             }
         });
         return frame;
     }
 
+    abstract class NumberEditListener implements View.OnClickListener {
+
+        abstract String text(Cursor product);
+
+        abstract float quantity(float number, Cursor product);
+
+        @Override
+        public void onClick(final View v) {
+            final Cursor c = getActivity().getContentResolver().query(
+                    Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
+                    null, null, null, null);
+            c.moveToFirst();
+            getFragmentManager().beginTransaction()
+                    .replace(v.getId(), new NumberDialogFragment(
+                            text(c), (String) v.getTag()) {
+                        @Override
+                        public void onNumber(float number) {
+                            ContentValues cv = new ContentValues();
+                            cv.put("quantity", quantity(number, c));
+                            getActivity().getContentResolver().update(
+                                    getActivity().getIntent().getData().buildUpon()
+                                            .appendEncodedPath("products/" + v.getId())
+                                            .build(), cv, null, null);
+                        }
+                    }, "edit")
+                    .addToBackStack("amount").commitAllowingStateLoss();
+        }
+    }
     public void load() {
         getActivity().getSupportLoaderManager().restartLoader(1, null, this);
     }

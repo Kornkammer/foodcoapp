@@ -49,12 +49,7 @@ public class DecimalView extends LinearLayout {
         setFocusable(true);
         setClickable(true);
         if (onClick != null) {
-            setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    onClick.onClick(v);
-                }
-            });
+            setOnClickListener(onClick);
         }
     }
 
