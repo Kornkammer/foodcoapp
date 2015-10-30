@@ -25,6 +25,13 @@
     android:layout_centerHorizontal="true"
     android:hint="pin" />
 
+  <ImageButton
+    android:id="@+id/qr"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginRight="@dimen/padding_large"
+    android:layout_toLeftOf="@id/pin"
+    android:src="@drawable/ic_qr_qcan" />
   <TextView
     android:id="@+id/result"
     android:layout_below="@+id/pin"

@@ -45,6 +45,12 @@ public class LegitimateActivity extends AppCompatActivity {
             Barcode.scan(this, "QR_CODE_MODE");
         }
         setContentView(R.layout.activity_legitimate);
+        findViewById(R.id.qr).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Barcode.scan(LegitimateActivity.this, "QR_CODE_MODE");
+            }
+        });
         ((EditText) findViewById(R.id.pin)).setOnEditorActionListener(
                 new EditText.OnEditorActionListener() {
                     @Override
