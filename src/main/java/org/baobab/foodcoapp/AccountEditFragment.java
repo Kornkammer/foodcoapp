@@ -30,7 +30,7 @@ public class AccountEditFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final int CONTACT = 1;
-    private static final int SCAN = 2;
+    private static final int SCAN = 0;
 
     static AccountEditFragment newInstance() {
         AccountEditFragment f = new AccountEditFragment();
@@ -81,7 +81,7 @@ public class AccountEditFragment extends Fragment
         getView().findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Barcode.scan((AppCompatActivity) getActivity(), "QR_CODE_MODE");
+                Barcode.scan(AccountEditFragment.this, "QR_CODE_MODE");
             }
         });
         setHasOptionsMenu(true);
@@ -168,6 +168,7 @@ public class AccountEditFragment extends Fragment
                 }
                 if (data.isNull(5)) {
                     getArguments().putString("qr", data.getString(5));
+                    ((Button) getView().findViewById(R.id.scan)).setText("***");
                 }
                 ((TextView) getView().findViewById(R.id.name))
                     .setText(data.getString(2));
@@ -175,7 +176,6 @@ public class AccountEditFragment extends Fragment
                     .setText(data.getString(4));
                 ((TextView) getView().findViewById(R.id.pin2))
                     .setText(data.getString(4));
-                ((Button) getView().findViewById(R.id.scan)).setText("***");
 
                 if (!data.isNull(3)) {
                     getArguments().putString("contact", data.getString(3));

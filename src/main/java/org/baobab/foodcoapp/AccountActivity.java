@@ -33,8 +33,6 @@ public class AccountActivity extends AppCompatActivity {
                 public void onBackStackChanged() {
                     if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                         finish();
-//                        startActivity(new Intent(AccountActivity.this, PosActivity.class)
-//                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
                     }
                 }
             });
@@ -46,9 +44,7 @@ public class AccountActivity extends AppCompatActivity {
                 .replace(R.id.container, AccountEditFragment.newInstance(uri))
                 .addToBackStack("add")
                 .commit();
-
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -76,5 +72,4 @@ public class AccountActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 }
