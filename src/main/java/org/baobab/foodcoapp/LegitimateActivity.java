@@ -107,7 +107,7 @@ public class LegitimateActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     startActivity(new Intent(Intent.ACTION_EDIT,
-                            Uri.parse("content://org.baobab.foodcoapp/accounts/" + auth.getLong(0))));
+                            Uri.parse("content://org.baobab.foodcoapp/accounts/" + auth.getString(3))));
                 }
             });
 
