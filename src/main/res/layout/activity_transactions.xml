@@ -1,12 +1,11 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/container"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/medium"
-    android:paddingRight="@dimen/medium"
-    android:paddingTop="@dimen/small"
-    android:paddingBottom="@dimen/small"
-    tools:context="org.baobab.foodcoapp.AccountActivity">
+<FrameLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/container"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:paddingLeft="@dimen/medium"
+  android:paddingRight="@dimen/medium"
+  android:paddingTop="@dimen/small"
+  android:paddingBottom="@dimen/small" >
 
-</RelativeLayout>
+</FrameLayout>

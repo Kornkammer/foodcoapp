@@ -1,6 +1,7 @@
 package org.baobab.foodcoapp;
 
 import android.app.ProgressDialog;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -34,11 +35,20 @@ public class TransactionsActivity extends AppCompatActivity {
                     .replace(R.id.container, TransactionListFragment.newInstance(
                             Uri.parse("content://org.baobab.foodcoapp/transactions")))
                     .commit();
-        } else if (getIntent().getDataString().contains("/transactions")) {
+            getSupportActionBar().setTitle("Transaction Log");
+        } else if (getIntent().getDataString().contains("/accounts")) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, TransactionListFragment.newInstance(
-                            getIntent().getData()))
+                    .replace(R.id.container, TransactionListFragment
+                            .newInstance(getIntent().getData()))
                     .commit();
+            Cursor account = getContentResolver().query(
+                    Uri.parse("content://org.baobab.foodcoapp/accounts"),
+                    null, "guid IS '" +
+                            getIntent().getData().getPathSegments().get(1) +
+                            "'", null, null);
+            account.moveToFirst();
+            getSupportActionBar().setTitle(account.getString(1) + " Guthaben: "
+                    + String.format("%.2f", - account.getFloat(4)));
         } else if (getIntent().getScheme().equals("content")) {
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
