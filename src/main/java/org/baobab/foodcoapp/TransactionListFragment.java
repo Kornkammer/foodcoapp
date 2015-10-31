@@ -59,6 +59,13 @@ public class TransactionListFragment extends ListFragment
                         v.who.setText(cursor.getString(3));
                         String sign;
                         if (cursor.getString(9).equals("aktiva")) {
+                            if (cursor.getInt(8) < 0) {
+                                sign = "-";
+                                v.comment.setText("Einlagerung");
+                            } else {
+                                sign = "+";
+                                v.comment.setText("Barverkauf");
+                            }
                             sign = cursor.getInt(8) > 0? "+" : "-";
                         } else {
                             if (cursor.getInt(8) < 0) {
@@ -72,7 +79,7 @@ public class TransactionListFragment extends ListFragment
                         if (!cursor.isNull(4)) {
                             v.comment.append("\n" + cursor.getString(4));
                         }
-                        v.sum.setText(sign + String.format("%.2f", cursor.getFloat(5)));
+                        v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
                     }
                 }
         );

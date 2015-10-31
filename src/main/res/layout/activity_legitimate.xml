@@ -40,7 +40,7 @@
     android:layout_height="wrap_content"
     android:layout_centerHorizontal="true"
     android:textColor="#f00"
-    android:textSize="42sp"
+    android:textSize="@dimen/font_size_medium"
     android:paddingTop="21dp"
     android:text="Pin Falsch!"
     android:visibility="gone" />

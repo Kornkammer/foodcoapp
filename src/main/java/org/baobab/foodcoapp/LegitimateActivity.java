@@ -99,6 +99,7 @@ public class LegitimateActivity extends AppCompatActivity {
             fail.start();
             findViewById(R.id.result).setVisibility(View.VISIBLE);
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(1400);
+            Toast.makeText(LegitimateActivity.this, "Nicht mehr gültig", Toast.LENGTH_LONG).show();
             return false;
         } else if (auth.getString(1).equals("locked")) {
             findViewById(R.id.result).setVisibility(View.VISIBLE);

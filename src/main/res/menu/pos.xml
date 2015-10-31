@@ -13,9 +13,16 @@
     android:actionLayout="@layout/scale" />
 
   <item
+    android:id="@+id/transactions"
+    android:title="@string/transactions"
+    android:icon="@drawable/ic_menu_moreoverflow"
+    android:showAsAction="always"
+    app:showAsAction="always" />
+
+  <item
     android:id="@+id/accounts"
     android:title="@string/accounts"
-    android:icon="@drawable/ic_menu_cc_am"
+    android:icon="@drawable/ic_menu_friendslist"
     android:showAsAction="always"
     app:showAsAction="always" />
 
