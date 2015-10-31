@@ -17,6 +17,7 @@ import javax.crypto.spec.PBEKeySpec;
 public class Crypt {
 
     private static final String TAG = "POS";
+    public static final int ITERATION_COUNT = 1; // very secure!
 
     static {
         Security.insertProviderAt(new org.spongycastle.jce.provider.BouncyCastleProvider(), 1);
@@ -30,7 +31,7 @@ public class Crypt {
         byte[] hash = null;
         try {
             hash = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1")
-                    .generateSecret(new PBEKeySpec(pin, salt, 2048, 256))
+                    .generateSecret(new PBEKeySpec(pin, salt, ITERATION_COUNT, 256))
                     .getEncoded();
         } catch (NoSuchAlgorithmException e) {
             Log.e(TAG, e.getMessage());
