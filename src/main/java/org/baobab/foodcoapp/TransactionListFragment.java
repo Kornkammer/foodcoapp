@@ -95,6 +95,7 @@ public class TransactionListFragment extends ListFragment
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         ((CursorAdapter) getListAdapter()).swapCursor(data);
+        getListView().setSelection(data.getCount() - 1);
     }
 
     @Override
