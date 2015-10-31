@@ -202,11 +202,11 @@ public class AccountingProvider extends ContentProvider {
                                 " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
                                 ") AS txn ON txn.account_guid = accounts.guid" +
-                        " WHERE parent_guid IS ?" +
+                        (uri.getPathSegments().size() > 1?
+                            " WHERE parent_guid IS '" + parent_guid + "'" : "") +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
-                        " ORDER BY name",
-                        new String[] { parent_guid });
+                        " ORDER BY name", null);
                 break;
             case ACCOUNT_PRODUCTS:
                 String account_guid = "";

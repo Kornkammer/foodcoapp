@@ -44,6 +44,19 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("one account", 1, accounts.getCount());
     }
 
+    public void testListAccounts() {
+        createDummyAccount("dummy");
+        Cursor accounts = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp.test/accounts"), null, null, null, null);
+        assertEquals("one account in total", 5, accounts.getCount());
+        accounts = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp.test/accounts/aktiva/accounts"), null, null, null, null);
+        assertEquals("no aktiva account", 2, accounts.getCount());
+        accounts = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
+        assertEquals("one passiva account", 1, accounts.getCount());
+    }
+
     public void testFindAccountByName() {
         createDummyAccount("dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
@@ -51,6 +64,9 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("no account", 0, accounts.getCount());
         accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, "name IS 'dummy'", null, null);
+        assertEquals("one account", 1, accounts.getCount());
+        accounts = getMockContentResolver().query(Uri.parse(
+                "content://org.baobab.foodcoapp.test/accounts"), null, "guid IS 'dummy'", null, null);
         assertEquals("one account", 1, accounts.getCount());
     }
 
@@ -65,8 +81,8 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         transactions.moveToFirst();
         assertEquals("time", 1, transactions.getLong(2));
         assertEquals("who", "dummy", transactions.getString(3));
-        assertEquals("sum", 42.0, transactions.getDouble(5));
-        assertEquals("Bilanzerniedrigung", true, transactions.getInt(7) < 0);
+        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("Bilanzerniedrigung", true, transactions.getInt(8) < 0);
     }
 
     private Uri createDummyAccount(String name) {
