@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,11 +28,12 @@ public class TransactionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private TransactionView transaction;
+    private ScrollView scrollView;
 
     @Override
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
-        View frame = flate.inflate(R.layout.fragment_transaction, null, false);
-        transaction = (TransactionView) frame.findViewById(R.id.transaction);
+        scrollView = (ScrollView) flate.inflate(R.layout.fragment_transaction, null, false);
+        transaction = (TransactionView) scrollView.findViewById(R.id.transaction);
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
             String text(Cursor product) {
@@ -72,7 +74,7 @@ public class TransactionFragment extends Fragment
                 }
             }
         });
-        return frame;
+        return scrollView;
     }
 
     abstract class NumberEditListener implements View.OnClickListener {
@@ -130,6 +132,12 @@ public class TransactionFragment extends Fragment
                     .hideSoftInputFromWindow(getView().getWindowToken(), 0);
         }
         transaction.populate(data);
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+            }
+        });
         Cursor s = getActivity().getContentResolver().query(
                 getActivity().getIntent().getData().buildUpon()
                         .appendEncodedPath("sum").build(), null, null, null, null);
