@@ -210,6 +210,9 @@ public class TransactionView extends GridLayout {
             x.setText("x ");
         }
         x.setTextColor(getResources().getColor(R.color.light_blue));
+        if (data.getLong(3) <= 5) {
+            x.setVisibility(GONE);
+        }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.setGravity(Gravity.CENTER);
