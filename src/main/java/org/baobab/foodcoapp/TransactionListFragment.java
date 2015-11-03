@@ -38,7 +38,8 @@ public class TransactionListFragment extends ListFragment
 
     public TransactionListFragment() { }
 
-    static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy  HH:mm");
+    static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+    static SimpleDateFormat tf = new SimpleDateFormat("HH:mm");
 
     @Override
     public View onCreateView(LayoutInflater inf, ViewGroup p, Bundle state) {
@@ -55,7 +56,8 @@ public class TransactionListFragment extends ListFragment
                     public void bindView(View view, Context context, Cursor cursor) {
                         TransactionView v = (TransactionView) view;
                         v.id = cursor.getLong(0);
-                        v.time.setText(df.format(new Date(cursor.getLong(2))));
+                        v.date.setText(df.format(new Date(cursor.getLong(2))));
+                        v.time.setText(tf.format(new Date(cursor.getLong(2))));
                         v.who.setText(cursor.getString(3));
                         String sign;
                         if (cursor.getString(9).equals("aktiva")) {
@@ -112,6 +114,7 @@ public class TransactionListFragment extends ListFragment
 
     private class TransactionView extends LinearLayout implements View.OnClickListener {
         long id;
+        final TextView date;
         final TextView time;
         final TextView who;
         final TextView sum;
@@ -121,7 +124,8 @@ public class TransactionListFragment extends ListFragment
         public TransactionView(Context ctx) {
             super(ctx);
             setOrientation(VERTICAL);
-            View.inflate(ctx, R.layout.transaction_list_item, this);
+            View.inflate(ctx, R.layout.view_transaction_list_item, this);
+            date = (TextView) findViewById(R.id.date);
             time = (TextView) findViewById(R.id.time);
             who = (TextView) findViewById(R.id.who);
             sum = (TextView) findViewById(R.id.sum);

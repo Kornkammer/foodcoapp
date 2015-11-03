@@ -170,7 +170,7 @@ public class TransactionView extends GridLayout {
         }
         GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
-        lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_medium);
+        lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         addView(images, lp);
 
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
@@ -195,7 +195,7 @@ public class TransactionView extends GridLayout {
             if (Math.abs(quantity) < 1) {
                 x.setText("g ");
             } else {
-                x.setText("kg ");
+                x.setText("Kg ");
             }
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
@@ -223,7 +223,7 @@ public class TransactionView extends GridLayout {
         }
 
         title.setTypeface(null, Typeface.BOLD);
-        title.setPadding(0, 1, 0, -getContext().getResources().getDimensionPixelSize(R.dimen.padding_small));
+        title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, -getContext().getResources().getDimensionPixelSize(R.dimen.padding_small));
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2);
@@ -265,7 +265,7 @@ public class TransactionView extends GridLayout {
         } else {
             details.setText(String.format("%.2f", price) + "/St");
         }
-        details.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xsmall));
+        details.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xxsmall));
         lp = new GridLayout.LayoutParams();
         lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         lp.columnSpec = GridLayout.spec(3);
