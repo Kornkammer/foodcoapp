@@ -8,7 +8,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -163,7 +162,7 @@ public class AccountListFragment extends Fragment
         public AccountView(Context ctx) {
             super(ctx);
             setOrientation(VERTICAL);
-            View.inflate(ctx, R.layout.account_list_item, this);
+            View.inflate(ctx, R.layout.view_account_list_item, this);
             balance = (TextView) findViewById(R.id.balance);
             name = (TextView) findViewById(R.id.name);
         }
