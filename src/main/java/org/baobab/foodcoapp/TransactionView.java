@@ -255,7 +255,7 @@ public class TransactionView extends GridLayout {
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.leftMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
-        lp.bottomMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
+        lp.bottomMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xxsmall);
         lp.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
         addView(f, lp);
 

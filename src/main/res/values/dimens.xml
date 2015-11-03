@@ -16,6 +16,7 @@
   <dimen name="column_small">64dp</dimen>
   <dimen name="column_large">152dp</dimen>
 
+  <dimen name="padding_xxsmall">2dp</dimen>
   <dimen name="padding_xsmall">4dp</dimen>
   <dimen name="padding_small">6dp</dimen>
   <dimen name="padding_medium">2dp</dimen>

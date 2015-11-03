@@ -2,7 +2,7 @@
 
   <dimen name="small">8dp</dimen>
   <dimen name="medium">16dp</dimen>
-  <dimen name="large">32dp</dimen>
+  <dimen name="large">16dp</dimen>
   <dimen name="xlarge">64dp</dimen>
 
   <dimen name="font_size_xlarge">70sp</dimen>
@@ -15,6 +15,7 @@
   <dimen name="column_small">112dp</dimen>
   <dimen name="column_large">224dp</dimen>
 
+  <dimen name="padding_xxsmall">5dp</dimen>
   <dimen name="padding_xsmall">6dp</dimen>
   <dimen name="padding_small">8dp</dimen>
   <dimen name="padding_medium">9dp</dimen>
