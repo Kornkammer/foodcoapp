@@ -12,7 +12,6 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginRight="@dimen/large"
         class="org.baobab.foodcoapp.AccountListFragment" />
 
     <fragment
@@ -20,6 +19,6 @@
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/large"
+        android:layout_marginLeft="@dimen/small"
         class="org.baobab.foodcoapp.AccountListFragment" />
 </LinearLayout>

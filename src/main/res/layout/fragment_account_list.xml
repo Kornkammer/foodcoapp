@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/large"
+    android:padding="@dimen/small"
     tools:context="org.baobab.foodcoapp.AccountListFragment">
 
     <ExpandableListView

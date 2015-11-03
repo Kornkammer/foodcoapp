@@ -53,6 +53,10 @@ public class DecimalView extends LinearLayout {
         }
     }
 
+    public void setTextSize(int size) {
+        amount.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(size));
+    }
+
     public void setNumber(float number) {
         amount.setText(String.valueOf((int) Math.abs(number)));
         if (number % 1 == 0) {

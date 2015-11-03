@@ -198,12 +198,12 @@ public class TransactionView extends GridLayout {
             if (Math.abs(quantity) < 1) {
                 x.setText("g ");
             } else {
-                x.setText("Kg ");
+                x.setText("kg");
             }
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
             if (Math.abs(quantity) < 1) {
-                x.setText("mL ");
+                x.setText("ml ");
             } else {
                 x.setText("L ");
             }
@@ -229,14 +229,21 @@ public class TransactionView extends GridLayout {
         }
 
         title.setTypeface(null, Typeface.BOLD);
-        title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, -getContext().getResources().getDimensionPixelSize(R.dimen.padding_small));
+        title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
-        title.setMaxWidth(getResources().getDimensionPixelSize(R.dimen.column_small));
+        if (quantity <= -100) { // more than 100 in stock
+            amount.setNumber((int) quantity); // cut off decimals
+            if (quantity <= -1000) {
+                amount.setTextSize(R.dimen.font_size_large);
+                ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
+            }
+        }
         title.setEllipsize(TextUtils.TruncateAt.END);
         title.setMaxLines(1);
         lp = new GridLayout.LayoutParams();
-        lp.columnSpec = GridLayout.spec(3, 2);
+        lp.columnSpec = GridLayout.spec(3, 2, 3);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
+        lp.width = 0;
         addView(title, lp);
 
         TextView sum = new TextView(getContext());
@@ -267,7 +274,7 @@ public class TransactionView extends GridLayout {
         details.setTextColor(getResources().getColor(android.R.color.black));
         if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
-            details.setText(String.format("%.2f", price) + "/Kg");
+            details.setText(String.format("%.2f", price) + "/kg");
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
             details.setText(String.format("%.2f", price) + "/L");
@@ -276,7 +283,7 @@ public class TransactionView extends GridLayout {
         }
         details.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xxsmall));
         lp = new GridLayout.LayoutParams();
-        lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
+        lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
         lp.columnSpec = GridLayout.spec(3);
         addView(details, lp);
 
@@ -286,7 +293,7 @@ public class TransactionView extends GridLayout {
         eq.setTextColor(getResources().getColor(R.color.light_blue));
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(4);
-        lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
+        lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
         lp.setGravity(Gravity.RIGHT);
         addView(eq, lp);
 
