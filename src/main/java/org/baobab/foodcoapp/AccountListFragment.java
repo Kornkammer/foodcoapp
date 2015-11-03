@@ -84,6 +84,7 @@ public class AccountListFragment extends Fragment
         ((ExpandableListView) view.findViewById(android.R.id.list)).setAdapter(adapter);
         registerForContextMenu(view.findViewById(android.R.id.list));
 
+        ((ExpandableListView) view.findViewById(android.R.id.list)).setGroupIndicator(null);
         ((ExpandableListView) view.findViewById(android.R.id.list))
                 .setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
