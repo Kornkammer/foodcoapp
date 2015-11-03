@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,14 +32,14 @@ public class LegitimateActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if (PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean("rotate_screen", false)) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
         } else {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle("Legitimieren");
         win = MediaPlayer.create(this, R.raw.tada);
         fail = MediaPlayer.create(this, R.raw.trombone);
         if (getIntent().hasExtra("SCAN")) {
@@ -143,6 +144,9 @@ public class LegitimateActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
         } else {
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_FULLSCREEN);
