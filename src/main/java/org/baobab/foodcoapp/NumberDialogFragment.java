@@ -72,9 +72,10 @@ public abstract class NumberDialogFragment extends DialogFragment {
                 n = n * -1;
             }
             if (Math.abs(n) > 1000) {
-                Toast.makeText(getActivity(), "So viel gibts ja gar nicht!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "So viele gibts ja gar nicht!", Toast.LENGTH_LONG).show();
                 return;
             }
+            n = (float) (Math.round(n * 1000) / 1000.0d);
             onNumber(n);
         } catch (NumberFormatException e) {
             Log.d("System.err", e.getMessage());
