@@ -250,7 +250,7 @@ public class AccountingProvider extends ContentProvider {
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(quantity || ' x ' || title || ' a ' || price || ' = ' || (quantity * price), ',  \n'), " +
-                                "sum(abs(transaction_products.quantity) * transaction_products.price)/2, " +
+                                "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid" +
                         " FROM transactions" +
                         " LEFT OUTER JOIN sessions ON transactions.session_id = sessions._id" +
@@ -263,8 +263,9 @@ public class AccountingProvider extends ContentProvider {
 //                                " AND transaction_products.title IS NOT 'Credits'" +
                                 (selection != null? " AND " + selection : "") +
                         " GROUP BY transactions._id" +
+                        " HAVING balance != 0" +
                         (uri.getPathSegments().size() == 3?
-                                " HAVING accounts.guid IS '" + uri.getPathSegments().get(1) + "'" : "") +
+                                " AND accounts.guid IS '" + uri.getPathSegments().get(1) + "'" : "") +
                         " ORDER BY transactions._id",
                         null);
                 break;
