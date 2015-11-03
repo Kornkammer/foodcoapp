@@ -21,7 +21,7 @@ public class AccountingProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context) {
-            super(context, "foodcoapp.db", null, 3);
+            super(context, "foodcoapp.db", null, 4);
         }
 
         @Override
@@ -66,13 +66,14 @@ public class AccountingProvider extends ContentProvider {
                     "status TEXT, " +
                     "contact TEXT, " +
                     "pin TEXT, " +
-                    "qr TEXT" +
+                    "qr TEXT " +
                     ");");
             db.execSQL("CREATE TABLE sessions (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "account_guid TEXT, " +
                     "start INTEGER, " +
-                    "stop INTEGER" +
+                    "stop INTEGER, " +
+                    "img TEXT" +
                     ");");
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.foodcoapp/drawable/cash');");
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Credits', 1, 'android.resource://org.baobab.foodcoapp/drawable/ic_launcher');");
@@ -83,26 +84,17 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (2, 'Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (3, 'Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (7, 'Reis', 1.3, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/rice');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
-//            db.execSQL("INSERT INTO products (button, title) VALUES ('');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (1, '', 'aktiva','Aktiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (2, '', 'passiva','Passiva');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (3, 'aktiva', 'lager','Lager');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (300000, 'aktiva', 'kasse','Kasse');");
-//            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (6, 'passiva', 'sepp','Sepp');");
-//            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (7, 'passiva', 'susi','Susi');");
-//            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (8, 'passiva', 'flo','Flo');");
-            db.execSQL("INSERT INTO transactions (_id, status) VALUES (1, 'foo');");
-            db.execSQL("INSERT INTO transaction_products (_id, account_guid) VALUES (1, 'lager');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (10, 'aktiva', 'bank','Bank');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (20, 'aktiva', 'kasse','Kasse');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (30, 'aktiva', 'lager','Lager');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (40, 'aktiva', 'kosten','Kosten');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (50, 'aktiva', 'inventar','Inventar');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (60, 'aktiva', 'forderungen','Forderungen');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (110, 'passiva', 'einlagen','Einlagen');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (120, 'passiva', 'mitgliedsbeiträge','Mitgliedsbeiträge');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (130, 'passiva', 'verbindlichkeiten','Verbindlichkeiten');");
             Log.d(TAG, "created DB");
         }
 
@@ -176,7 +168,7 @@ public class AccountingProvider extends ContentProvider {
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid " +
                         " WHERE transaction_id = ?" +
                         " GROUP BY accounts.guid, product_id" +
-                        " ORDER BY accounts._id, transaction_products.product_id",
+                        " ORDER BY accounts._id, transaction_products.title",
                         new String[] { uri.getLastPathSegment() });
                 break;
             case SUM:
@@ -206,7 +198,7 @@ public class AccountingProvider extends ContentProvider {
                             " WHERE parent_guid IS '" + parent_guid + "'" : "") +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
-                        " ORDER BY name", null);
+                        " ORDER BY accounts._id", null);
                 break;
             case ACCOUNT_PRODUCTS:
                 String account_guid = "";
