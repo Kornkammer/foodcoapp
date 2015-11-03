@@ -104,7 +104,7 @@ public class TransactionView extends GridLayout {
             ViewGroup.LayoutParams p = new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT );
-
+            lp.bottomMargin = - getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
             f.addView(header, p);
             addView(f, lp);
             f.setId(data.getInt(3));
@@ -180,6 +180,8 @@ public class TransactionView extends GridLayout {
             } else {
                 amount.setNumber(quantity);
             }
+        } else {
+            amount.setVisibility(View.GONE);
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
