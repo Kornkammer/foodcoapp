@@ -224,7 +224,8 @@ public class AccountingProvider extends ContentProvider {
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE account_guid IS ? AND transactions.status IS NOT 'draft'" +
                         " GROUP BY title, price" +
-                        (selection != null? " HAVING " + selection : ""),
+                        " HAVING stock != 0" +
+                        (selection != null? " AND " + selection : ""),
                         new String[] { account_guid });
                 break;
             case ACCOUNT:
