@@ -230,6 +230,7 @@ public class TransactionView extends GridLayout {
         title.setTypeface(null, Typeface.BOLD);
         title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, -getContext().getResources().getDimensionPixelSize(R.dimen.padding_small));
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
+        title.setMaxWidth(getResources().getDimensionPixelSize(R.dimen.column_small));
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
