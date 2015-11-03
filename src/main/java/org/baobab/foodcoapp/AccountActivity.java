@@ -1,14 +1,17 @@
 package org.baobab.foodcoapp;
 
-import android.content.Intent;
+import android.annotation.TargetApi;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
 
 
 public class AccountActivity extends AppCompatActivity {
@@ -72,4 +75,19 @@ public class AccountActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    protected void onStart() {
+        super.onStart();
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
+    }
+
 }
