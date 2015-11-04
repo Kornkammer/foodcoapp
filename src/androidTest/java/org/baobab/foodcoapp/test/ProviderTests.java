@@ -158,6 +158,23 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("quantity", -7.0, products.getDouble(4));
     }
 
+    public void testDeleteProducts() {
+        createDummyAccount("dummy");
+        Uri transaction = insertTransaction("final", "lager", "dummy");
+        getMockContentResolver().delete(transaction.buildUpon()
+                .appendEncodedPath("accounts/lager/products/23").build(), null, null);
+        Cursor products = query(transaction, 2);
+        assertEquals("quantity", -41.0, products.getDouble(4));
+        getMockContentResolver().delete(transaction.buildUpon()
+                .appendEncodedPath("accounts/dummy/products/23").build(), null, null);
+        products = query(transaction, 2);
+        products.moveToLast();
+        assertEquals("quantity", 20.0, products.getDouble(4));
+        getMockContentResolver().delete(transaction.buildUpon()
+                .appendEncodedPath("accounts/lager/products/23").build(), "nix null", null);
+        query(transaction, 1);
+    }
+
     @NonNull
     private Cursor query(String path, int assert_count) {
         return query(Uri.parse("content://org.baobab.foodcoapp.test/" + path), assert_count);
@@ -194,7 +211,6 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         b.put("unit", "dinge");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        b = new ContentValues();
         b.put("account_guid", to_account);
         b.put("quantity", 21);
         b.put("price", 2.0);

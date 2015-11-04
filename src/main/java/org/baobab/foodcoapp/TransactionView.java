@@ -209,13 +209,14 @@ public class TransactionView extends GridLayout {
                 images.addView(image, new LinearLayout.LayoutParams((int) (width * factor ), height));
             }
             images.setClickable(true);
+            final String account_guid = data.getString(2);
             images.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     getContext().getContentResolver().delete(
                             ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                    .appendEncodedPath("products/" + product_id)
-                                    .build(), null, null);
+                                    .appendEncodedPath("accounts/" + account_guid +
+                                            "/products/" + product_id).build(), null, null);
                 }
             });
             images.setOnLongClickListener(new OnLongClickListener() {
@@ -224,8 +225,8 @@ public class TransactionView extends GridLayout {
                 public boolean onLongClick(View v) {
                     getContext().getContentResolver().delete(
                             ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                    .appendEncodedPath("products/" + product_id)
-                                    .build(), "", null);
+                                    .appendEncodedPath("accounts/" + account_guid +
+                                            "/products/" + product_id).build(), "all", null);
                     return false;
                 }
             });

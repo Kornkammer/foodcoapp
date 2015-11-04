@@ -144,6 +144,7 @@ public class AccountingProvider extends ContentProvider {
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCT);
+        router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         return false;
     }
@@ -390,32 +391,30 @@ public class AccountingProvider extends ContentProvider {
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         switch (router.match(uri)) {
             case TRANSACTION_PRODUCT:
-                Cursor c = db.getReadableDatabase().query("transaction_products", null,
-                        "transaction_id =? AND product_id = ?",
-                        new String[]{
-                                uri.getPathSegments().get(1),
-                                uri.getLastPathSegment()},
-                        null, null, null);
+                boolean completeDelete = selection != null;
+                selection = "transaction_id =? AND account_guid IS ? AND product_id = ?";
+                selectionArgs = new String[]{
+                        uri.getPathSegments().get(1),
+                        uri.getPathSegments().get(3),
+                        uri.getLastPathSegment() };
+                Cursor c = db.getReadableDatabase().query("transaction_products",
+                        null, selection, selectionArgs, null, null, null);
                 if (c.getCount() == 0) return -1;
                 c.moveToFirst();
-                if (c.getInt(4) < -1 && selection == null) {
-                    ContentValues dec = new ContentValues();
-                    dec.put("quantity", c.getInt(4) + 1);
-                    db.getWritableDatabase().update("transaction_products", dec,
-                            "transaction_id = ? AND product_id = ?",
-                            new String[]{
-                                    uri.getPathSegments().get(1),
-                                    uri.getLastPathSegment() });
+                if (completeDelete || (-1 < c.getFloat(4) && c.getFloat(4) < 1)) {
+                    db.getWritableDatabase().delete(
+                            "transaction_products", selection, selectionArgs);
                 } else {
-                    db.getWritableDatabase().delete("transaction_products",
-                            "transaction_id = ? AND product_id = ?",
-                            new String[]{
-                                    uri.getPathSegments().get(1),
-                                    uri.getLastPathSegment()}
-                    );
+                    ContentValues dec = new ContentValues();
+                    if (c.getFloat(4) < 0) {
+                        dec.put("quantity", c.getFloat(4) + 1);
+                    } else {
+                        dec.put("quantity", c.getFloat(4) - 1);
+                    }
+                    db.getWritableDatabase().update(
+                            "transaction_products", dec, selection, selectionArgs);
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
-
                 break;
         }
         return 0;
