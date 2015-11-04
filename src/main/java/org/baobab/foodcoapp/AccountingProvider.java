@@ -241,7 +241,7 @@ public class AccountingProvider extends ContentProvider {
             case TRANSACTIONS:
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
-                                "GROUP_CONCAT(quantity || ' x ' || title || ' a ' || price || ' = ' || (quantity * price), ',  \n'), " +
+                                "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid" +
                         " FROM transactions" +
@@ -257,7 +257,7 @@ public class AccountingProvider extends ContentProvider {
                         " GROUP BY transactions._id" +
                         " HAVING balance != 0" +
                         (uri.getPathSegments().size() == 3?
-                                " AND accounts.guid IS '" + uri.getPathSegments().get(1) + "'" : "") +
+                                " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
                         " ORDER BY transactions._id",
                         null);
                 break;

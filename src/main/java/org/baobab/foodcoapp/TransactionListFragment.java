@@ -68,7 +68,6 @@ public class TransactionListFragment extends ListFragment
                                 sign = "+";
                                 v.comment.setText("Barverkauf");
                             }
-                            sign = cursor.getInt(8) > 0? "+" : "-";
                         } else {
                             if (cursor.getInt(8) < 0) {
                                 sign = "+";

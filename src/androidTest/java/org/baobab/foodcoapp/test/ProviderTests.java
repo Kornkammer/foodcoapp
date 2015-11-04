@@ -62,9 +62,33 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("one account", 1, accounts.getCount());
     }
 
+    public void testDeposit() { // Bilanzerhöhung
+        createDummyAccount("dummy");
+        insertTransaction("final", "dummy", "kasse");
+        Cursor transactions = query("accounts/dummy/transactions", 1);
+        assertEquals("time", 1, transactions.getLong(2));
+        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("Einzahlung", true, transactions.getInt(8) < 0);
+        assertEquals("passiva", "passiva", transactions.getString(9));
+        assertEquals("involved accounts", "kasse,dummy", transactions.getString(5));
+    }
+
+    public void testWithdraw() { // Bilanzerniedrigung
+        createDummyAccount("dummy");
+        insertTransaction("final", "lager", "dummy");
+        Cursor transactions = query("accounts/dummy/transactions", 1);
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("Einkaufung", true, transactions.getInt(8) > 0);
+        assertEquals("passiva", "passiva", transactions.getString(9));
+        assertEquals("involved accounts", "dummy,lager", transactions.getString(5));
+    }
+
     public void testKontoauszug() {
         createDummyAccount("dummy");
         createDummyAccount("another");
+        insertTransaction("final", "dummy", "kasse");
         insertTransaction("final", "lager", "dummy");
         insertTransaction("final", "lager", "another");
         Cursor transactions = query("accounts/dummy/transactions", 1);
@@ -78,8 +102,12 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
 
     @NonNull
     private Cursor query(String path, int assert_count) {
-        Cursor transactions = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp.test/" + path), null, null, null, null);
+        return query(Uri.parse("content://org.baobab.foodcoapp.test/" + path), assert_count);
+    }
+
+    @NonNull
+    private Cursor query(Uri uri, int assert_count) {
+        Cursor transactions = getMockContentResolver().query(uri, null, null, null, null);
         assertEquals("number of results", assert_count, transactions.getCount());
         transactions.moveToFirst();
         return transactions;
