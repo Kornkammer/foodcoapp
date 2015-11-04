@@ -14,6 +14,7 @@
   <dimen name="font_size_xxsmall">9sp</dimen>
 
   <dimen name="column_small">64dp</dimen>
+  <dimen name="column_medium">96dp</dimen>
   <dimen name="column_large">152dp</dimen>
 
   <dimen name="padding_xxsmall">3dp</dimen>
