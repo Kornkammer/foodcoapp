@@ -94,6 +94,16 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         query("accounts/dummy/transactions", 2);
     }
 
+    public void testTransactionAccountsOrder() {
+        createDummyAccount("dummy");
+        Uri transaction = insertTransaction("final", "lager", "kasse");
+        Cursor products = query(transaction, 2);
+        assertEquals("lager", products.getString(11));
+        transaction = insertTransaction("final", "lager", "dummy");
+        products = query(transaction, 2);
+        assertEquals("lager", products.getString(11));
+    }
+
     @NonNull
     private Cursor query(String path, int assert_count) {
         return query(Uri.parse("content://org.baobab.foodcoapp.test/" + path), assert_count);

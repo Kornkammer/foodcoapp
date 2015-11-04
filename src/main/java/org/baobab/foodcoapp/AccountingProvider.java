@@ -86,11 +86,11 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (7, 'Reis', 1.3, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/rice');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (1, '', 'aktiva','Aktiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (2, '', 'passiva','Passiva');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (10, 'aktiva', 'bank','Bank');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (20, 'aktiva', 'kasse','Kasse');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (10, 'aktiva', 'inventar','Inventar');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (20, 'aktiva', 'kosten','Kosten');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (30, 'aktiva', 'lager','Lager');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (40, 'aktiva', 'kosten','Kosten');");
-            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (50, 'aktiva', 'inventar','Inventar');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (40, 'aktiva', 'bank','Bank');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (50, 'aktiva', 'kasse','Kasse');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (60, 'aktiva', 'forderungen','Forderungen');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (110, 'passiva', 'einlagen','Einlagen');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (120, 'passiva', 'beiträge','Beiträge');");
@@ -167,7 +167,7 @@ public class AccountingProvider extends ContentProvider {
                                 "SELECT _id, parent_guid, guid, name, max(_id) FROM accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid " +
                         " WHERE transaction_id = ?" +
-                        " GROUP BY accounts.guid, product_id" +
+                        " GROUP BY accounts.guid, product_id, price" +
                         " ORDER BY accounts._id, transaction_products.title",
                         new String[] { uri.getLastPathSegment() });
                 break;
