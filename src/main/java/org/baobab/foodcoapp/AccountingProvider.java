@@ -56,7 +56,7 @@ public class AccountingProvider extends ContentProvider {
                     ");");
             db.execSQL("CREATE UNIQUE INDEX idx"
                     + " ON transaction_products (" +
-                    "transaction_id, product_id);");
+                    "transaction_id, product_id, account_guid);");
             db.execSQL("CREATE TABLE accounts (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "parent_guid, " +
@@ -333,7 +333,7 @@ public class AccountingProvider extends ContentProvider {
                                 " VALUES (?, ?, ?, ?, ?, ?, ?, " +
                                 "COALESCE(" +
                                 "(SELECT quantity FROM transaction_products" +
-                                " WHERE transaction_id = ? AND product_id = ?)," +
+                                " WHERE transaction_id = ? AND product_id = ? AND account_guid = ?)," +
                                 "0) + ?);", new String[] {
                                 uri.getPathSegments().get(1),
                                 values.getAsString("account_guid"),
@@ -344,6 +344,7 @@ public class AccountingProvider extends ContentProvider {
                                 values.getAsString("img"),
                                 uri.getPathSegments().get(1),
                                 values.getAsString("product_id"),
+                                values.getAsString("account_guid"),
                                 quantity });
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;

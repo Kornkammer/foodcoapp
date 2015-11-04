@@ -129,6 +129,12 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         products = query(transaction, 3);
         assertEquals("lager", products.getString(11));
         assertEquals("quantity", -4.0, products.getDouble(4));
+        // same product in another account
+        b.put("account_guid", "inventar");
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 4);
+        assertEquals("quantity", -4.0, products.getDouble(4));
     }
 
     public void testInsertCashToBalance() {
