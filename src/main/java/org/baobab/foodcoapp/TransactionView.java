@@ -93,7 +93,7 @@ public class TransactionView extends GridLayout {
                             header.setText("aus " + data.getString(12) + " raus");
                         } else if (account.equals("forderungen")) {
                             header.setText("Forderung begleichen");
-                        } else if (account.equals("forderungen")) {
+                        } else if (account.equals("bank")) {
                             header.setText("von Bank abheben");
                         } else if (account.equals("kosten")) {
                             header.setText("Kosten umlegen");
@@ -110,7 +110,7 @@ public class TransactionView extends GridLayout {
                         } else if (account.equals("bank")) {
                             header.setText("auf Bank einzahlen");
                         } else if (account.equals("kosten")) {
-                            header.setText("Kosten ausgeben");
+                            header.setText("Kosten ansammeln");
                         } else if (account.equals("inventar")) {
                             header.setText("Inventar anschaffen");
                         }
