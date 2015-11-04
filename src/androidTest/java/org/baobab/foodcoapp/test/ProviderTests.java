@@ -34,9 +34,10 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         Uri transaction = insertTransaction("draft", "lager", "dummy");
         ContentValues b = new ContentValues();
         b.put("account_guid", "dummy");
+        b.put("unit", "zeug");
         b.put("quantity", 42);
         getMockContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products/2").build(), b);
+                .appendEncodedPath("products").build(), b);
         query("accounts/passiva/accounts", 4);
     }
 
@@ -71,7 +72,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("who", "dummy", transactions.getString(3));
         assertEquals("Einzahlung", true, transactions.getInt(8) < 0);
         assertEquals("passiva", "passiva", transactions.getString(9));
-        assertEquals("involved accounts", "kasse,dummy", transactions.getString(5));
+        assertEquals("involved accounts", "dummy,kasse", transactions.getString(5));
     }
 
     public void testWithdraw() { // Bilanzerniedrigung
@@ -82,7 +83,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("sum", 42.0, transactions.getDouble(6));
         assertEquals("Einkaufung", true, transactions.getInt(8) > 0);
         assertEquals("passiva", "passiva", transactions.getString(9));
-        assertEquals("involved accounts", "dummy,lager", transactions.getString(5));
+        assertEquals("involved accounts", "lager,dummy", transactions.getString(5));
     }
 
     public void testKontoauszug() {
@@ -135,13 +136,17 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         ContentValues b = new ContentValues();
         b.put("account_guid", from_account);
         b.put("quantity", -42);
+        b.put("price", 1.0);
+        b.put("unit", "dinge");
         getMockContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products/5").build(), b);
+                .appendEncodedPath("products").build(), b);
         b = new ContentValues();
         b.put("account_guid", to_account);
-        b.put("quantity", 42);
+        b.put("quantity", 21);
+        b.put("price", 2.0);
+        b.put("unit", "sachen");
         getMockContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products/2").build(), b);
+                .appendEncodedPath("products").build(), b);
         return transaction;
     }
 

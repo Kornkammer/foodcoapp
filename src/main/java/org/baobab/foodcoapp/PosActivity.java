@@ -59,8 +59,11 @@ public class PosActivity extends AppCompatActivity
                 ContentValues b = new ContentValues();
                 b.put("quantity", - sum.getFloat(2));
                 b.put("account_guid", "kasse");
+                b.put("product_id", 1);
+                b.put("price", 1);
+                b.put("img", "android.resource://org.baobab.foodcoapp/drawable/cash");
                 getContentResolver().insert(getIntent().getData().buildUpon()
-                        .appendEncodedPath("products/1").build(), b);
+                        .appendEncodedPath("products").build(), b);
             }
         });
         findViewById(R.id.pin).setOnClickListener(new View.OnClickListener() {
@@ -142,13 +145,15 @@ public class PosActivity extends AppCompatActivity
                                 PosActivity.this,
                                 data.getLong(0),
                                 data.getString(1),
+                                data.getFloat(2),
+                                data.getString(3),
                                 data.getString(4), button), i);
                         if (!data.isLast()) {
                             data.moveToNext();
                         }
                     } else {
                         page.addView(new ProductButton(
-                                PosActivity.this, 0, "", "", button), i);
+                                PosActivity.this, 0, "", 0, "", "", button), i);
                     }
                 }
                 ((ViewPager) container).addView(page);
@@ -183,7 +188,8 @@ public class PosActivity extends AppCompatActivity
             Barcode.scan(this, "EAN_8");
             return;
         }
-        addProductToTransaction(((ProductButton) v).id);
+        ProductButton b = (ProductButton) v;
+        addProductToTransaction(b.id, b.title, (- (float) weight) / 1000, b.price, b.unit, b.img);
     }
 
     @Override
@@ -195,7 +201,7 @@ public class PosActivity extends AppCompatActivity
                     null, "ean IS ?", new String[] { ean }, null);
             if (p.getCount() > 0) {
                 p.moveToFirst();
-                addProductToTransaction(p.getLong(0));
+                addProductToTransaction(p.getLong(0), p.getString(1), 1, p.getFloat(2), p.getString(3), p.getString(4));
                 Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
@@ -203,14 +209,20 @@ public class PosActivity extends AppCompatActivity
         }
     }
 
-    private void addProductToTransaction(long id) {
+    public void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
-        cv.put("quantity", (- (float) weight) / 1000);
-
+        cv.put("product_id", id);
+        cv.put("title", title);
+        if (quantity != 0) {
+            cv.put("quantity", quantity);
+        }
+        cv.put("price", price);
+        cv.put("unit", unit);
+        cv.put("img", img);
         getContentResolver().insert(
                 getIntent().getData().buildUpon()
-                        .appendEncodedPath("products/" + id)
+                        .appendEncodedPath("products")
                         .build(), cv);
     }
 
@@ -246,11 +258,19 @@ public class PosActivity extends AppCompatActivity
         boolean empty;
         int button;
         long id;
+        String title;
+        float price;
+        String unit;
+        String img;
 
-        public ProductButton(Context context, long id, String title, String img, int button) {
+        public ProductButton(Context context, long id, String title, float price, String unit, String img, int button) {
             super(context);
             this.id = id;
             this.button = button;
+            this.title = title;
+            this.price = price;
+            this.unit = unit;
+            this.img = img;
             View.inflate(getContext(), R.layout.view_product_button, this);
             ((TextView) findViewById(R.id.title)).setText(title);
             if (img != null) {

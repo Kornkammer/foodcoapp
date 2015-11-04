@@ -142,6 +142,7 @@ public class AccountingProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         return false;
@@ -304,55 +305,46 @@ public class AccountingProvider extends ContentProvider {
                         db.getWritableDatabase().insert("products", null, values));
                 break;
             case TRANSACTION_PRODUCT:
-                Cursor product = query(Uri.parse(
-                        "content://" + AUTHORITY + "/products/" + uri.getLastPathSegment()),
-                        null, null, null, null);
-                if (product.getCount() == 0) {
-                    return null;
-                }
-                product.moveToFirst();
-                double price = product.getFloat(2);
-                double quantity = values.containsKey("quantity")?
-                        values.getAsFloat("quantity") : - 1.0;
-                if (quantity != 0 && (product.getString(3) != null &&
-                        product.getString(3).equals(getContext().getString(R.string.weight)))) {
-                    db.getWritableDatabase().execSQL(
-                            "INSERT OR REPLACE INTO transaction_products" +
-                                    " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
-                                    " VALUES (?, ?, ?, ?, ?, ?, ?, ?);", new String[] {
-                                    uri.getPathSegments().get(1),
-                                    values.getAsString("account_guid"),
-                                    product.getString(0),
-                                    product.getString(1),
-                                    String.valueOf(price),
-                                    product.getString(3),
-                                    product.getString(4),
-                                    String.valueOf(quantity) }
-                    );
-                } else {
-                    if (product.getString(3) != null) { // not cash
-                        quantity = - 1.0;
+                String quantity = null;
+                if (values.containsKey("unit")) { // not cash
+                    if (values.containsKey("quantity")) { // then overwrite
+                        db.getWritableDatabase().execSQL(
+                                "INSERT OR REPLACE INTO transaction_products" +
+                                        " (transaction_id, account_guid, product_id, title, quantity, price, unit, img)" +
+                                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?);", new String[] {
+                                        uri.getPathSegments().get(1),
+                                        values.getAsString("account_guid"),
+                                        values.getAsString("product_id"),
+                                        values.getAsString("title"),
+                                        values.getAsString("quantity"),
+                                        values.getAsString("price"),
+                                        values.getAsString("unit"),
+                                        values.getAsString("img") });
+                        getContext().getContentResolver().notifyChange(uri, null);
+                        break;
+                    } else {
+                        quantity = "-1.0";
                     }
-                    db.getWritableDatabase().execSQL(
-                            "INSERT OR REPLACE INTO transaction_products" +
-                                    " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
-                                    " VALUES (?, ?, ?, ?, ?, ?, ?, " +
-                                    "COALESCE(" +
-                                    "(SELECT quantity FROM transaction_products" +
-                                    " WHERE transaction_id = ? AND product_id = ?)," +
-                                    "0) + ?);", new String[] {
-                                    uri.getPathSegments().get(1),
-                                    values.getAsString("account_guid"),
-                                    product.getString(0),
-                                    product.getString(1),
-                                    String.valueOf(price),
-                                    product.getString(3),
-                                    product.getString(4),
-                                    uri.getPathSegments().get(1),
-                                    product.getString(0),
-                                    String.valueOf(quantity) }
-                    );
                 }
+                if (quantity == null) quantity = values.getAsString("quantity");
+                db.getWritableDatabase().execSQL(
+                        "INSERT OR REPLACE INTO transaction_products" +
+                                " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
+                                " VALUES (?, ?, ?, ?, ?, ?, ?, " +
+                                "COALESCE(" +
+                                "(SELECT quantity FROM transaction_products" +
+                                " WHERE transaction_id = ? AND product_id = ?)," +
+                                "0) + ?);", new String[] {
+                                uri.getPathSegments().get(1),
+                                values.getAsString("account_guid"),
+                                values.getAsString("product_id"),
+                                values.getAsString("title"),
+                                values.getAsString("price"),
+                                values.getAsString("unit"),
+                                values.getAsString("img"),
+                                uri.getPathSegments().get(1),
+                                values.getAsString("product_id"),
+                                quantity });
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
             case ACCOUNTS:
