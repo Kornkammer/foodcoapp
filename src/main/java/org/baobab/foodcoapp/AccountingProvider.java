@@ -313,7 +313,7 @@ public class AccountingProvider extends ContentProvider {
                 product.moveToFirst();
                 double price = product.getFloat(2);
                 double quantity = values.containsKey("quantity")?
-                        values.getAsFloat("quantity") : 1.0;
+                        values.getAsFloat("quantity") : - 1.0;
                 if (quantity != 0 && (product.getString(3) != null &&
                         product.getString(3).equals(getContext().getString(R.string.weight)))) {
                     db.getWritableDatabase().execSQL(
@@ -327,11 +327,11 @@ public class AccountingProvider extends ContentProvider {
                                     String.valueOf(price),
                                     product.getString(3),
                                     product.getString(4),
-                                    String.valueOf(- quantity) }
+                                    String.valueOf(quantity) }
                     );
                 } else {
                     if (product.getString(3) != null) { // not cash
-                        quantity = 1.0;
+                        quantity = - 1.0;
                     }
                     db.getWritableDatabase().execSQL(
                             "INSERT OR REPLACE INTO transaction_products" +
@@ -340,7 +340,7 @@ public class AccountingProvider extends ContentProvider {
                                     "COALESCE(" +
                                     "(SELECT quantity FROM transaction_products" +
                                     " WHERE transaction_id = ? AND product_id = ?)," +
-                                    "0) - ?);", new String[] {
+                                    "0) + ?);", new String[] {
                                     uri.getPathSegments().get(1),
                                     values.getAsString("account_guid"),
                                     product.getString(0),

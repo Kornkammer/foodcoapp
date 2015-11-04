@@ -128,7 +128,7 @@ public class LegitimateActivity extends AppCompatActivity {
             Log.d(TAG, "sum " + sum.getFloat(2));
             ContentValues b = new ContentValues();
             b.put("account_guid", auth.getString(3));
-            b.put("quantity", sum.getFloat(2));
+            b.put("quantity", - sum.getFloat(2));
             getContentResolver().insert(
                     getIntent().getData().buildUpon()
                             .appendEncodedPath("products/2")

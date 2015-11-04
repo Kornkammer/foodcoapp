@@ -56,9 +56,8 @@ public class PosActivity extends AppCompatActivity
                 Cursor sum = getContentResolver().query(getIntent().getData().buildUpon()
                         .appendEncodedPath("sum").build(), null, null, null, null);
                 sum.moveToFirst();
-                Log.d(TAG, "sum " + sum.getFloat(2));
                 ContentValues b = new ContentValues();
-                b.put("quantity", sum.getFloat(2));
+                b.put("quantity", - sum.getFloat(2));
                 b.put("account_guid", "kasse");
                 getContentResolver().insert(getIntent().getData().buildUpon()
                         .appendEncodedPath("products/1").build(), b);
@@ -207,7 +206,7 @@ public class PosActivity extends AppCompatActivity
     private void addProductToTransaction(long id) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
-        cv.put("quantity", ((float) weight) / 1000);
+        cv.put("quantity", (- (float) weight) / 1000);
 
         getContentResolver().insert(
                 getIntent().getData().buildUpon()

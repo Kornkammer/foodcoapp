@@ -21,11 +21,11 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
 
     public void testAccountBalance() {
         createDummyAccount("dummy");
-        insertTransaction("final", "lager", "dummy");
+        insertTransaction("final", "kasse", "dummy");
         Cursor accounts = query("accounts/passiva/accounts", 4);
         accounts.moveToPosition(3);
         assertEquals("name", "dummy", accounts.getString(1));
-        assertEquals("balance", -42.0, accounts.getDouble(4));
+        assertEquals("balance", 42.0, accounts.getDouble(4));
     }
 
     public void testEmptyAccount() {
@@ -50,6 +50,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
 
     public void testFindAccountByName() {
         createDummyAccount("dummy");
+        createDummyAccount("another");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, "name IS 'foo'", null, null);
         assertEquals("no account", 0, accounts.getCount());
