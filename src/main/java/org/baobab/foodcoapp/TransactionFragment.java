@@ -57,7 +57,7 @@ public class TransactionFragment extends Fragment
         transaction.setOnSumClick(new NumberEditListener() {
             @Override
             String text(Cursor product) {
-                return product.getString(3) + " " + product.getString(1) + " für wie viel?";
+                return product.getString(1) + " für wie viel Cash?";
             }
 
             @Override
@@ -190,10 +190,10 @@ public class TransactionFragment extends Fragment
                         if (stocks.getCount() > 0) {
                             stocks.moveToFirst();
                             if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
-                                msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(2) + "\n";
+                                msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(12) + "\n";
                             }
                         } else if (factor * t.getInt(4) < 0) {
-                            msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(2) + "\n";
+                            msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(12) + "\n";
                         }
                     }
                     if (msg.length() > 0) {

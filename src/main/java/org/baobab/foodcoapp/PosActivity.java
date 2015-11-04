@@ -60,6 +60,7 @@ public class PosActivity extends AppCompatActivity
                 b.put("quantity", - sum.getFloat(2));
                 b.put("account_guid", "kasse");
                 b.put("product_id", 1);
+                b.put("title", "Cash");
                 b.put("price", 1);
                 b.put("img", "android.resource://org.baobab.foodcoapp/drawable/cash");
                 getContentResolver().insert(getIntent().getData().buildUpon()
