@@ -1,11 +1,14 @@
 package org.baobab.foodcoapp;
 
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v7.widget.GridLayout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -17,6 +20,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+
+// yes, this is a mess :/
 
 public class TransactionView extends GridLayout {
 
@@ -66,6 +72,7 @@ public class TransactionView extends GridLayout {
     }
 
     private void addProduct(Cursor data) {
+        final long product_id = data.getLong(3);
         float quantity = - data.getFloat(4);
         float price = data.getFloat(5);
         float total = quantity * price;
@@ -80,17 +87,37 @@ public class TransactionView extends GridLayout {
             lp.setGravity(Gravity.FILL_HORIZONTAL);
             FrameLayout f = new FrameLayout(getContext());
             if (onAmountClick != null) {
-                if (account.equals("lager") || account.equals("kasse")) {
+                if (data.getString(10).equals("aktiva")) {
                     if (quantity > 0) {
-                        header.setText("aus " + data.getString(11) + " raus");
+                        if (account.equals("lager") || account.equals("kasse")) {
+                            header.setText("aus " + data.getString(12) + " raus");
+                        } else if (account.equals("forderungen")) {
+                            header.setText("Forderung begleichen");
+                        } else if (account.equals("forderungen")) {
+                            header.setText("von Bank abheben");
+                        } else if (account.equals("kosten")) {
+                            header.setText("Kosten umlegen");
+                        } else if (account.equals("inventar")) {
+                            header.setText("Inventar abschreiben");
+                        }
                         header.setTextColor(getResources().getColor(R.color.medium_red));
                         f.setBackgroundResource(R.drawable.background_red);
                     } else {
-                        header.setText("in " + data.getString(11) + " rein");
+                        if (account.equals("lager") || account.equals("kasse")) {
+                            header.setText("in " + data.getString(12) + " rein");
+                        } else if (account.equals("forderungen")) {
+                            header.setText("offene Forderung");
+                        } else if (account.equals("bank")) {
+                            header.setText("auf Bank einzahlen");
+                        } else if (account.equals("kosten")) {
+                            header.setText("Kosten ausgeben");
+                        } else if (account.equals("inventar")) {
+                            header.setText("Inventar anschaffen");
+                        }
                         header.setTextColor(getResources().getColor(R.color.medium_green));
                         f.setBackgroundResource(R.drawable.background_green);
                     }
-                } else  {
+                } else {
                     if (quantity > 0) {
                         header.setText("auf Konto gutschreiben");
                         header.setTextColor(getResources().getColor(R.color.medium_red));
@@ -115,12 +142,47 @@ public class TransactionView extends GridLayout {
                 f.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (!showImages) return;
                         ContentValues cv = new ContentValues();
                         cv.put("quantity", -1);
                         getContext().getContentResolver()
                                 .update(((FragmentActivity) getContext())
                                         .getIntent().getData(), cv, null, null);
+                    }
+                });
+                f.setOnLongClickListener(new OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        final Cursor accounts = getContext().getContentResolver().query(
+                                Uri.parse("content://org.baobab.foodcoapp/accounts"),
+                                null, "parent_guid <> ''", null, null);
+                        new AlertDialog.Builder(getContext())
+                                .setAdapter(new CursorAdapter(getContext(), accounts, false) {
+                                    @Override
+                                    public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                                        TextView v = new TextView(getContext());
+                                        v.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
+                                        v.setTypeface(null, Typeface.BOLD);
+                                        return v;
+                                    }
+
+                                    @Override
+                                    public void bindView(View view, Context context, Cursor cursor) {
+                                        ((TextView) view).setText(cursor.getString(1));
+                                    }
+                                }, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int pos) {
+                                        accounts.moveToPosition(pos);
+                                        ContentValues cv = new ContentValues();
+                                        cv.put("account_guid", accounts.getString(2));
+                                        getContext().getContentResolver()
+                                                .update(((FragmentActivity) getContext())
+                                                        .getIntent().getData().buildUpon()
+                                                        .appendEncodedPath("products/" + product_id)
+                                                                .build(), cv, null, null);
+                                    }
+                                }).show();
+                        return true;
                     }
                 });
             }
@@ -147,7 +209,6 @@ public class TransactionView extends GridLayout {
                 images.addView(image, new LinearLayout.LayoutParams((int) (width * factor ), height));
             }
             images.setClickable(true);
-            final long product_id = data.getLong(3);
             images.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -222,12 +283,11 @@ public class TransactionView extends GridLayout {
 
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-        if (account.equals("lager") || account.equals("kasse")) {
+        if (data.getString(10).equals("aktiva")) {
             title.setText(data.getString(7));
         } else {
             title.setText(data.getString(12));
         }
-
         title.setTypeface(null, Typeface.BOLD);
         title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
