@@ -105,6 +105,53 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("lager", products.getString(11));
     }
 
+    public void testInsertProduct() {
+        createDummyAccount("dummy");
+        Uri transaction = insertTransaction("final", "dummy", "kasse");
+        ContentValues b = new ContentValues();
+        b.put("account_guid", "lager");
+        b.put("product_id", 23);
+        b.put("unit", "piece");
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        Cursor products = query(transaction, 3);
+        assertEquals("lager", products.getString(11));
+        assertEquals("quantity", -1.0, products.getDouble(4));
+        // press button again
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 3);
+        assertEquals("quantity", -2.0, products.getDouble(4));
+        // edit amount
+        b.put("quantity", -4.0);
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 3);
+        assertEquals("lager", products.getString(11));
+        assertEquals("quantity", -4.0, products.getDouble(4));
+    }
+
+    public void testInsertCashToBalance() {
+        createDummyAccount("dummy");
+        Uri transaction = insertTransaction("final", "dummy", "kasse");
+        ContentValues b = new ContentValues();
+        b.put("account_guid", "lager");
+        b.put("product_id", 2);
+        b.put("quantity", -5.5);
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        Cursor products = query(transaction, 3);
+        assertEquals("lager", products.getString(11));
+        assertEquals("quantity", -5.5, products.getDouble(4));
+
+        b.put("quantity", -1.5);
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 3);
+        assertEquals("lager", products.getString(11));
+        assertEquals("quantity", -7.0, products.getDouble(4));
+    }
+
     @NonNull
     private Cursor query(String path, int assert_count) {
         return query(Uri.parse("content://org.baobab.foodcoapp.test/" + path), assert_count);
