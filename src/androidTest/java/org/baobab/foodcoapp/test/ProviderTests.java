@@ -23,7 +23,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         insertTransaction("final", "dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
-        accounts.moveToFirst();
+        accounts.moveToPosition(3);
         assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", -42.0, accounts.getDouble(4));
     }
@@ -32,7 +32,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         createDummyAccount("dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
-        assertEquals("one account", 1, accounts.getCount());
+        assertEquals("one account", 4, accounts.getCount());
         Uri transaction = insertTransaction("draft", "dummy");
         ContentValues b = new ContentValues();
         b.put("account_guid", "dummy");
@@ -41,20 +41,20 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
                 .appendEncodedPath("products/2").build(), b);
         accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
-        assertEquals("one account", 1, accounts.getCount());
+        assertEquals("one account", 4, accounts.getCount());
     }
 
     public void testListAccounts() {
         createDummyAccount("dummy");
         Cursor accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts"), null, null, null, null);
-        assertEquals("one account in total", 5, accounts.getCount());
+        assertEquals("twelve accounts in total", 12, accounts.getCount());
         accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/aktiva/accounts"), null, null, null, null);
-        assertEquals("no aktiva account", 2, accounts.getCount());
+        assertEquals("no aktiva account", 6, accounts.getCount());
         accounts = getMockContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, null, null, null);
-        assertEquals("one passiva account", 1, accounts.getCount());
+        assertEquals("one passiva account", 4, accounts.getCount());
     }
 
     public void testFindAccountByName() {
