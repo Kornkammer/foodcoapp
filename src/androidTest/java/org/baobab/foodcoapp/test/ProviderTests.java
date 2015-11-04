@@ -72,7 +72,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("who", "dummy", transactions.getString(3));
         assertEquals("Einzahlung", true, transactions.getInt(8) < 0);
         assertEquals("passiva", "passiva", transactions.getString(9));
-        assertEquals("involved accounts", "dummy,kasse", transactions.getString(5));
+        assertTrue("involved accounts", transactions.getString(5).contains("kasse"));
     }
 
     public void testWithdraw() { // Bilanzerniedrigung
@@ -83,7 +83,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         assertEquals("sum", 42.0, transactions.getDouble(6));
         assertEquals("Einkaufung", true, transactions.getInt(8) > 0);
         assertEquals("passiva", "passiva", transactions.getString(9));
-        assertEquals("involved accounts", "lager,dummy", transactions.getString(5));
+        assertTrue("involved accounts", transactions.getString(5).contains("lager"));
     }
 
     public void testKontoauszug() {
@@ -110,7 +110,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         Uri transaction = insertTransaction("final", "dummy", "kasse");
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
-        b.put("product_id", 23);
+        b.put("product_id", 55);
         b.put("unit", "piece");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
@@ -182,6 +182,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
                 "content://org.baobab.foodcoapp.test/transactions"), t);
         ContentValues b = new ContentValues();
         b.put("account_guid", from_account);
+        b.put("product_id", 23);
         b.put("quantity", -42);
         b.put("price", 1.0);
         b.put("unit", "dinge");
