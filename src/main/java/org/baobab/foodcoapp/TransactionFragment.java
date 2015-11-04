@@ -92,7 +92,7 @@ public class TransactionFragment extends Fragment
                     null, null, null, null);
             c.moveToFirst();
             getFragmentManager().beginTransaction()
-                    .replace(v.getId(), new NumberDialogFragment(
+                    .replace(R.id.container, new NumberDialogFragment(
                             text(c), (String) v.getTag(), inputType(c)) {
                         @Override
                         public void onNumber(float number) {

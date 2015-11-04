@@ -304,7 +304,6 @@ public class TransactionView extends GridLayout {
         lp.columnSpec = GridLayout.spec(3, 2, 3);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.width = getContext().getResources().getDimensionPixelSize(R.dimen.column_medium);
-        ;
         addView(title, lp);
 
         TextView sum = new TextView(getContext());
