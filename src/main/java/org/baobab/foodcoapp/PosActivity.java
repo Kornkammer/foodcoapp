@@ -209,7 +209,7 @@ public class PosActivity extends AppCompatActivity
         }
     }
 
-    public void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
+    private void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
         cv.put("product_id", id);

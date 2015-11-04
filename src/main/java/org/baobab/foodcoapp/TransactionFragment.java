@@ -96,9 +96,12 @@ public class TransactionFragment extends Fragment
                             text(c), (String) v.getTag(), inputType(c)) {
                         @Override
                         public void onNumber(float number) {
-                            ((PosActivity) getActivity()).addProductToTransaction(
-                                    c.getLong(0), c.getString(1), quantity(number, c),
-                                    c.getFloat(2), c.getString(3), c.getString(4));
+                            ContentValues cv = new ContentValues();
+                            cv.put("quantity", quantity(number, c));
+                            getActivity().getContentResolver()
+                                    .update(getActivity().getIntent().getData().buildUpon()
+                                            .appendEncodedPath("products/" + v.getId())
+                                            .build(), cv, null, null);
                         }
                     }, "edit")
                     .addToBackStack("amount").commitAllowingStateLoss();
