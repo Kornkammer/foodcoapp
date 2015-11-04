@@ -36,6 +36,7 @@ public class ProductEditActivity extends AppCompatActivity
 
     private static final int REQUEST_IMAGE_CAPTURE = 42;
     private static final String TAG = "POS";
+    private static long ID = 123456789;
     private ImageButton image;
     private EditText title;
     private EditText price;
@@ -45,7 +46,6 @@ public class ProductEditActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Edit product " + getIntent().getData().getLastPathSegment());
         setContentView(R.layout.activity_product_edit);
         image = (ImageButton) findViewById(R.id.image);
         title = (EditText) findViewById(R.id.title);
@@ -72,7 +72,10 @@ public class ProductEditActivity extends AppCompatActivity
                 }
             }
         });
-        getSupportLoaderManager().initLoader(0, null, this);
+        if (getIntent().getData() != null) {
+            setTitle("Edit product " + getIntent().getData().getLastPathSegment());
+            getSupportLoaderManager().initLoader(0, null, this);
+        }
     }
 
     @Override
@@ -173,12 +176,16 @@ public class ProductEditActivity extends AppCompatActivity
             Toast.makeText(this, "no title", Toast.LENGTH_LONG).show();
             return;
         }
-        if (img == null) {
-            Toast.makeText(this, "no image", Toast.LENGTH_LONG).show();
-            return;
-        }
         if (price.getText().toString().equals("")) {
             Toast.makeText(this, "no price", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (getIntent().getData() == null) {
+            oneOfProduct();
+            return;
+        }
+        if (img == null) {
+            Toast.makeText(this, "no image", Toast.LENGTH_LONG).show();
             return;
         }
         NumberFormat nf = NumberFormat.getInstance();
@@ -199,18 +206,35 @@ public class ProductEditActivity extends AppCompatActivity
         }
     }
 
+    private void oneOfProduct() {
+        getIntent().putExtra("id", ++ID);
+        getIntent().putExtra("title", title.getText().toString());
+        getIntent().putExtra("price", Float.valueOf(price.getText().toString()).floatValue());
+        getIntent().putExtra("unit", unit.getText().toString());
+        if (img != null) {
+            getIntent().putExtra("img", img.toString());
+        } else {
+            getIntent().putExtra("img", "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add");
+        }
+        setResult(RESULT_OK, getIntent());
+        finish();
+    }
+
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
     }
 
     private Uri storeImage(Bitmap bitmap) {
-        try {Log.d(TAG, "dir " + getFilesDir());
+        try {
             File dir = new File(getFilesDir(), "/pos");
             if (!dir.exists()) dir.mkdir();
+            String product_id = "0";
+            if (getIntent().getData() != null) {
+                product_id = getIntent().getData().getLastPathSegment();
+            }
             File file = new File(dir,
-                    getIntent().getData().getLastPathSegment() +
-                            System.currentTimeMillis() + ".jpg");
+                    product_id + "_" + System.currentTimeMillis() + ".jpg");
             if (file.exists()) {
                 file.delete();
             }

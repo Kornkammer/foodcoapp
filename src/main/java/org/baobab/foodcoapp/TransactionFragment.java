@@ -90,14 +90,24 @@ public class TransactionFragment extends Fragment
             final Cursor c = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
                     null, null, null, null);
-            c.moveToFirst();
+            int inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
+            String text = "Wie viel?";
+            if (c.getCount() > 0) {
+                c.moveToFirst();
+                text = text(c);
+                inputType = inputType(c);
+            }
             getFragmentManager().beginTransaction()
                     .replace(R.id.container, new NumberDialogFragment(
-                            text(c), (String) v.getTag(), inputType(c)) {
+                            text, (String) v.getTag(), inputType) {
                         @Override
                         public void onNumber(float number) {
                             ContentValues cv = new ContentValues();
-                            cv.put("quantity", quantity(number, c));
+                            if (c.getCount() > 0) {
+                                cv.put("quantity", quantity(number, c));
+                            } else {
+                                cv.put("quantity", number);
+                            }
                             getActivity().getContentResolver()
                                     .update(getActivity().getIntent().getData().buildUpon()
                                             .appendEncodedPath("products/" + v.getId())

@@ -154,7 +154,7 @@ public class PosActivity extends AppCompatActivity
                         }
                     } else {
                         page.addView(new ProductButton(
-                                PosActivity.this, 0, "", 0, "", "", button), i);
+                                PosActivity.this, 0, "", 0, null, null, button), i);
                     }
                 }
                 ((ViewPager) container).addView(page);
@@ -188,24 +188,34 @@ public class PosActivity extends AppCompatActivity
         if (((ProductButton) v).id == 5) {
             Barcode.scan(this, "EAN_8");
             return;
+        } else if (((ProductButton) v).id == 6) {
+            startActivityForResult(new Intent(this, ProductEditActivity.class), 42);
+            return;
         }
         ProductButton b = (ProductButton) v;
         addProductToTransaction(b.id, b.title, (- (float) weight) / 1000, b.price, b.unit, b.img);
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, Intent d) {
         if (resultCode == RESULT_OK) {
-            String ean = data.getStringExtra("SCAN_RESULT");
-            Cursor p = getContentResolver().query(Uri.parse(
-                            "content://org.baobab.foodcoapp/products"),
-                    null, "ean IS ?", new String[] { ean }, null);
-            if (p.getCount() > 0) {
-                p.moveToFirst();
-                addProductToTransaction(p.getLong(0), p.getString(1), 1, p.getFloat(2), p.getString(3), p.getString(4));
-                Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
+            switch (requestCode) {
+                case 0:
+                    String ean = d.getStringExtra("SCAN_RESULT");
+                    Cursor p = getContentResolver().query(Uri.parse(
+                                    "content://org.baobab.foodcoapp/products"),
+                            null, "ean IS ?", new String[] { ean }, null);
+                    if (p.getCount() > 0) {
+                        p.moveToFirst();
+                        addProductToTransaction(p.getLong(0), p.getString(1), 1, p.getFloat(2), p.getString(3), p.getString(4));
+                        Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
+                    }
+                    break;
+                case 42:
+                    addProductToTransaction(d.getLongExtra("id", 0), d.getStringExtra("title"), 1,
+                            d.getFloatExtra("price", 1.0f), d.getStringExtra("unit"), d.getStringExtra("img"));
             }
         }
     }
