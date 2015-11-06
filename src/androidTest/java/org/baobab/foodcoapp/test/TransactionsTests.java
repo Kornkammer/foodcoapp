@@ -53,7 +53,7 @@ public class TransactionsTests extends BaseProviderTests {
         assertEquals("lager", products.getString(11));
     }
 
-    public void testProductsToTransaction() {
+    public void testIncTransactionProducts() {
         createDummyAccount("dummy");
         Uri transaction = insertTransaction("final", "dummy", "kasse");
         ContentValues b = new ContentValues();
@@ -70,22 +70,9 @@ public class TransactionsTests extends BaseProviderTests {
                 .appendEncodedPath("products").build(), b);
         products = query(transaction, 3);
         assertEquals("quantity", -2.0, products.getDouble(4));
-        // edit amount
-        b.put("quantity", -4.0);
-        getMockContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products").build(), b);
-        products = query(transaction, 3);
-        assertEquals("lager", products.getString(11));
-        assertEquals("quantity", -4.0, products.getDouble(4));
-        // same product in another account
-        b.put("account_guid", "inventar");
-        getMockContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products").build(), b);
-        products = query(transaction, 4);
-        assertEquals("quantity", -4.0, products.getDouble(4));
     }
 
-    public void testRemoveProductsFromTransaction() {
+    public void testDecTransactionProducts() {
         createDummyAccount("dummy");
         Uri transaction = insertTransaction("final", "lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
@@ -97,9 +84,35 @@ public class TransactionsTests extends BaseProviderTests {
         products = query(transaction, 2);
         products.moveToLast();
         assertEquals("quantity", 41.0, products.getDouble(4));
+    }
+
+    public void testRemoveProductsFromTransaction() {
+        createDummyAccount("dummy");
+        Uri transaction = insertTransaction("final", "lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/lager/products/23").build(), "nix null", null);
         query(transaction, 1);
+    }
+
+    public void testEditTransactionProductAmount() {
+        createDummyAccount("dummy");
+        Uri transaction = insertTransaction("final", "dummy", "kasse");
+        ContentValues b = new ContentValues();
+        b.put("account_guid", "lager");
+        b.put("product_id", 55);
+        b.put("unit", "piece");
+        b.put("quantity", -4.0);
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        Cursor products = query(transaction, 3);
+        assertEquals("lager", products.getString(11));
+        assertEquals("quantity", -4.0, products.getDouble(4));
+        // same product in another account
+        b.put("account_guid", "inventar");
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 4);
+        assertEquals("quantity", -4.0, products.getDouble(4));
     }
 
     public void testInsertCashToBalance() {
