@@ -13,7 +13,7 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testDeposit() { // Bilanzerhöhung
         createDummyAccount("dummy");
-        insertTransaction("final", "dummy", "kasse");
+        insertTransaction("dummy", "kasse");
         Cursor transactions = query("accounts/dummy/transactions", 1);
         assertEquals("time", 1, transactions.getLong(2));
         assertEquals("sum", 42.0, transactions.getDouble(6));
@@ -25,7 +25,7 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testWithdraw() { // Bilanzerniedrigung
         createDummyAccount("dummy");
-        insertTransaction("final", "lager", "dummy");
+        insertTransaction("lager", "dummy");
         Cursor transactions = query("accounts/dummy/transactions", 1);
         assertEquals("who", "dummy", transactions.getString(3));
         assertEquals("sum", 42.0, transactions.getDouble(6));
@@ -44,9 +44,9 @@ public class TransactionsTests extends BaseProviderTests {
     public void testKontoauszug() {
         createDummyAccount("dummy");
         createDummyAccount("another");
-        insertTransaction("final", "dummy", "kasse");
-        insertTransaction("final", "lager", "dummy");
-        insertTransaction("final", "lager", "another");
+        insertTransaction("dummy", "kasse");
+        insertTransaction("lager", "dummy");
+        insertTransaction("lager", "another");
         query("accounts/dummy/transactions", 2);
     }
 

@@ -9,7 +9,7 @@ public class TransactionProductsTests extends BaseProviderTests {
 
     public void testIncAmount() {
         createDummyAccount("dummy");
-        Uri transaction = insertTransaction("final", "dummy", "kasse");
+        Uri transaction = insertTransaction("dummy", "kasse");
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
         b.put("product_id", 55);
@@ -28,7 +28,7 @@ public class TransactionProductsTests extends BaseProviderTests {
 
     public void testDecAmount() {
         createDummyAccount("dummy");
-        Uri transaction = insertTransaction("final", "lager", "dummy");
+        Uri transaction = insertTransaction("lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/lager/products/23").build(), null, null);
         Cursor products = query(transaction, 2);
@@ -42,7 +42,7 @@ public class TransactionProductsTests extends BaseProviderTests {
 
     public void testRemoveAmount() {
         createDummyAccount("dummy");
-        Uri transaction = insertTransaction("final", "lager", "dummy");
+        Uri transaction = insertTransaction("lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/lager/products/23").build(), "nix null", null);
         query(transaction, 1);
@@ -50,7 +50,7 @@ public class TransactionProductsTests extends BaseProviderTests {
 
     public void testEditAmount() {
         createDummyAccount("dummy");
-        Uri transaction = insertTransaction("final", "dummy", "kasse");
+        Uri transaction = insertTransaction("dummy", "kasse");
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
         b.put("product_id", 55);
@@ -71,17 +71,17 @@ public class TransactionProductsTests extends BaseProviderTests {
 
     public void testAccountsOrder() {
         createDummyAccount("dummy");
-        Uri transaction = insertTransaction("final", "lager", "kasse");
+        Uri transaction = insertTransaction("lager", "kasse");
         Cursor products = query(transaction, 2);
         assertEquals("lager", products.getString(11));
-        transaction = insertTransaction("final", "lager", "dummy");
+        transaction = insertTransaction("lager", "dummy");
         products = query(transaction, 2);
         assertEquals("lager", products.getString(11));
     }
 
     public void testInsertCashToRebalance() {
         createDummyAccount("dummy");
-        Uri transaction = insertTransaction("final", "dummy", "kasse");
+        Uri transaction = insertTransaction("dummy", "kasse");
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
         b.put("product_id", 2);

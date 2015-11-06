@@ -3,17 +3,13 @@ package org.baobab.foodcoapp.test;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.test.ProviderTestCase2;
-
-import org.baobab.foodcoapp.AccountingProvider;
 
 
 public class AccountsTests extends BaseProviderTests {
 
     public void testAccountBalance() {
         createDummyAccount("dummy");
-        insertTransaction("final", "kasse", "dummy");
+        insertTransaction("kasse", "dummy");
         Cursor accounts = query("accounts/passiva/accounts", 4);
         accounts.moveToPosition(3);
         assertEquals("name", "dummy", accounts.getString(1));

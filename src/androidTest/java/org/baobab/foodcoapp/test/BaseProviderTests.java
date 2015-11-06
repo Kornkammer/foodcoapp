@@ -41,15 +41,19 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
                 Uri.parse("content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), values);
     }
 
+    public Uri insertTransaction(String from_account, String to_account) {
+        return insertTransaction(1, "final", from_account, to_account, 42.0f);
+    }
+
     public Uri insertTransaction(String status, String from_account, String to_account) {
         return insertTransaction(1, status, from_account, to_account, 42.0f);
     }
 
-    public Uri insertTransaction(String status, String from_account, String to_account, float amount) {
-        return insertTransaction(1, status, from_account, to_account, amount);
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
+        return insertTransaction(sessionId, status, from_account, to_account, amount, "sth");
     }
 
-    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, String title) {
         ContentValues t = new ContentValues();
         t.put("session_id", sessionId);
         t.put("status", status);
@@ -60,6 +64,7 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
         b.put("account_guid", from_account);
         b.put("product_id", 23);
         b.put("quantity", -amount);
+        b.put("title", title);
         b.put("price", 1.0);
         b.put("unit", "dinge");
         getMockContentResolver().insert(transaction.buildUpon()
