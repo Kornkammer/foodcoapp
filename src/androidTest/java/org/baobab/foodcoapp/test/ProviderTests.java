@@ -169,7 +169,7 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
                 .appendEncodedPath("accounts/dummy/products/23").build(), null, null);
         products = query(transaction, 2);
         products.moveToLast();
-        assertEquals("quantity", 20.0, products.getDouble(4));
+        assertEquals("quantity", 41.0, products.getDouble(4));
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/lager/products/23").build(), "nix null", null);
         query(transaction, 1);
@@ -198,6 +198,14 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
     }
 
     private Uri insertTransaction(String status, String from_account, String to_account) {
+        return insertTransaction(1, status, from_account, to_account, 42.0f);
+    }
+
+    private Uri insertTransaction(String status, String from_account, String to_account, float amount) {
+        return insertTransaction(1, status, from_account, to_account, amount);
+    }
+
+    private Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
         ContentValues t = new ContentValues();
         t.put("status", status);
         t.put("stop", 1);
@@ -206,14 +214,13 @@ public class ProviderTests extends ProviderTestCase2<AccountingProvider> {
         ContentValues b = new ContentValues();
         b.put("account_guid", from_account);
         b.put("product_id", 23);
-        b.put("quantity", -42);
+        b.put("quantity", -amount);
         b.put("price", 1.0);
         b.put("unit", "dinge");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         b.put("account_guid", to_account);
-        b.put("quantity", 21);
-        b.put("price", 2.0);
+        b.put("quantity", amount);
         b.put("unit", "sachen");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
