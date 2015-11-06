@@ -50,4 +50,17 @@ public class TransactionsTests extends BaseProviderTests {
         query("accounts/dummy/transactions", 2);
     }
 
+    public void testForderungen() { // subquery to display open/closed
+        createDummyAccount("dummy");
+        insertTransaction("dummy", "forderungen", 42f, "Bar Dumm"); // like deposit
+        Cursor transactions = query("accounts/dummy/transactions", 1); // kontoauszug
+        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("who", "dummy", transactions.getString(3));
+        Cursor products = query("accounts/forderungen/products", "title IS 'Bar Dumm'", 1); // open
+        assertEquals("amount", 1f, products.getFloat(4));
+        assertEquals("price", 42f, products.getFloat(5));
+        assertEquals("title", "Bar Dumm", products.getString(7));
+        insertTransaction("forderungen", "bank", 42f, "Bar Dumm"); // begleichen
+        query("accounts/forderungen/products", "title IS 'Bar Dumm'", 0);
+    }
 }

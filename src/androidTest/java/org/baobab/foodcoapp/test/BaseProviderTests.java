@@ -51,18 +51,22 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
     }
 
     public Uri insertTransaction(String from_account, String to_account) {
-        return insertTransaction(1, "final", from_account, to_account, 42.0f);
+        return insertTransaction(1, "final", from_account, to_account, 42.0f, 1.0f, "sth");
     }
 
     public Uri insertTransaction(String status, String from_account, String to_account) {
-        return insertTransaction(1, status, from_account, to_account, 42.0f);
+        return insertTransaction(1, status, from_account, to_account, 42.0f, 1.0f, "sth");
+    }
+
+    public Uri insertTransaction(String from_account, String to_account, float price, String title) {
+        return insertTransaction(1, "final", from_account, to_account, 1.0f, price, title);
     }
 
     public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
-        return insertTransaction(sessionId, status, from_account, to_account, amount, "sth");
+        return insertTransaction(sessionId, status, from_account, to_account, amount, 1.0F, "sth");
     }
 
-    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, String title) {
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, float price, String title) {
         ContentValues t = new ContentValues();
         t.put("session_id", sessionId);
         t.put("status", status);
@@ -74,7 +78,7 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
         b.put("product_id", 23);
         b.put("quantity", -amount);
         b.put("title", title);
-        b.put("price", 1.0);
+        b.put("price", price);
         b.put("unit", "dinge");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
