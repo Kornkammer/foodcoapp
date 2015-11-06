@@ -40,15 +40,9 @@ public class AccountsTests extends BaseProviderTests {
     public void testFindAccountByName() {
         createDummyAccount("dummy");
         createDummyAccount("another");
-        Cursor accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, "name IS 'foo'", null, null);
-        assertEquals("no account", 0, accounts.getCount());
-        accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), null, "name IS 'dummy'", null, null);
-        assertEquals("one account", 1, accounts.getCount());
-        accounts = getMockContentResolver().query(Uri.parse(
-                "content://org.baobab.foodcoapp.test/accounts"), null, "guid IS 'dummy'", null, null);
-        assertEquals("one account", 1, accounts.getCount());
+        query("accounts", "guid IS 'dummy'", 1);
+        query("accounts/passiva/accounts", "name IS 'foo'", 0);
+        query("accounts/passiva/accounts", "name IS 'dummy'", 1);
     }
 
 }

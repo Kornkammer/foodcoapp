@@ -20,13 +20,22 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
     }
 
     @NonNull
-    public Cursor query(String path, int assert_count) {
-        return query(Uri.parse("content://org.baobab.foodcoapp.test/" + path), assert_count);
+    public Cursor query(Uri uri, int assert_count) {
+        return query(uri, null, assert_count);
     }
 
     @NonNull
-    public Cursor query(Uri uri, int assert_count) {
-        Cursor transactions = getMockContentResolver().query(uri, null, null, null, null);
+    public Cursor query(String path, int assert_count) {
+        return query(path, null, assert_count);
+    }
+
+    @NonNull
+    public Cursor query(String p, String selection, int assert_count) {
+        return query(Uri.parse("content://org.baobab.foodcoapp.test/" + p), selection,  assert_count);
+    }
+
+    public Cursor query(Uri uri, String selection, int assert_count) {
+        Cursor transactions = getMockContentResolver().query(uri, null, selection, null, null);
         assertEquals("number of results", assert_count, transactions.getCount());
         transactions.moveToFirst();
         return transactions;
