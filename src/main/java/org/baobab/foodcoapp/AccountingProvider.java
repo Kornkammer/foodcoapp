@@ -143,6 +143,7 @@ public class AccountingProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "sessions/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCT);
@@ -242,6 +243,9 @@ public class AccountingProvider extends ContentProvider {
                                 uri.getQueryParameter("pin")});
                 break;
             case TRANSACTIONS:
+                if (uri.getPathSegments().get(0).equals("sessions")) {
+                    selection = "session_id = " + uri.getPathSegments().get(1);
+                }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
@@ -255,11 +259,10 @@ public class AccountingProvider extends ContentProvider {
                                 "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
                         ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " WHERE transactions.status IS NOT 'draft'" +
-//                                " AND transaction_products.title IS NOT 'Credits'" +
                                 (selection != null? " AND " + selection : "") +
                         " GROUP BY transactions._id" +
                         " HAVING balance != 0" +
-                        (uri.getPathSegments().size() == 3?
+                        (uri.getPathSegments().get(0).equals("accounts") ?
                                 " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
                         " ORDER BY transactions._id",
                         null);

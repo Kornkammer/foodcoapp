@@ -51,6 +51,7 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
 
     public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
         ContentValues t = new ContentValues();
+        t.put("session_id", sessionId);
         t.put("status", status);
         t.put("stop", 1);
         Uri transaction = getMockContentResolver().insert(Uri.parse(
