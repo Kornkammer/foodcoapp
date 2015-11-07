@@ -13,7 +13,9 @@ public class TransactionProductsTests extends BaseProviderTests {
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
         b.put("product_id", 55);
+        b.put("title", "A product");
         b.put("unit", "piece");
+        b.put("price", 50);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         Cursor products = query(transaction, 3);
@@ -24,6 +26,16 @@ public class TransactionProductsTests extends BaseProviderTests {
                 .appendEncodedPath("products").build(), b);
         products = query(transaction, 3);
         assertEquals("quantity", -2.0, products.getDouble(4));
+        // press button again
+        b.put("price", 1000);
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 4);
+        assertEquals("quantity", -2.0, products.getDouble(4));
+        assertEquals("price", 50.0, products.getDouble(5));
+        products.moveToNext();
+        assertEquals("quantity", -1.0, products.getDouble(4));
+        assertEquals("price", 1000.0, products.getDouble(5));
     }
 
     public void testDecAmount() {
@@ -54,6 +66,7 @@ public class TransactionProductsTests extends BaseProviderTests {
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
         b.put("product_id", 55);
+        b.put("title", "A product");
         b.put("unit", "piece");
         b.put("quantity", -4.0);
         getMockContentResolver().insert(transaction.buildUpon()
@@ -67,6 +80,15 @@ public class TransactionProductsTests extends BaseProviderTests {
                 .appendEncodedPath("products").build(), b);
         products = query(transaction, 4);
         assertEquals("quantity", -4.0, products.getDouble(4));
+        // same product but other title
+        b.put("quantity", 20);
+        b.put("title", "B Product");
+        getMockContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+        products = query(transaction, 5);
+        assertEquals("quantity", -4.0, products.getDouble(4));
+        products.moveToNext();
+        assertEquals("quantity", 20.0, products.getDouble(4));
     }
 
     public void testAccountsOrder() {
@@ -85,6 +107,8 @@ public class TransactionProductsTests extends BaseProviderTests {
         ContentValues b = new ContentValues();
         b.put("account_guid", "lager");
         b.put("product_id", 2);
+        b.put("title", "Cash");
+        b.put("price", 1);
         b.put("quantity", -5.5);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);

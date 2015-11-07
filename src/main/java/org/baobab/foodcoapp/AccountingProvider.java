@@ -56,7 +56,7 @@ public class AccountingProvider extends ContentProvider {
                     ");");
             db.execSQL("CREATE UNIQUE INDEX idx"
                     + " ON transaction_products (" +
-                    "transaction_id, product_id, account_guid);");
+                    "transaction_id, account_guid, title, price);");
             db.execSQL("CREATE TABLE accounts (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "parent_guid, " +
@@ -171,7 +171,7 @@ public class AccountingProvider extends ContentProvider {
                                 "SELECT _id, parent_guid, guid, name, max(_id) FROM accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid " +
                         " WHERE transaction_id = ?" +
-                        " GROUP BY accounts.guid, product_id, price" +
+                        " GROUP BY accounts.guid, title, price" +
                         " ORDER BY accounts._id, transaction_products.title",
                         new String[] { uri.getLastPathSegment() });
                 break;
@@ -338,7 +338,8 @@ public class AccountingProvider extends ContentProvider {
                                 " VALUES (?, ?, ?, ?, ?, ?, ?, " +
                                 "COALESCE(" +
                                 "(SELECT quantity FROM transaction_products" +
-                                " WHERE transaction_id = ? AND product_id = ? AND account_guid = ?)," +
+                                " WHERE transaction_id = ? AND account_guid = ?" +
+                                    " AND title IS ? AND price = ?)," +
                                 "0) + ?);", new String[] {
                                 uri.getPathSegments().get(1),
                                 values.getAsString("account_guid"),
@@ -348,8 +349,9 @@ public class AccountingProvider extends ContentProvider {
                                 values.getAsString("unit"),
                                 values.getAsString("img"),
                                 uri.getPathSegments().get(1),
-                                values.getAsString("product_id"),
                                 values.getAsString("account_guid"),
+                                values.getAsString("title"),
+                                values.getAsString("price"),
                                 quantity });
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
