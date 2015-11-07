@@ -60,15 +60,15 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
     }
 
     public Uri insertTransaction(String from_account, String to_account) {
-        return insertTransaction(1, "final", from_account, to_account, 42.0f, 1.0f, "sth");
+        return insertTransaction(7, "final", from_account, to_account, 42.0f, 1.0f, "sth");
     }
 
     public Uri insertTransaction(String status, String from_account, String to_account) {
-        return insertTransaction(1, status, from_account, to_account, 42.0f, 1.0f, "sth");
+        return insertTransaction(7, status, from_account, to_account, 42.0f, 1.0f, "sth");
     }
 
     public Uri insertTransaction(String from_account, String to_account, float price, String title) {
-        return insertTransaction(1, "final", from_account, to_account, 1.0f, price, title);
+        return insertTransaction(7, "final", from_account, to_account, 1.0f, price, title);
     }
 
     public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
