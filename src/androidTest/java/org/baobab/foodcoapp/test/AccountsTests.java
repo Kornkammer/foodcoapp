@@ -40,9 +40,9 @@ public class AccountsTests extends BaseProviderTests {
     public void testFindAccountByName() {
         createDummyAccount("dummy");
         createDummyAccount("another");
-        query("accounts", "guid IS 'dummy'", 1);
-        query("accounts/passiva/accounts", "name IS 'foo'", 0);
-        query("accounts/passiva/accounts", "name IS 'dummy'", 1);
+        query("accounts", "guid IS ?", new String[] {"dummy"}, 1);
+        query("accounts/passiva/accounts", "name IS ?", new String[] {"foo"}, 0);
+        query("accounts/passiva/accounts", "name IS ?", new String[] {"dummy"}, 1);
     }
 
 }
