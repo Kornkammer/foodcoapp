@@ -202,7 +202,8 @@ public class AccountingProvider extends ContentProvider {
                             " WHERE parent_guid IS '" + parent_guid + "'" : "") +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
-                        " ORDER BY accounts._id", null);
+                        " ORDER BY accounts._id",
+                        (selectionArgs != null? selectionArgs : null));
                 break;
             case ACCOUNT_PRODUCTS:
                 String account_guid = "";
@@ -258,8 +259,7 @@ public class AccountingProvider extends ContentProvider {
                         " LEFT JOIN (" +
                                 "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
                         ") AS accounts ON transaction_products.account_guid = accounts.guid" +
-                        " WHERE transactions.status IS NOT 'draft'" +
-                                (selection != null? " AND " + selection : "") +
+                        (selection != null? " WHERE " + selection : " WHERE transactions.status IS NOT 'draft'") +
                         " GROUP BY transactions._id" +
                         " HAVING balance != 0" +
                         (uri.getPathSegments().get(0).equals("accounts") ?

@@ -21,30 +21,39 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
 
     @NonNull
     public Cursor query(Uri uri, int assert_count) {
-        return query(uri, null, assert_count);
+        return query(uri, null, null, assert_count);
     }
 
     @NonNull
     public Cursor query(String path, int assert_count) {
-        return query(path, null, assert_count);
+        return query(path, null, null, assert_count);
     }
 
     @NonNull
     public Cursor query(String p, String selection, int assert_count) {
-        return query(Uri.parse("content://org.baobab.foodcoapp.test/" + p), selection,  assert_count);
+        return query(Uri.parse("content://org.baobab.foodcoapp.test/" + p), selection, null, assert_count);
     }
 
-    public Cursor query(Uri uri, String selection, int assert_count) {
-        Cursor transactions = getMockContentResolver().query(uri, null, selection, null, null);
+    @NonNull
+    public Cursor query(String p, String selection, String[] args, int assert_count) {
+        return query(Uri.parse("content://org.baobab.foodcoapp.test/" + p), selection, args, assert_count);
+    }
+
+    public Cursor query(Uri uri, String selection, String[] args, int assert_count) {
+        Cursor transactions = getMockContentResolver().query(uri, null, selection, args, null);
         assertEquals("number of results", assert_count, transactions.getCount());
         transactions.moveToFirst();
         return transactions;
     }
 
     public Uri createDummyAccount(String name) {
+        return createDummyAccount(name, name);
+    }
+
+    public Uri createDummyAccount(String name, String guid) {
         ContentValues values = new ContentValues();
         values.put("name", name);
-        values.put("guid", name);
+        values.put("guid", guid);
         values.put("parent_guid", "passiva");
         return getMockContentResolver().insert(
                 Uri.parse("content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), values);
@@ -89,6 +98,5 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
                 .appendEncodedPath("products").build(), b);
         return transaction;
     }
-
 
 }
