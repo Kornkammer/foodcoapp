@@ -34,7 +34,7 @@ public class PosActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener {
 
-    private static final String TAG = "FoodCoApp";
+    public static final String TAG = "FoodCoApp";
     private ViewPager pager;
     private TextView scaleView;
     private Scale scale;

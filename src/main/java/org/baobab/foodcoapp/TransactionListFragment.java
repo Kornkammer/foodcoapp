@@ -63,10 +63,10 @@ public class TransactionListFragment extends ListFragment
                         if (cursor.getString(9).equals("aktiva")) {
                             if (cursor.getInt(8) < 0) {
                                 sign = "-";
-                                v.comment.setText("Einlagerung");
+                                v.comment.setText("Einkauf");
                             } else {
                                 sign = "+";
-                                v.comment.setText("Barverkauf");
+                                v.comment.setText("Verkauf");
                             }
                         } else {
                             if (cursor.getInt(8) < 0) {

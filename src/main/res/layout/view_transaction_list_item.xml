@@ -2,7 +2,7 @@
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_width="match_parent"
-  android:layout_height="match_parent">
+  android:layout_height="wrap_content">
 
   <LinearLayout
     android:layout_width="match_parent"
@@ -44,7 +44,7 @@
     <TextView
       android:id="@+id/comment"
       android:textSize="@dimen/font_size_xxsmall"
-      android:layout_width="128dp"
+      android:layout_width="0dp"
       android:layout_weight="3"
       android:gravity="center_vertical"
       android:layout_height="match_parent"
