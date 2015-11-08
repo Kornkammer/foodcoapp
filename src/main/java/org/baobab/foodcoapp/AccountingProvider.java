@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.UUID;
@@ -111,18 +112,18 @@ public class AccountingProvider extends ContentProvider {
     }
 
     static final UriMatcher router = new UriMatcher(0);
-    private static final int ACCOUNT = 0;
-    private static final int ACCOUNTS = 1;
-    private static final int SESSIONS = 2;
-    private static final int PRODUCTS = 3;
-    private static final int PRODUCT = 4;
-    private static final int LEGITIMATE = 5;
-    private static final int TRANSACTION = 6;
-    private static final int TRANSACTIONS = 7;
-    private static final int TRANSACTION_PRODUCT = 8;
-    private static final int ACCOUNT_PRODUCTS = 9;
-
-    private static final short SUM = 10;
+    private static final int SUM = 1;
+    private static final int ACCOUNT = 2;
+    private static final int ACCOUNTS = 3;
+    private static final int SESSION = 4;
+    private static final int SESSIONS = 5;
+    private static final int PRODUCTS = 6;
+    private static final int PRODUCT = 7;
+    private static final int LEGITIMATE = 8;
+    private static final int TRANSACTION = 9;
+    private static final int TRANSACTIONS = 10;
+    private static final int ACCOUNT_PRODUCTS = 11;
+    private static final int TRANSACTION_PRODUCT = 12;
 
     public static String AUTHORITY = "org.baobab.foodcoapp";
 
@@ -138,16 +139,17 @@ public class AccountingProvider extends ContentProvider {
         router.addURI(AUTHORITY, "accounts/*/products", ACCOUNT_PRODUCTS);
         router.addURI(AUTHORITY, "products", PRODUCTS);
         router.addURI(AUTHORITY, "sessions", SESSIONS);
+        router.addURI(AUTHORITY, "sessions/#", SESSION);
         router.addURI(AUTHORITY, "products/#", PRODUCT);
         router.addURI(AUTHORITY, "legitimate", LEGITIMATE);
+        router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         router.addURI(AUTHORITY, "transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
-        router.addURI(AUTHORITY, "sessions/*/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "sessions/#/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCT);
         router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCT);
-        router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         return false;
     }
 
@@ -176,11 +178,7 @@ public class AccountingProvider extends ContentProvider {
                         new String[] { uri.getLastPathSegment() });
                 break;
             case SUM:
-                result = db.getReadableDatabase().rawQuery(
-                        "SELECT quantity, price, sum(quantity * price)" +
-                        " FROM transaction_products" +
-                        " WHERE transaction_id = ?",
-                        new String[] { uri.getPathSegments().get(1) });
+                result = getTransactionSum(uri.getPathSegments().get(1));
                 break;
             case ACCOUNTS:
                 String parent_guid = "NULL";
@@ -251,7 +249,7 @@ public class AccountingProvider extends ContentProvider {
                         "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
-                                "max(accounts._id), transaction_products.quantity, accounts.parent_guid" +
+                                "max(accounts._id), transaction_products.quantity, accounts.parent_guid, transactions.status" +
                         " FROM transactions" +
                         " LEFT OUTER JOIN sessions ON transactions.session_id = sessions._id" +
                         " LEFT JOIN accounts AS session ON sessions.account_guid = session.guid" +
@@ -270,6 +268,14 @@ public class AccountingProvider extends ContentProvider {
         }
         result.setNotificationUri(getContext().getContentResolver(), uri);
         return result;
+    }
+
+    private Cursor getTransactionSum(String id) {
+        return db.getReadableDatabase().rawQuery(
+                "SELECT quantity, price, sum(quantity * price)" +
+                " FROM transaction_products" +
+                " WHERE transaction_id = ?",
+                new String[] { id });
     }
 
     @Override
@@ -428,6 +434,7 @@ public class AccountingProvider extends ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+        int result = 0;
         switch (router.match(uri)) {
             case ACCOUNTS:
                 db.getWritableDatabase().update("accounts", values, selection, selectionArgs);
@@ -443,7 +450,27 @@ public class AccountingProvider extends ContentProvider {
                             " WHERE transaction_id = ?",
                             new String[] { uri.getLastPathSegment() });
                 } else {
-                    db.getWritableDatabase().update("transactions", values, "_id =  + " + uri.getLastPathSegment(), null);
+                    if (values.containsKey("status") &&
+                            values.getAsString("status").equals("final")) {
+                        if (isTransactionValid(uri.getLastPathSegment())) {
+                            result = db.getWritableDatabase().update("transactions", values,
+                                    "_id = " + uri.getLastPathSegment(), null);
+                        }
+                    }
+                }
+                break;
+            case SESSION:
+                Cursor txns = query(uri.buildUpon().appendPath(
+                        "transactions").build(), null, null, null, null);
+                boolean allValid = true;
+                while (txns.moveToNext()) {
+                    if (!isTransactionValid(txns.getString(0))) {
+                        allValid = false;
+                    }
+                }
+                if (allValid) {
+                    result = db.getWritableDatabase().update("transactions", values,
+                            "session_id = " + uri.getPathSegments().get(1), null);
                 }
                 break;
             case TRANSACTION_PRODUCT:
@@ -451,10 +478,17 @@ public class AccountingProvider extends ContentProvider {
                         "transaction_id = ? AND product_id = ?",
                         new String[]{
                                 uri.getPathSegments().get(1),
-                                uri.getLastPathSegment() });
+                                uri.getLastPathSegment()});
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        return 0;
+        return result;
+    }
+
+    @NonNull
+    private boolean isTransactionValid(String id) {
+        Cursor sum = getTransactionSum(id);
+        sum.moveToFirst();
+        return sum.getFloat(2) == 0;
     }
 }

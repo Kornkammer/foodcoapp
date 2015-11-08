@@ -99,4 +99,14 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
         return transaction;
     }
 
+    public int finalizeSession(long id) {
+        return finalizeSession(Uri.parse(
+                "content://org.baobab.foodcoapp.test/sessions/" + id));
+    }
+
+    public int finalizeSession(Uri uri) {
+        ContentValues cv = new ContentValues();
+        cv.put("status", "final");
+        return getMockContentResolver().update(uri, cv, null, null);
+    }
 }
