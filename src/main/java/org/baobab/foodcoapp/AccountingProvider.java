@@ -44,6 +44,8 @@ public class AccountingProvider extends ContentProvider {
                     "comment TEXT, " +
                     "status TEXT" +
                     ");");
+            db.execSQL("CREATE UNIQUE INDEX transactions_idx"
+                    + " ON transactions (stop, comment);");
             db.execSQL("CREATE TABLE transaction_products (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "transaction_id INTEGER, " +
@@ -249,7 +251,8 @@ public class AccountingProvider extends ContentProvider {
                         "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
-                                "max(accounts._id), transaction_products.quantity, accounts.parent_guid, transactions.status" +
+                                "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
+                                " transactions.status, transaction_products.price" +
                         " FROM transactions" +
                         " LEFT OUTER JOIN sessions ON transactions.session_id = sessions._id" +
                         " LEFT JOIN accounts AS session ON sessions.account_guid = session.guid" +
@@ -387,9 +390,18 @@ public class AccountingProvider extends ContentProvider {
                 if (!values.containsKey("status")) {
                     values.put("status", "draft");
                 }
-                values.put("start", System.currentTimeMillis());
-                uri = ContentUris.withAppendedId(uri,
-                    db.getWritableDatabase().insert("transactions", null, values));
+                if (!values.containsKey("start")) {
+                    values.put("start", System.currentTimeMillis());
+                }
+                if (!values.containsKey("stop")) {
+                    values.put("stop", System.currentTimeMillis());
+                }
+                long id = db.getWritableDatabase().insert("transactions", null, values);
+                if (id != -1) {
+                    uri = ContentUris.withAppendedId(uri, id);
+                } else {
+                    uri = null;
+                }
                 break;
             case SESSIONS:
                 uri = ContentUris.withAppendedId(uri,
