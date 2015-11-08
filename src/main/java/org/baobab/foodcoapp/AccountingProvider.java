@@ -22,7 +22,7 @@ public class AccountingProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context) {
-            super(context, "foodcoapp.db", null, 4);
+            super(context, "foodcoapp.db", null, 5);
         }
 
         @Override
@@ -44,8 +44,6 @@ public class AccountingProvider extends ContentProvider {
                     "comment TEXT, " +
                     "status TEXT" +
                     ");");
-            db.execSQL("CREATE UNIQUE INDEX transactions_idx"
-                    + " ON transactions (stop, comment);");
             db.execSQL("CREATE TABLE transaction_products (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "transaction_id INTEGER, " +
@@ -238,7 +236,7 @@ public class AccountingProvider extends ContentProvider {
                 break;
             case LEGITIMATE:
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, status, max(accounts._id), guid FROM accounts " +
+                        "SELECT _id, status, max(accounts._id), guid, name FROM accounts " +
                                 "WHERE pin IS ? OR qr IS ? GROUP BY guid",
                         new String[] { uri.getQueryParameter("pin"),
                                 uri.getQueryParameter("pin")});
@@ -252,7 +250,7 @@ public class AccountingProvider extends ContentProvider {
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
-                                " transactions.status, transaction_products.price" +
+                                " transactions.status, transaction_products.price, transactions.status" +
                         " FROM transactions" +
                         " LEFT OUTER JOIN sessions ON transactions.session_id = sessions._id" +
                         " LEFT JOIN accounts AS session ON sessions.account_guid = session.guid" +
@@ -396,6 +394,9 @@ public class AccountingProvider extends ContentProvider {
                 if (!values.containsKey("stop")) {
                     values.put("stop", System.currentTimeMillis());
                 }
+                if (!values.containsKey("comment")) {
+                    values.put("comment", "Kommentar");
+                }
                 long id = db.getWritableDatabase().insert("transactions", null, values);
                 if (id != -1) {
                     uri = ContentUris.withAppendedId(uri, id);
@@ -476,7 +477,7 @@ public class AccountingProvider extends ContentProvider {
                         "transactions").build(), null, null, null, null);
                 boolean allValid = true;
                 while (txns.moveToNext()) {
-                    if (!isTransactionValid(txns.getString(0))) {
+                    if (!isTransactionValid(txns.getString(0), txns.getString(2), txns.getString(4))) {
                         allValid = false;
                     }
                 }
@@ -497,10 +498,21 @@ public class AccountingProvider extends ContentProvider {
         return result;
     }
 
-    @NonNull
     private boolean isTransactionValid(String id) {
+        Cursor txn = db.getReadableDatabase().query("transactions", null,
+                "_id = " + id, null, null, null, null);
+        txn.moveToFirst();
+        return isTransactionValid(txn.getString(0), txn.getString(3), txn.getString(4));
+    }
+
+    private boolean isTransactionValid(String id, String stop, String comment) {
         Cursor sum = getTransactionSum(id);
         sum.moveToFirst();
-        return sum.getFloat(2) == 0;
+        boolean zeroSum = sum.getFloat(2) == 0;
+        Cursor c = db.getWritableDatabase().query("transactions", null,
+                "status IS 'final' AND stop = ? AND comment IS ?",
+                new String[] { stop, comment }, null, null, null);
+        boolean exists = c.getCount() > 0;
+        return zeroSum && !exists;
     }
 }

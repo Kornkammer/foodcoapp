@@ -201,7 +201,9 @@ public class GlsImportTest extends BaseProviderTests {
 
     private void assertNichtGebucht() {
         Import.Result result = importer.store(values);
-        query(result.session.buildUpon().appendPath("transactions").build(), 0);
+        finalizeSession(result.session);
+        Cursor txn = query(result.session.buildUpon().appendPath("transactions").build(), 1);
+        assertEquals("not booked", "draft", txn.getString(12));
     }
 
     private void assertEinlage(String verwendungszeck1) {
@@ -257,6 +259,7 @@ public class GlsImportTest extends BaseProviderTests {
                 .buildUpon().appendPath("transactions").build(), 1);
         assertTrue(transactions.getString(4) + "' should contain '" + comment,
                 transactions.getString(4).contains(comment));
+        assertEquals("booked", "final", transactions.getString(12));
         return query("transactions/" + transactions.getLong(0), assertCount);
     }
 
