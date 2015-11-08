@@ -15,7 +15,6 @@ public class TransactionsTests extends BaseProviderTests {
         createDummyAccount("dummy");
         insertTransaction("dummy", "kasse");
         Cursor transactions = query("accounts/dummy/transactions", 1);
-        assertEquals("time", 1, transactions.getLong(2));
         assertEquals("sum", 42.0, transactions.getDouble(6));
         assertEquals("who", "dummy", transactions.getString(3));
         assertEquals("Einzahlung", true, transactions.getInt(8) < 0);
@@ -75,6 +74,20 @@ public class TransactionsTests extends BaseProviderTests {
         assertEquals("title", "Bar Dumm", products.getString(7));
         insertTransaction("forderungen", "bank", 42f, "Bar Dumm"); // begleichen
         query("accounts/forderungen/products", "title IS 'Bar Dumm'", 0);
+    }
+
+    public void testFindLatestTransactions() {
+        createDummyAccount("dummy");
+        insertTransaction(9, "draft", "dummy", "kasse", 1, 30, "Bar Dumm");
+        insertTransaction(9, "final", "dummy", "kasse", 1, 30, "Bar Dumm");
+        insertTransaction(9, "final", "dummy", "kasse", 1, 50, "Bar Dumm");
+        insertTransaction(9, "final", "dummy", "kasse", 1, 50, "Bar Dumm");
+        query("accounts/dummy/transactions", 3);
+        Cursor txns = query("accounts/dummy/transactions", "title IS 'Bar Dumm'", 4);
+        txns.moveToLast();
+        assertEquals(4, txns.getLong(0));
+        txns.moveToPrevious();
+        assertEquals(3, txns.getLong(0));
     }
 
     public void testSessionTransactions() {
