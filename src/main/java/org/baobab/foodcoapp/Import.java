@@ -2,11 +2,9 @@ package org.baobab.foodcoapp;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -21,61 +19,60 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class Import {
 
-    public static SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
-    private static ArrayList<ContentValues> products;
-    private static ArrayList<ContentValues> transactions;
+    public interface Importer {
+        ContentValues read(String[] line);
+        Result store(ContentValues[] values);
+    }
 
-    public static String file(AppCompatActivity ctx, Uri uri) {
+    static public class Result {
+        public String msg;
+        public Uri session;
+
+    }
+
+    static final String TAG = PosActivity.TAG;
+
+    public static Result file(AppCompatActivity ctx, Uri uri) {
+        ArrayList<Object> values = new ArrayList<>();
+        Result result = new Result();
+        Importer importer = null;
         try {
-            products = new ArrayList<ContentValues>();
-            transactions = new ArrayList<ContentValues>();
-
-            InputStream is = ctx.getContentResolver().openInputStream(ctx.getIntent().getData());
+            InputStream is = ctx.getContentResolver().openInputStream(uri);
             CSVReader csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), ';');
 
             String[] line = csv.readNext();
-            while ((line = csv.readNext()) != null) {
-                if (line.length == 69) {
-                    storeProduct(ctx, line);
-                } else if (line.length == 22) {
-                    storeTransaction(ctx, line);
+            if (line.length == 69) {
+                importer = new BnnImporter(ctx);
+            } else if (line.length == 22) {
+                importer = new GlsImporter(ctx);
+            } else {
+                Log.d(TAG, "No idea how to import " + line.length + " -> " + line);
+                result.msg = "No idea how to import this :/";
+            }
+            if (importer != null) {
+                while ((line = csv.readNext()) != null) {
+                    ContentValues cv = importer.read(line);
+                    if (cv != null) {
+                        values.add(cv);
+                    } else {
+                        Log.d(TAG, "Could not import line " + line.length + " -> " + line);
+                    }
+                }
+                if (values.size() > 0) {
+                    Log.d(TAG, "number of values to import " + values.size());
+                    result = importer.store(values.toArray(new ContentValues[values.size()]));
+                    Log.d(TAG, result.msg);
                 } else {
-                    Log.d("Foo", "Could not import line " + line.length + " " + line);
+                    result.msg = "Could not import " + importer.getClass().getSimpleName();
                 }
             }
-            if (products.size() > 0) {
-                Log.d("Foo", "number of products to import " + products.size());
-                int count = ctx.getContentResolver().bulkInsert(Uri.parse(
-                            "content://org.baobab.foodcoapp/products"),
-                        products.toArray(new ContentValues[products.size()]));
-                Log.d("Foo", "imported " + count);
-                return "Imported " + count + " products \n(out of " + products.size() + ")";
-            }
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
+            Log.e(TAG, "Error " + e);
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
+            result.msg += "\nImport Failed! " + e.getMessage();
+            return result;
         }
-        return "Import Failed";
+        return result;
     }
 
-    private static void storeProduct(Context ctx, String[] line) {
-        ContentValues cv = new ContentValues();
-        cv.put("ean", line[4]);
-        cv.put("unit", "Stück");
-        cv.put("title", line[6]);
-        cv.put("price", Float.valueOf(line[37].replace(",", ".")));
-        products.add(cv);
-        Log.d("Bar", "+ store: " + line[4] + ": " + line[6] + " || " + line[7] + " - " + line[37]);
-    }
-
-    private static void storeTransaction(Context ctx, String[] line) throws ParseException {
-        System.out.println(line[1]);
-        System.out.println(date.format(date.parse(line[1])));
-        System.out.println(line[3]);
-        System.out.println(line[4]);
-        System.out.println(line[19]);
-    }
 }

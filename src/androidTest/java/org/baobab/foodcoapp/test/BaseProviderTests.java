@@ -79,7 +79,7 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
         ContentValues t = new ContentValues();
         t.put("session_id", sessionId);
         t.put("status", status);
-        t.put("stop", 1);
+        t.put("stop", System.currentTimeMillis());
         Uri transaction = getMockContentResolver().insert(Uri.parse(
                 "content://org.baobab.foodcoapp.test/transactions"), t);
         ContentValues b = new ContentValues();
