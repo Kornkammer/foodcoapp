@@ -134,7 +134,9 @@ public class LegitimateActivity extends AppCompatActivity {
                             .appendEncodedPath("products/2")
                             .build(), b);
         }
-        setResult(RESULT_OK, getIntent().putExtra("guid", auth.getString(3)));
+        setResult(RESULT_OK, getIntent()
+                .putExtra("guid", auth.getString(3))
+                .putExtra("name", auth.getString(4)));
         finish();
         return true;
     }
