@@ -24,13 +24,14 @@ public class GlsImportTest extends BaseProviderTests {
 
     public void testEinlage() {
         assertEinlage("Einlage Susi");
-        assertEinlage("Einlage-Susi");
+        assertEinlage("0815 Einlage");
+        assertEinlage("Einlage-susi");
         assertEinlage("Einlage: Susi");
         assertEinlage("Einlage - Susi");
         assertEinlage("einlage Susi");
         assertEinlage("einlage-Susi");
         assertEinlage("einlage: Susi");
-        assertEinlage("einlage - Susi");
+        assertEinlage("einlage - SUSI");
         assertEinlage("Einlage 0815");
         assertEinlage("Einlage-0815");
         assertEinlage("Einlage: 0815");
@@ -58,6 +59,7 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testBeitrag() {
+        assertTrägtBei("0915 Mitgliederbeitrag 1.");
         assertTrägtBei("Mitgliedsbeitrag Susi");
         assertTrägtBei("Mitgliedsbeitrag:Susi");
         assertTrägtBei("Mitgliedsbeitrag-Susi");
@@ -77,6 +79,14 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testEinzahlung() {
+        assertZahltEin("Einzahlung 0734, Susi");
+        assertZahltEin("einzahlung mitgl.nr 0815,");
+        assertVerbindlichkeit("40 euro, 0815, susi", "Susi", "40 euro, 0815, susi"); // kein Schlüsselwort
+        assertZahltEin("Einzahlung - Mitgliedsnumme", "r 0815, Account Susi"); // split in zwei VWZ
+        assertZahltEin("1. Einzahlung, 0815, sus", "i bla bla"); // split in zwei VWZ
+        assertZahltEin("EINZAHLUNG, 0815, SUSI");
+        assertZahltEin("EINZAHLUNG, 0815");
+        assertZahltEin("Prepaid Mitgliedsnr 0815");
         assertZahltEin("Einzahlung Susi");
         assertZahltEin("Einzahlung:Susi");
         assertZahltEin("Einzahlung:0815");
