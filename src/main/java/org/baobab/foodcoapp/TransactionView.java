@@ -237,14 +237,14 @@ public class TransactionView extends GridLayout {
         addView(images, lp);
 
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
-        if (data.getLong(3) > 5) {
+        if (data.getLong(3) > 1) {
             if (Math.abs(quantity) < 1.0) {
                 amount.setNumber(quantity * 1000);
             } else {
                 amount.setNumber(quantity);
             }
         } else {
-            amount.setVisibility(View.GONE);
+            amount.setVisibility(View.INVISIBLE);
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
@@ -273,8 +273,8 @@ public class TransactionView extends GridLayout {
             x.setText("x ");
         }
         x.setTextColor(getResources().getColor(R.color.light_blue));
-        if (data.getLong(3) <= 5) {
-            x.setVisibility(GONE);
+        if (data.getLong(3) == 1) {
+            x.setVisibility(INVISIBLE);
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
@@ -284,11 +284,7 @@ public class TransactionView extends GridLayout {
 
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-        if (data.getString(10).equals("aktiva")) {
-            title.setText(data.getString(7));
-        } else {
-            title.setText(data.getString(12));
-        }
+        title.setText(data.getString(7));
         title.setTypeface(null, Typeface.BOLD);
         title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
