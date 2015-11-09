@@ -39,6 +39,7 @@
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher"
+      android:taskAffinity="org.baobab.foodcoapp.pos"
       android:launchMode="singleTask"
       android:windowSoftInputMode="adjustResize"
       android:screenOrientation="landscape" >
