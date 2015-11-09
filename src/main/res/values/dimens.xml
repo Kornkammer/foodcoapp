@@ -7,6 +7,7 @@
   <dimen name="xxlarge">64dp</dimen>
 
   <dimen name="font_size_xlarge">48sp</dimen>
+  <dimen name="font_size_larger">42sp</dimen>
   <dimen name="font_size_large">32sp</dimen>
   <dimen name="font_size_medium">20sp</dimen>
   <dimen name="font_size_small">17sp</dimen>

@@ -11,7 +11,7 @@
     android:padding="@dimen/small"
     android:layout_width="match_parent"
     android:layout_height="0dp"
-    android:layout_weight="382" >
+    android:layout_weight="444" >
 
     <TextView
       android:id="@+id/contact"
@@ -23,17 +23,38 @@
       style="?android:buttonStyle"
       android:drawableTop="@drawable/ic_menu_invite" />
 
-    <EditText
-      android:id="@+id/name"
-      android:textSize="42sp"
-      android:textStyle="bold"
-      android:textColor="#fff"
+    <LinearLayout
       android:layout_width="0dp"
       android:layout_weight="618"
-      android:inputType="textNoSuggestions|textCapWords"
       android:layout_height="wrap_content"
-      android:imeOptions="flagNoExtractUi"
-      android:hint="name" />
+      android:orientation="vertical" >
+
+      <EditText
+        android:id="@+id/name"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        android:selectAllOnFocus="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font_size_larger"
+        android:inputType="textNoSuggestions|textCapWords"
+        android:imeOptions="flagNoExtractUi"
+        android:nextFocusForward="@id/pin"
+        android:nextFocusDown="@id/pin"
+        android:hint="name" />
+
+      <EditText
+        android:id="@+id/guid"
+        android:enabled="false"
+        android:textStyle="bold"
+        android:textColor="#777"
+        android:selectAllOnFocus="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font_size_medium"
+        android:inputType="textNoSuggestions|number"
+        android:imeOptions="flagNoExtractUi" />
+    </LinearLayout>
   </LinearLayout>
 
   <LinearLayout

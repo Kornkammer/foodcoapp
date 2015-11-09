@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -25,6 +26,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import java.util.Random;
 
 public class AccountEditFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -77,6 +80,10 @@ public class AccountEditFragment extends Fragment
         //});
         if (getArguments().containsKey("uri")) {
             getLoaderManager().initLoader(0, null, this);
+        } else {
+            String guid = generateGUID();
+            ((EditText) view.findViewById(R.id.guid)).setText(guid);
+            view.findViewById(R.id.guid).setEnabled(true);
         }
         getView().findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,6 +92,27 @@ public class AccountEditFragment extends Fragment
             }
         });
         setHasOptionsMenu(true);
+    }
+
+    public String generateGUID() {
+        String guid = String.valueOf(rand());
+        if (exists(guid)) {
+            return generateGUID();
+        } else {
+            return guid;
+        }
+    }
+
+    private boolean exists(String guid) {
+        Cursor a =  getActivity().getContentResolver().query(Uri.parse(
+                        "content://org.baobab.foodcoapp/accounts/" + guid),
+                        null, null, null, null);
+        return a.getCount() > 0;
+    }
+
+    public int rand() {
+        Random r = new Random( System.currentTimeMillis() );
+        return (1 + r.nextInt(2)) * 10000 + r.nextInt(10000);
     }
 
     @Override
@@ -162,6 +190,7 @@ public class AccountEditFragment extends Fragment
         switch (loader.getId()) {
             case 0:
                 getArguments().putString("guid", data.getString(1));
+                ((EditText) getView().findViewById(R.id.guid)).setText(data.getString(1));
                 getActivity().setTitle("Edit " + data.getString(2));
                 if (!data.isNull(4)) {
                     getArguments().putString("pin", data.getString(4));
@@ -183,7 +212,6 @@ public class AccountEditFragment extends Fragment
                 }
                 if (!data.isNull(1)) {
                     getArguments().putString("parent_guid", data.getString(1));
-                    getLoaderManager().initLoader(1, null, this);
                 }
                 break;
             case 1:
@@ -224,11 +252,13 @@ public class AccountEditFragment extends Fragment
         String pin = ((EditText) getView().findViewById(R.id.pin)).getText().toString();
         String pin2 = ((EditText) getView().findViewById(R.id.pin2)).getText().toString();
         if (pin.equals("") || pin2.equals("")) {
+            MediaPlayer.create(getActivity(), R.raw.error_1).start();
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);
             Snackbar.make(getView().findViewById(R.id.pin),
                     "Pin brauchts!", Snackbar.LENGTH_LONG).show();
             return;
         } else if (!pin.equals(pin2)) {
+            MediaPlayer.create(getActivity(), R.raw.error_2).start();
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(250);
             Snackbar.make(getView().findViewById(R.id.pin2),
                     "pins nicht gleich", Snackbar.LENGTH_LONG).show();
@@ -241,6 +271,8 @@ public class AccountEditFragment extends Fragment
             values.put("pin", pin); // keep
         }  else {
             if (lockAccountIfAlreadyTaken(hash)) {
+                MediaPlayer.create(getActivity(), R.raw.error_3).start();
+                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(1000);
                 Snackbar.make(getView(), "PIN gibts schon!!!", Snackbar.LENGTH_LONG).show();
                 return;
             }
@@ -249,9 +281,18 @@ public class AccountEditFragment extends Fragment
         if (getArguments().containsKey("guid")) {
             archivePreviousVersions();
             values.put("guid", getArguments().getString("guid"));
+        } else {
+            String guid = ((EditText) getView().findViewById(R.id.guid)).getText().toString();
+            if (exists(guid)) {
+                MediaPlayer.create(getActivity(), R.raw.error_4).start();
+                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                Snackbar.make(getView(), "MitgliedsNr vergeben", Snackbar.LENGTH_LONG).show();
+                return;
+            } else {
+                values.put("guid", guid);
+            }
         }
         if (getArguments().containsKey("parent_guid")) {
-            archivePreviousVersions();
             values.put("parent_guid", getArguments().getString("guid"));
         }
         if (getArguments().containsKey("contact")) {
@@ -261,6 +302,8 @@ public class AccountEditFragment extends Fragment
         if (getArguments().containsKey("qr") &&
                 getArguments().getString("qr") != null) {
             if (lockAccountIfAlreadyTaken(getArguments().getString("qr"))) {
+                MediaPlayer.create(getActivity(), R.raw.error_4).start();
+                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
                 Snackbar.make(getView(), "QR code gibts schon!!!", Snackbar.LENGTH_LONG).show();
                 return;
             }
