@@ -121,6 +121,7 @@ public class LegitimateActivity extends AppCompatActivity {
             win.start();
         }
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(70);
+        ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(70);
         if (getIntent().getData() != null) {
             Cursor sum = getContentResolver().query(getIntent().getData().buildUpon()
                     .appendEncodedPath("sum").build(), null, null, null, null);

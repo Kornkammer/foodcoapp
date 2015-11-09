@@ -2,11 +2,13 @@ package org.baobab.foodcoapp;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -75,10 +77,12 @@ public class ImportActivity extends AppCompatActivity {
                 protected void onPostExecute(Integer readCount) {
                     dialog.dismiss();
                     if (importer == null) {
+                        ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
                         showMsg("Unbekanntes Dateiformat");
                         return;
                     }
                     if (importer.getMsg() != null) {
+                        ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
                         showMsg(importer.getMsg());
                     }
                     if (importer.getSession() != null) {
@@ -122,6 +126,7 @@ public class ImportActivity extends AppCompatActivity {
                             startActivity(new Intent(ImportActivity.this, AccountActivity.class));
                             finish();
                         } else {
+                            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                             showMsg(stored + " Transaktionen importiert (von " + readCount + ")");
                             MediaPlayer.create(ImportActivity.this, R.raw.error_2).start();
                         }

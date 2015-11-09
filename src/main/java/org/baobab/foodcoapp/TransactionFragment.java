@@ -9,6 +9,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -178,9 +179,11 @@ public class TransactionFragment extends Fragment
             @Override
             public void onClick(View v) {
                 if (sum < -0.01) {
+                    ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
                     MediaPlayer.create(getActivity(), R.raw.error_3).start();
                     Toast.makeText(getActivity(), "Wechselgeld " + sum, Toast.LENGTH_SHORT).show();
                 } else if (sum > 0.01) {
+                    ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(300);
                     MediaPlayer.create(getActivity(), R.raw.error_4).start();
                     Toast.makeText(getActivity(), "Noch " + sum + " offen!", Toast.LENGTH_LONG).show();
                 } else {
@@ -215,6 +218,7 @@ public class TransactionFragment extends Fragment
                                     .setPositiveButton("Ja, Genau!", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
+                                            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                                             MediaPlayer.create(getActivity(), R.raw.yay).start();
                                             MediaPlayer.create(getActivity(), R.raw.chaching).start();
                                             saveStatus("final");
@@ -232,10 +236,12 @@ public class TransactionFragment extends Fragment
                             return;
                         } else {
                             msg = "Keine Buchung ins Minus erlaubt!\n\n" + msg;
+                            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
                             Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
                             MediaPlayer.create(getActivity(), R.raw.error_2).start();
                         }
                     } else {
+                        ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                         MediaPlayer.create(getActivity(), R.raw.chaching).start();
                         new Handler().postDelayed(new Runnable() {
                             @Override
