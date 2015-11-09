@@ -12,7 +12,6 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
@@ -25,6 +24,7 @@ public class AccountListFragment extends Fragment
     private Uri uri;
     private int invert = 1;
     private boolean editable;
+    private ExpandableListView list;
     private CursorTreeAdapter adapter;
 
     public AccountListFragment() { }
@@ -80,17 +80,10 @@ public class AccountListFragment extends Fragment
                 ((AccountView) view).makeExpandable();
             }
         };
-        ((ExpandableListView) view.findViewById(android.R.id.list)).setAdapter(adapter);
-        registerForContextMenu(view.findViewById(android.R.id.list));
-
-        ((ExpandableListView) view.findViewById(android.R.id.list)).setGroupIndicator(null);
-        ((ExpandableListView) view.findViewById(android.R.id.list))
-                .setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    }
-                });
-
+        list = (ExpandableListView) view.findViewById(android.R.id.list);
+        list.setGroupIndicator(null);
+        registerForContextMenu(list);
+        list.setAdapter(adapter);
     }
 
     public AccountListFragment setUri(String uri, boolean invert) {
@@ -123,9 +116,8 @@ public class AccountListFragment extends Fragment
             adapter.changeCursor(data);
         } else {
             if (data.getCount() == 0) {
-                ((AccountView)((ExpandableListView) getView()
-                        .findViewById(android.R.id.list))
-                        .getChildAt(loader.getId())).expand();
+                ((AccountView) list.getChildAt(loader.getId()
+                        - list.getFirstVisiblePosition())).expand();
             } else {
                 adapter.setChildrenCursor(loader.getId(), data);
             }
@@ -142,11 +134,6 @@ public class AccountListFragment extends Fragment
                 Uri.parse("content://org.baobab.foodcoapp/accounts/"
                         + adapter.getCursor().getString(2)));
     }
-
-//    @Override
-//    public void onListItemClick(ListView l, View v, int position, long guid) {
-//        super.onListItemClick(l, v, position, guid);
-//    }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
@@ -165,6 +152,8 @@ public class AccountListFragment extends Fragment
             View.inflate(ctx, R.layout.view_account_list_item, this);
             balance = (TextView) findViewById(R.id.balance);
             name = (TextView) findViewById(R.id.name);
+            findViewById(R.id.container)
+                    .setBackgroundResource(R.drawable.background_translucent);
         }
 
         public void makeExpandable() {
@@ -199,7 +188,12 @@ public class AccountListFragment extends Fragment
                         Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
                         null, null, null, null);
                 transaction.populate(c);
-                ((LinearLayout) v).addView(transaction);
+                LayoutParams lp = new LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT);
+                lp.topMargin = -23;
+                lp.bottomMargin = 23;
+                ((LinearLayout) v).addView(transaction, lp);
             }
             expanded = !expanded;
         }

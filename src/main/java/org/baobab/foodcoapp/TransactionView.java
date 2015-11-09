@@ -128,15 +128,15 @@ public class TransactionView extends GridLayout {
                         f.setBackgroundResource(R.drawable.background_green);
                     }
                 }
+                ViewGroup.LayoutParams p = new ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT );
+                lp.bottomMargin = - getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
+                f.addView(header, p);
+                addView(f, lp);
+                f.setId(data.getInt(3));
+                f.setTag(String.valueOf(quantity));
             }
-            ViewGroup.LayoutParams p = new ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT );
-            lp.bottomMargin = - getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
-            f.addView(header, p);
-            addView(f, lp);
-            f.setId(data.getInt(3));
-            f.setTag(String.valueOf(quantity));
             if (headersClickable) {
                 f.setClickable(true);
                 f.setOnClickListener(new OnClickListener() {
