@@ -105,10 +105,8 @@
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
-        <data android:scheme="file" />
-        <data android:scheme="content" />
-        <data android:mimeType="*/*" />
-        <data android:pathPattern="/.*\\.csv" />
+        <data android:scheme="file" android:mimeType="*/*" android:pathPattern="/.*\\.csv" />
+        <data android:scheme="content" android:mimeType="text/csv" android:pathPattern="/.*\\.csv" />
       </intent-filter>
     </activity>
 

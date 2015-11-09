@@ -1,0 +1,31 @@
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:orientation="vertical"
+  android:paddingLeft="@dimen/medium"
+  android:paddingRight="@dimen/medium"
+  android:paddingTop="@dimen/small"
+  android:paddingBottom="@dimen/small" >
+
+  <FrameLayout
+    android:id="@+id/container"
+    android:layout_height="0dp"
+    android:layout_width="match_parent"
+    android:layout_weight="1"
+    android:layout_marginBottom="@dimen/column_small" />
+
+  <TextView
+    android:id="@+id/ok"
+    android:textStyle="bold"
+    android:textSize="@dimen/font_size_medium"
+    android:clickable="true"
+    android:gravity="center"
+    android:visibility="gone"
+    android:drawableRight="@drawable/ic_ok"
+    android:textColor="@color/xdark_red"
+    android:background="@drawable/background_light"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/column_small"
+    android:text="Buchen" />
+</LinearLayout>

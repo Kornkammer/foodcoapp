@@ -5,31 +5,75 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
-public class BnnImporter implements Import.Importer {
+import java.io.IOException;
+import java.util.ArrayList;
 
-    private final Context ctx;
+import au.com.bytecode.opencsv.CSVReader;
+
+public class BnnImporter implements ImportActivity.Importer {
+
+    static final String TAG = PosActivity.TAG;
+    ArrayList<ContentValues> values;
+    String msg = "";
+    Context ctx;
 
     public BnnImporter(Context ctx) {
         this.ctx = ctx;
     }
 
     @Override
-    public ContentValues read(String[] line) {
-        Log.d("Bar", "+ read: " + line[4] + ": " + line[6] + " || " + line[7] + " - " + line[37]);
-        ContentValues cv = new ContentValues();
-        cv.put("ean", line[4]);
-        cv.put("unit", "Stück");
-        cv.put("title", line[6]);
-        cv.put("price", Float.valueOf(line[37].replace(",", ".")));
-        return cv;
+    public int read(CSVReader csv) throws IOException {
+        int count = 0;
+        String[] line;
+        values = new ArrayList<>();
+        while ((line = csv.readNext()) != null) {
+            ContentValues product = readLine(line);
+            if (product != null) {
+                values.add(product);
+            }
+            count++;
+        }
+        if (values.size() != count) {
+            msg += "Could not read " + (count - values.size()) + " products (of " + count +")\n";
+        } else {
+
+        }
+        int result = store();
+        msg += "imported " + result + " products (of " + values.size() + ")";
+        return result;
     }
 
     @Override
-    public Import.Result store(ContentValues[] values) {
-        int count = ctx.getContentResolver().bulkInsert(Uri.parse(
-                "content://org.baobab.foodcoapp/products"), values);
-        Import.Result result = new Import.Result();
-        result.msg = "Imported " + count + " (out of " + values.length + " products)";
-        return result;
+    public Uri getSession() {
+        return null;
     }
+
+    @Override
+    public String getMsg() {
+        return msg;
+    }
+
+    public int store() {
+        int count = ctx.getContentResolver().bulkInsert(Uri.parse(
+                        "content://org.baobab.foodcoapp/products"),
+                values.toArray(new ContentValues[values.size()]));
+        msg = "Imported " + count + " (out of " + values.size() + " products)";
+        return count;
+    }
+
+    public ContentValues readLine(String[] line) {
+        try {
+            Log.d(TAG, "+ read: " + line[4] + ": " + line[6] + " || " + line[7] + " - " + line[37]);
+            ContentValues cv = new ContentValues();
+            cv.put("ean", line[4]);
+            cv.put("unit", "Stück");
+            cv.put("title", line[6]);
+            cv.put("price", Float.valueOf(line[37].replace(",", ".")));
+            return cv;
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading line " + e.getMessage());
+            return null;
+        }
+    }
+
 }

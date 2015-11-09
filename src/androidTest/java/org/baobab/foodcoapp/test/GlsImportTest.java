@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.test.mock.MockContext;
 
 import org.baobab.foodcoapp.GlsImporter;
-import org.baobab.foodcoapp.Import;
 
 import java.text.NumberFormat;
 import java.util.Date;
@@ -200,9 +199,8 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     private void assertNichtGebucht() {
-        Import.Result result = importer.store(values);
-        finalizeSession(result.session);
-        Cursor txn = query(result.session.buildUpon().appendPath("transactions").build(), 1);
+        finalizeSession(importer.getSession());
+        Cursor txn = query(importer.getSession().buildUpon().appendPath("transactions").build(), 1);
         assertEquals("not booked", "draft", txn.getString(12));
     }
 
@@ -253,9 +251,8 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem(from_account, fromAccountName, fromTitle, -1.0f, amount, items);
     }
     private Cursor assertTransaction(String comment, int assertCount) {
-        Import.Result result = importer.store(values);
-        finalizeSession(result.session);
-        Cursor transactions = query(result.session
+        finalizeSession(importer.getSession());
+        Cursor transactions = query(importer.getSession()
                 .buildUpon().appendPath("transactions").build(), 1);
         assertTrue(transactions.getString(4) + "' should contain '" + comment,
                 transactions.getString(4).contains(comment));
@@ -286,7 +283,7 @@ public class GlsImportTest extends BaseProviderTests {
 
     private void read(Gls gls) {
         importer = new GlsImporter(ctx);
-        values[0] = importer.read(gls.line);
+        values[0] = importer.readLine(gls.line);
     }
 
     long time = System.currentTimeMillis();

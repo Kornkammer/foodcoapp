@@ -5,22 +5,26 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GlsImporter implements Import.Importer {
+import au.com.bytecode.opencsv.CSVReader;
+
+public class GlsImporter implements ImportActivity.Importer {
 
     public static SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
     public static String AUTHORITY = "org.baobab.foodcoapp";
     private final Context ctx;
     private String msg = "";
-    private int count = 0;
     public final Uri uri;
+    private int count = 0;
 
     public GlsImporter(Context ctx) {
         this.ctx = ctx;
@@ -30,6 +34,28 @@ public class GlsImporter implements Import.Importer {
                 "content://" + AUTHORITY + "/sessions"), cv);
     }
 
+    @Override
+    public int read(CSVReader csv) throws IOException {
+        List<String[]> lines = csv.readAll();
+        for (int i = lines.size()-1; i >= 0; i--) {
+            readLine(lines.get(i));
+        }
+        if (lines.size() != count) {
+            msg = "Could not read " + (lines.size() - count) + " transactions";
+        }
+        return count;
+    }
+
+    @Override
+    public String getMsg() {
+        return msg;
+    }
+
+    @Override
+    public Uri getSession() {
+        return uri;
+    }
+
     static final Pattern vwz1 = Pattern.compile(
             "^(Einlage|einlage|Mitgliedsbeitrag|mitgliedsbeitrag|Beitrag|beitrag" +
                     "|Einzahlung|einzahlung|Guthaben|guthaben|Barkasse|barkasse)" +
@@ -37,8 +63,7 @@ public class GlsImporter implements Import.Importer {
 
     static final Pattern vwz2 = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
-    @Override
-    public ContentValues read(String[] line) {
+    public ContentValues readLine(String[] line) {
         try {
             String comment = "VWZ: " + line[3];
             long time = date.parse(line[1]).getTime();
@@ -245,24 +270,17 @@ public class GlsImporter implements Import.Importer {
         }
         return a;
     }
+
     private Account findAccountBy(String column, String value) {
         Account a = new Account();
         Cursor accounts = ctx.getContentResolver().query(Uri.parse(
                         "content://" + AUTHORITY + "/accounts"), null,
-                        column + " IS ?", new String[] { value }, null);
+                column + " IS ?", new String[] { value }, null);
         if (accounts.getCount() == 1) {
             accounts.moveToFirst();
             a.name = accounts.getString(1);
             a.guid = accounts.getString(2);
         }
         return a;
-    }
-
-    @Override
-    public Import.Result store(ContentValues[] values) {
-        Import.Result result = new Import.Result();
-        result.session = uri;
-        result.msg = "Imported " + count + " transactions (von " + values.length + msg;
-        return result;
     }
 }
