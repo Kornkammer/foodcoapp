@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -123,8 +124,13 @@ public class ImportActivity extends AppCompatActivity {
                     protected void onPostExecute(Integer stored) {
                         dialog.dismiss();
                         if (stored == readCount) {
-                            startActivity(new Intent(ImportActivity.this, AccountActivity.class));
-                            finish();
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startActivity(new Intent(ImportActivity.this, AccountActivity.class));
+                                    finish();
+                                }
+                            }, 200);
                         } else {
                             ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                             showMsg(stored + " Transaktionen importiert (von " + readCount + ")");

@@ -8,6 +8,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -78,7 +79,7 @@ public class DepositActivity extends AppCompatActivity {
         }
     }
 
-    private void store(String guid, float amount, String title) {
+    private void store(final String guid, float amount, String title) {
         Toast.makeText(this, "Guthaben aufgeladen \n" + amount, Toast.LENGTH_LONG).show();
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
         MediaPlayer.create(this, R.raw.chaching).start();
@@ -104,10 +105,15 @@ public class DepositActivity extends AppCompatActivity {
         b.put("price", amount);
         getContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        finish();
-        startActivity(new Intent(this, TransactionsActivity.class)
-                .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
-                        guid + "/transactions")));
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(DepositActivity.this, TransactionsActivity.class)
+                        .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                guid + "/transactions")));
+                finish();
+            }
+        }, 300);
     }
 
     @Override

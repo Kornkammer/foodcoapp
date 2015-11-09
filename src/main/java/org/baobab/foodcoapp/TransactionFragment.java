@@ -249,7 +249,6 @@ public class TransactionFragment extends Fragment
                                 MediaPlayer.create(getActivity(), R.raw.yay).start();
                             }
                         }, 700);
-
                         saveStatus("final");
                         Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
                         ((PosActivity) getActivity()).resetTransaction();
