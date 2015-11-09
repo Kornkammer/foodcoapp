@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import java.text.NumberFormat;
@@ -46,23 +47,35 @@ public class DepositActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 return;
             }
+            String title = null;
+            if (((RadioButton) findViewById(R.id.bar)).isChecked()) {
+                title = "Bar " + data.getStringExtra("name");
+            } else {
+                title = "Bank " + data.getStringExtra("name");
+            }
             ContentValues t = new ContentValues();
             t.put("status", "final");
-            t.put("comment", ((EditText) findViewById(R.id.comment)).getText().toString());
-            t.put("stop", System.currentTimeMillis());
+            t.put("comment", title + "\n" +
+                    ((EditText) findViewById(R.id.comment)).getText().toString());
             Uri transaction = getContentResolver().insert(Uri.parse(
                     "content://org.baobab.foodcoapp/transactions"), t);
             ContentValues b = new ContentValues();
-            b.put("account_guid", "kasse");
-            b.put("quantity", - amount);
+            b.put("product_id", 1);
+            b.put("account_guid", "forderungen");
+            b.put("title", title);
+            b.put("quantity", 1);
+            b.put("price", amount);
             getContentResolver().insert(transaction.buildUpon()
-                    .appendEncodedPath("products/1").build(), b);
+                    .appendEncodedPath("products").build(), b);
             b = new ContentValues();
+            b.put("product_id", 2);
+            b.put("title", "Credits");
             b.put("account_guid", data.getStringExtra("guid"));
-            b.put("quantity", amount);
+            b.put("quantity", - 1);
+            b.put("price", amount);
             getContentResolver().insert(transaction.buildUpon()
-                    .appendEncodedPath("products/2").build(), b);
-            Toast.makeText(this, "Guthaben aufgeladen \n" + amount + " in die Kasse!", Toast.LENGTH_LONG).show();
+                    .appendEncodedPath("products").build(), b);
+            Toast.makeText(this, "Guthaben aufgeladen \n" + amount, Toast.LENGTH_LONG).show();
             finish();
             startActivity(new Intent(this, TransactionsActivity.class)
                     .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
