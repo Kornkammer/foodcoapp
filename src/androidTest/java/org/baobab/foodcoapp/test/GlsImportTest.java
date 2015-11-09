@@ -59,7 +59,7 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testBeitrag() {
-        assertTrägtBei("0915 Mitgliederbeitrag 1.");
+        assertTrägtBei("0815 Mitgliederbeitrag 1.");
         assertTrägtBei("Mitgliedsbeitrag Susi");
         assertTrägtBei("Mitgliedsbeitrag:Susi");
         assertTrägtBei("Mitgliedsbeitrag-Susi");
@@ -228,9 +228,18 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransaction("0815", "Susi", "Credits", "bank", 42.23f, "VWZ: " + verwendungszeck1);
     }
 
+    private void assertZahltEin(String vwz1, String vwz2) {
+        read(gls().vwz1(vwz1).vwz2(vwz2).amount(42.23));
+        assertTransaction("0815", "Susi", "Credits", "bank", 42.23f, "VWZ: " + vwz1);
+    }
+
     private void assertVerbindlichkeit(String vwz, String comment) {
+        assertVerbindlichkeit(vwz, vwz, comment);
+    }
+
+    private void assertVerbindlichkeit(String vwz, String title, String comment) {
         read(gls().vwz1(vwz).amount(42.23));
-        assertTransaction("verbindlichkeiten", "Verbindlichkeiten", vwz, "bank", 42.23f, comment);
+        assertTransaction("verbindlichkeiten", "Verbindlichkeiten", title, "bank", 42.23f, comment);
     }
 
     private void assertBegleichtForderung(String vwz, float amount) {

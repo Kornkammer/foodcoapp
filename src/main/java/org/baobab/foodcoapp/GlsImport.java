@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -69,7 +68,7 @@ public class GlsImport implements ImportActivity.Importer {
 
     public ContentValues readLine(String[] line) {
         try {
-            String vwz = line[5];
+            String vwz = line[5] + line[6];
             String comment = "VWZ: " + vwz;
             long time = date.parse(line[1]).getTime();
             float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
@@ -79,14 +78,11 @@ public class GlsImport implements ImportActivity.Importer {
                     comment = "Unbekanntes Mitglied\n" + comment;
                 }
                 Uri transaction = storeTransaction(time, "Bankeingang:\n" + comment);
-                if (transaction == null) {
-                    msg += "\nTransaktion gibts schon! " + comment;
-                    return null;
-                }
                 storeBankCash(transaction, amount);
                 if (account != null && account.guid != null && account.err == null) {
                     if (vwz.toLowerCase().contains("einzahlung") ||
-                                vwz.toLowerCase().contains("guthaben")) {
+                                vwz.toLowerCase().contains("guthaben") ||
+                                vwz.toLowerCase().contains("prepaid")) {
                         String title = "Bank " + account.name;
                         Iterator<Long> iter = findOpenTransactions("forderungen", "title IS '" + title + "'");
                         while (iter.hasNext()) {
@@ -102,10 +98,13 @@ public class GlsImport implements ImportActivity.Importer {
                             storeTransactionItem(transaction, account.guid, - amount, "Credits");
                         }
                     } else if (vwz.toLowerCase().contains("mitgliedsbeitrag") ||
+                                vwz.toLowerCase().contains("mitgliederbeitrag") ||
                                 vwz.toLowerCase().contains("beitrag")) {
                         storeTransactionItem(transaction, "beiträge", - amount, account.name);
                     } else if (vwz.toLowerCase().contains("einlage")) {
                         storeTransactionItem(transaction, "einlagen", - amount, account.name);
+                    } else { // found account but no keyword
+                        storeTransactionItem(transaction, "verbindlichkeiten", - amount, account.name);
                     }
                 } else if (vwz.toLowerCase().contains("barkasse")) {
                     Iterator<Long> iter = findOpenTransactions("forderungen", "title LIKE 'Bar%'");
@@ -171,27 +170,6 @@ public class GlsImport implements ImportActivity.Importer {
             msg += "\nError! " + e.getMessage();
             return null;
         }
-    }
-
-    private Account findAccount(String vwz) {
-        Account account = findAccountBy("guid", guid, vwz);
-        if (account == null) {
-            account = findAccountBy("name", name, vwz);
-        }
-        return account;
-    }
-
-    private Account findAccountBy(String column, Pattern pattern, String vwz) {
-        Account account = null;
-        Matcher g = pattern.matcher(vwz);
-        int i = 0;
-        while (g.find()) {
-            i++;
-            System.out.println(i + column + ": " + g.group());
-            account = findAccountBy(column, g.group());
-            if (account != null) break;
-        }
-        return account;
     }
 
     private Iterator<Long> findOpenTransactions(String guid, String selection) {
@@ -292,10 +270,32 @@ public class GlsImport implements ImportActivity.Importer {
         return a;
     }
 
+
+    private Account findAccount(String vwz) {
+        Account account = findAccountBy("guid", guid, vwz);
+        if (account == null) {
+            account = findAccountBy("name", name, vwz);
+        }
+        return account;
+    }
+
+    private Account findAccountBy(String column, Pattern pattern, String vwz) {
+        Account account = null;
+        Matcher g = pattern.matcher(vwz);
+        int i = 0;
+        while (g.find()) {
+            i++;
+            System.out.println(i + column + ": " + g.group());
+            account = findAccountBy(column, g.group());
+            if (account != null) break;
+        }
+        return account;
+    }
+
     private Account findAccountBy(String column, String value) {
         Cursor accounts = ctx.getContentResolver().query(Uri.parse(
                         "content://" + AUTHORITY + "/accounts"), null,
-                column + " IS ?", new String[] { value }, null);
+                "UPPER(" + column + ") IS UPPER(?)", new String[] { value }, null);
         if (accounts.getCount() == 1) {
             accounts.moveToFirst();
             Account a = new Account();
