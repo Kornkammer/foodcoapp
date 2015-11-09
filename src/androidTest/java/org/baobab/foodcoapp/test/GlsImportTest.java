@@ -7,7 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.test.mock.MockContext;
 
-import org.baobab.foodcoapp.GlsImporter;
+import org.baobab.foodcoapp.GlsImport;
 
 import java.text.NumberFormat;
 import java.util.Date;
@@ -277,18 +277,18 @@ public class GlsImportTest extends BaseProviderTests {
         }
     };
 
-    static { GlsImporter.AUTHORITY = "org.baobab.foodcoapp.test"; }
+    static { GlsImport.AUTHORITY = "org.baobab.foodcoapp.test"; }
     private ContentValues[] values = new ContentValues[1];
-    private GlsImporter importer;
+    private GlsImport importer;
 
     private void read(Gls gls) {
-        importer = new GlsImporter(ctx);
+        importer = new GlsImport(ctx);
         values[0] = importer.readLine(gls.line);
     }
 
     long time = System.currentTimeMillis();
     private Gls gls() {
-        return new Gls().date(GlsImporter.date.format(new Date(time+=87000000)));
+        return new Gls().date(GlsImport.date.format(new Date(time+=87000000)));
     }
 
     class Gls {

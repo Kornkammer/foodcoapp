@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-public class GlsImporter implements ImportActivity.Importer {
+public class GlsImport implements ImportActivity.Importer {
 
     public static SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
     public static String AUTHORITY = "org.baobab.foodcoapp";
@@ -26,7 +26,7 @@ public class GlsImporter implements ImportActivity.Importer {
     public final Uri uri;
     private int count = 0;
 
-    public GlsImporter(Context ctx) {
+    public GlsImport(Context ctx) {
         this.ctx = ctx;
         ContentValues cv = new ContentValues();
         cv.put("start", System.currentTimeMillis());

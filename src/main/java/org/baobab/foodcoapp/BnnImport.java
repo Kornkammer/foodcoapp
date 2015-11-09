@@ -10,14 +10,14 @@ import java.util.ArrayList;
 
 import au.com.bytecode.opencsv.CSVReader;
 
-public class BnnImporter implements ImportActivity.Importer {
+public class BnnImport implements ImportActivity.Importer {
 
     static final String TAG = PosActivity.TAG;
     ArrayList<ContentValues> values;
     String msg = "";
     Context ctx;
 
-    public BnnImporter(Context ctx) {
+    public BnnImport(Context ctx) {
         this.ctx = ctx;
     }
 

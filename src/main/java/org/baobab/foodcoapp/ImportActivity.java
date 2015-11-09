@@ -56,9 +56,9 @@ public class ImportActivity extends AppCompatActivity {
 
                         String[] line = csv.readNext();
                         if (line.length == 69) {
-                            importer = new BnnImporter(ImportActivity.this);
+                            importer = new BnnImport(ImportActivity.this);
                         } else if (line.length == 22) {
-                            importer = new GlsImporter(ImportActivity.this);
+                            importer = new GlsImport(ImportActivity.this);
                         } else {
                             Log.d(TAG, "No idea how to import this file (line length " + line.length + ")");
                             return 0;
