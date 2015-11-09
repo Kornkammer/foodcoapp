@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -63,21 +64,19 @@ public class GlsImport implements ImportActivity.Importer {
 
     static final Pattern vwz2 = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
+    static final Pattern name = Pattern.compile("[a-zA-Z]+");
+    static final Pattern guid = Pattern.compile("\\d+");
+
     public ContentValues readLine(String[] line) {
         try {
-            String comment = "VWZ: " + line[3];
+            String vwz = line[5];
+            String comment = "VWZ: " + vwz;
             long time = date.parse(line[1]).getTime();
             float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
             if (amount > 0) {
-                Matcher m = vwz1.matcher(line[3]);
-                Account account = null;
-                if (m.matches()) {
-                    account = findAccount(m.group(2), m.group(4));
-                } else {
-                    comment = "Keine automatische Zuordnung\n" + comment;
-                }
-                if (account != null && account.err != null) {
-                    comment = account.err + "\n" + comment;
+                Account account = findAccount(vwz);
+                if (account == null) {
+                    comment = "Unbekanntes Mitglied\n" + comment;
                 }
                 Uri transaction = storeTransaction(time, "Bankeingang:\n" + comment);
                 if (transaction == null) {
@@ -86,8 +85,8 @@ public class GlsImport implements ImportActivity.Importer {
                 }
                 storeBankCash(transaction, amount);
                 if (account != null && account.guid != null && account.err == null) {
-                    if (m.group(1).equalsIgnoreCase("Einzahlung") ||
-                                m.group(1).equalsIgnoreCase("Guthaben")) {
+                    if (vwz.toLowerCase().contains("einzahlung") ||
+                                vwz.toLowerCase().contains("guthaben")) {
                         String title = "Bank " + account.name;
                         Iterator<Long> iter = findOpenTransactions("forderungen", "title IS '" + title + "'");
                         while (iter.hasNext()) {
@@ -102,13 +101,13 @@ public class GlsImport implements ImportActivity.Importer {
                         if (amount > 0) { // rest guthaben
                             storeTransactionItem(transaction, account.guid, - amount, "Credits");
                         }
-                    } else if (m.group(1).equalsIgnoreCase("Mitgliedsbeitrag") ||
-                                m.group(1).equalsIgnoreCase("Beitrag")) {
+                    } else if (vwz.toLowerCase().contains("mitgliedsbeitrag") ||
+                                vwz.toLowerCase().contains("beitrag")) {
                         storeTransactionItem(transaction, "beiträge", - amount, account.name);
-                    } else if (m.group(1).equalsIgnoreCase("Einlage")) {
+                    } else if (vwz.toLowerCase().contains("einlage")) {
                         storeTransactionItem(transaction, "einlagen", - amount, account.name);
                     }
-                } else if (m.matches() && m.group(1).equalsIgnoreCase("Barkasse")) {
+                } else if (vwz.toLowerCase().contains("barkasse")) {
                     Iterator<Long> iter = findOpenTransactions("forderungen", "title LIKE 'Bar%'");
                     while (iter.hasNext()) {
                         Cursor txn = query("forderungen", "transactions._id =" + iter.next());
@@ -124,15 +123,16 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Barkasse");
                     }
                 } else {
-                    storeTransactionItem(transaction, "verbindlichkeiten", - amount, line[3]);
+                    storeTransactionItem(transaction, "verbindlichkeiten", - amount, vwz);
                 }
                 count++;
                 return new ContentValues();
             } else { // amount < 0
-                Matcher m = vwz2.matcher(line[4]);
+                vwz = line[6];
+                Matcher m = vwz2.matcher(vwz);
                 Account account = null;
                 if (m.matches()) {
-                    account = findAccount(m.group(1), "");
+                    account = findAccount(vwz);
                 } else {
                     comment = "VWZ nicht erkannt\n" + comment;
                 }
@@ -149,19 +149,19 @@ public class GlsImport implements ImportActivity.Importer {
                     storeTransactionItem(transaction, account.guid, -amount, m.group(2));
                     amount = 0;
                 } else {
-                    Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + line[4] + "'");
+                    Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + vwz + "'");
                     if (iter.hasNext()) {
                         Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
                         txn.moveToFirst();
                         float sum = txn.getFloat(8) * txn.getFloat(11);
                         if (sum == amount) {
-                            storeTransactionItem(transaction, "verbindlichkeiten", -amount, line[4]);
+                            storeTransactionItem(transaction, "verbindlichkeiten", -amount, vwz);
                             amount = 0;
                         }
                     }
                 }
                 if (amount < 0) { // still
-                    storeTransactionItem(transaction, "forderungen", -amount, line[4]);
+                    storeTransactionItem(transaction, "forderungen", -amount, vwz);
                 }
             }
             count++;
@@ -171,6 +171,27 @@ public class GlsImport implements ImportActivity.Importer {
             msg += "\nError! " + e.getMessage();
             return null;
         }
+    }
+
+    private Account findAccount(String vwz) {
+        Account account = findAccountBy("guid", guid, vwz);
+        if (account == null) {
+            account = findAccountBy("name", name, vwz);
+        }
+        return account;
+    }
+
+    private Account findAccountBy(String column, Pattern pattern, String vwz) {
+        Account account = null;
+        Matcher g = pattern.matcher(vwz);
+        int i = 0;
+        while (g.find()) {
+            i++;
+            System.out.println(i + column + ": " + g.group());
+            account = findAccountBy(column, g.group());
+            if (account != null) break;
+        }
+        return account;
     }
 
     private Iterator<Long> findOpenTransactions(String guid, String selection) {
@@ -272,15 +293,16 @@ public class GlsImport implements ImportActivity.Importer {
     }
 
     private Account findAccountBy(String column, String value) {
-        Account a = new Account();
         Cursor accounts = ctx.getContentResolver().query(Uri.parse(
                         "content://" + AUTHORITY + "/accounts"), null,
                 column + " IS ?", new String[] { value }, null);
         if (accounts.getCount() == 1) {
             accounts.moveToFirst();
+            Account a = new Account();
             a.name = accounts.getString(1);
             a.guid = accounts.getString(2);
+            return a;
         }
-        return a;
+        return null;
     }
 }

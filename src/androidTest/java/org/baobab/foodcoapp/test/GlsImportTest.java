@@ -23,7 +23,6 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testEinlage() {
-        assertEinlage("EinlageSusi");
         assertEinlage("Einlage Susi");
         assertEinlage("Einlage-Susi");
         assertEinlage("Einlage: Susi");
@@ -41,21 +40,21 @@ public class GlsImportTest extends BaseProviderTests {
         assertEinlage("einlage: 0815");
         assertEinlage("einlage - 0815");
         assertEinlage("Einlage-Susi-0815");
-        assertEinlage("Einlage: Susi-0815");
-        assertEinlage("einlage - Susi - 0815");
+        assertEinlage("Einlage: Susi-0815, 0815");
+        assertEinlage("einlage - Susi - 0815 0815");
         assertEinlage("Einlage-0815-Susi");
         assertEinlage("Einlage: 0815-Susi");
         assertEinlage("einlage - - 0815 : Susi");
         assertEinlage("Einlage Susi-0815 und noch liebe Grüße");
         assertVerbindlichkeit("Einlage Xaver", "Unbekanntes Mitglied");
         assertVerbindlichkeit("Einlage 76345", "Unbekanntes Mitglied");
-        assertVerbindlichkeit("Einlage-Susi-0827", "Falsche MitgliedsNr");
-        assertVerbindlichkeit("Einlage Susi 0827", "Falsche MitgliedsNr");
-        assertVerbindlichkeit("Einlage: 0827 - Susi", "Falsche MitgliedsNr");
-        assertVerbindlichkeit("Einlage-Susssi-0815", "Falscher MitgliedsName");
-        assertVerbindlichkeit("Einlage - 0815 Susssli", "Falscher MitgliedsName");
-        assertVerbindlichkeit("Einlage: 0815 : Susssli", "Falscher MitgliedsName");
-        assertVerbindlichkeit("MaWoasEsNed: DaSchaugHer", "Keine automatische Zuordnung");
+        assertEinlage("Einlage-Susi-0827"); // falsche MitgliedsNr
+        assertEinlage("Einlage Susi 0827"); // falsche MitgliedsNr
+        assertEinlage("Einlage: 0827 - Susi"); // falsche MitgliedsNr
+        assertEinlage("Einlage-Susssi-0815"); // falscher Mitgliedsname
+        assertEinlage("Einlage - 0815 Susssli"); // falscher Mitgliedsname
+        assertEinlage("Einlage: 0815 : Susssli"); // falscher Mitgliedsname
+        assertVerbindlichkeit("MaWoasEsNed: DaSchaugHer", "Unbekanntes Mitglied");
     }
 
     public void testBeitrag() {
@@ -302,12 +301,52 @@ public class GlsImportTest extends BaseProviderTests {
         }
 
         public Gls vwz1(String vwz1) {
-            line[3] = vwz1;
+            line[5] = vwz1;
             return this;
         }
 
         public Gls vwz2(String vwz2) {
-            line[4] = vwz2;
+            line[6] = vwz2;
+            return this;
+        }
+
+        public Gls vwz3(String vwz2) {
+            line[7] = vwz2;
+            return this;
+        }
+
+        public Gls vwz4(String vwz2) {
+            line[8] = vwz2;
+            return this;
+        }
+
+        public Gls vwz5(String vwz2) {
+            line[9] = vwz2;
+            return this;
+        }
+
+        public Gls vwz6(String vwz2) {
+            line[10] = vwz2;
+            return this;
+        }
+
+        public Gls vwz7(String vwz2) {
+            line[11] = vwz2;
+            return this;
+        }
+
+        public Gls vwz8(String vwz2) {
+            line[12] = vwz2;
+            return this;
+        }
+
+        public Gls vwz9(String vwz2) {
+            line[13] = vwz2;
+            return this;
+        }
+
+        public Gls vwz10(String vwz2) {
+            line[14] = vwz2;
             return this;
         }
 
