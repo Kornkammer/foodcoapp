@@ -20,7 +20,7 @@
     android:layout_alignParentRight="true"
     android:layout_marginLeft="16dp"
     android:imeOptions="flagNoExtractUi"
-    android:inputType="textAutoComplete|textCapWords"
+    android:inputType="textNoSuggestions|textCapWords"
     android:singleLine="true"
     android:textStyle="bold"
     android:hint="Baola Kirsch"
