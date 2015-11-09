@@ -1,26 +1,10 @@
 package org.baobab.foodcoapp;
 
-import android.app.ProgressDialog;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 
 public class TransactionsActivity extends AppCompatActivity {
@@ -49,35 +33,6 @@ public class TransactionsActivity extends AppCompatActivity {
             account.moveToFirst();
             getSupportActionBar().setTitle(account.getString(1) + " Guthaben: "
                     + String.format("%.2f", - account.getFloat(4)));
-        } else if (getIntent().getScheme().equals("file") ||
-                    getIntent().getScheme().equals("content")) {
-            final ProgressDialog dialog = new ProgressDialog(this);
-            dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-            dialog.setMessage("Importing. Please wait...");
-            dialog.setIndeterminate(true);
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.show();
-            new AsyncTask<Uri, String, Import.Result>() {
-
-                @Override
-                protected Import.Result doInBackground(Uri... uri) {
-                    return Import.file(TransactionsActivity.this, uri[0]);
-                }
-
-                @Override
-                protected void onPostExecute(Import.Result result) {
-                    Toast.makeText(TransactionsActivity.this, result.msg, Toast.LENGTH_LONG).show();
-                    if (result.session != null) {
-                        setTitle(result.msg);
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, TransactionListFragment.newInstance(
-                                                result.session.buildUpon().appendPath(
-                                                        "transactions").build()))
-                                .commit();
-                    }
-                    dialog.dismiss();
-                }
-            }.execute(getIntent().getData());
         }
     }
 
