@@ -179,6 +179,16 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("bank", "Bank", "Cash", -7.32f, 1.0f, items);
     }
 
+    public void testStandardUeberweisung() {
+        read(gls().vwz1("BIC:A1").vwz2("IBAN:DE1")
+                .vwz3("Datum: 13.10.15 Zeit: 21:38").vwz4("KD 0012 TAN 345")
+                .vwz5("Baumaterial").amount(-29));
+        Cursor items = assertTransaction("Baumaterial", 2);
+        assertTransactionItem("bank", "Bank", "Cash", -29, 1, items);
+        items.moveToNext();
+        assertTransactionItem("forderungen", "Forderungen", "Baumaterial", 1, 29, items);
+    }
+
     public void testAnschaffung() {
         assertBooking("Inventar:Tisch", "Inventar", "Tisch", 3.50f, "Rechnung XY");
         assertBooking("Inventar: Kiste", "Inventar", "Kiste", 5.50f, "Rechnung abc");

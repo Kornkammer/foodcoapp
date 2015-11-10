@@ -160,7 +160,13 @@ public class GlsImport implements ImportActivity.Importer {
                 if (amount < 0) { // still
                     Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
                     storeBankCash(transaction, amount);
-                    storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                    if (vwz2.equals("")) {
+                        storeTransactionItem(transaction, "forderungen", -amount, vwz1);
+                    } else if (vwz1.equals("")) {
+                        storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                    } else {
+                        storeTransactionItem(transaction, "forderungen", -amount, vwz1 + " \n" + vwz2);
+                    }
                 }
             }
             count++;
