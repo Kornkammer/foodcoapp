@@ -63,10 +63,6 @@ public class GlsImport implements ImportActivity.Importer {
 
     static final Pattern vwz2Pattern = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
-    static final Pattern nameWith = Pattern.compile("[a-zA-Z�]+[\\-\\s]{1}[a-zA-Z�]+");
-    static final Pattern name = Pattern.compile("[a-zA-Z�]+");
-    static final Pattern guid = Pattern.compile("\\d+");
-
     public ContentValues readLine(String[] line) {
         try {
             long time = date.parse(line[1]).getTime();
@@ -257,41 +253,10 @@ public class GlsImport implements ImportActivity.Importer {
         String name;
         String err;
     }
-    private Account findAccount(String name, String guid) {
-        Account a = findAccountBy("name", name);
-        if (a.guid == null) {
-            a = findAccountBy("guid", name);
-            if (a.guid == null) {
-                a.err = "Unbekanntes Mitglied";
-            }
-            if (!guid.equals("")) {
-                Account b = findAccountBy("name", guid);
-                if (b.guid != null) {
-                    if (!b.guid.equals(a.guid)) {
-                        a.err = "Falsche MitgliedsNr";
-                    }
-                } else {
-                    b = findAccountBy("guid", guid);
-                    if (b.guid != null) {
-                        if (!b.guid.equals(a.guid)) {
-                            a.err = "Falscher MitgliedsName";
-                        }
-                    } else { // there is second param that is not found
-                        a.err = "Falscher MitgliedsName";
-                    }
-                }
-            }
-            return a;
-        }
-        if (a.guid != null && !guid.equals("")) {
-            Account b = findAccountBy("guid", guid);
-            if (!a.guid.equals(b.guid)) {
-                a.err = "Falsche MitgliedsNr";
-            }
-        }
-        return a;
-    }
 
+    static final Pattern nameWith = Pattern.compile("[a-zA-Z�]+[\\-\\s]{1}[a-zA-Z�]+");
+    static final Pattern name = Pattern.compile("[a-zA-Z�]+");
+    static final Pattern guid = Pattern.compile("\\d+");
 
     private Account findAccount(String vwz) {
         Account account = findAccountBy("guid", guid, vwz);
@@ -322,7 +287,6 @@ public class GlsImport implements ImportActivity.Importer {
         int i = 0;
         while (g.find()) {
             i++;
-            System.out.println(i + column + ": " + g.group());
             account = findAccountBy(column, g.group());
             if (account != null) break;
         }
