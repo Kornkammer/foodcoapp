@@ -9,7 +9,7 @@
     android:layout_height="wrap_content" >
 
     <LinearLayout
-      android:layout_width="@dimen/column_small"
+      android:layout_width="@dimen/column_smaller"
       android:layout_height="wrap_content"
       android:layout_gravity="center_vertical"
       android:orientation="vertical" >
@@ -36,8 +36,10 @@
       android:textSize="@dimen/font_size_xsmall"
       android:ellipsize="end"
       android:textStyle="bold"
-      android:layout_width="@dimen/column_small"
+      android:singleLine="true"
       android:gravity="center_vertical"
+      android:layout_marginRight="@dimen/large"
+      android:layout_width="@dimen/column_small"
       android:layout_gravity="center_vertical"
       android:layout_height="match_parent" />
 

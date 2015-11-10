@@ -13,7 +13,8 @@
   <dimen name="font_size_xsmall">20sp</dimen>
   <dimen name="font_size_xxsmall">16sp</dimen>
 
-  <dimen name="column_small">112dp</dimen>
+  <dimen name="column_smaller">96dp</dimen>
+  <dimen name="column_small">118dp</dimen>
   <dimen name="column_medium">128dp</dimen>
   <dimen name="column_large">224dp</dimen>
 
