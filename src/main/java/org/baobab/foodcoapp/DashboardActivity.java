@@ -1,7 +1,6 @@
 package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -14,16 +13,15 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity {
 
     public static final int LEGITIMATE = 55;
+    final HashSet<Integer> multitouch = new HashSet<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,16 +57,15 @@ public class DashboardActivity extends AppCompatActivity {
                         LEGITIMATE);
             }
         });
-        final HashSet<Integer> touches = new HashSet<>();
         View.OnTouchListener touch = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 if (event.getAction() == 0) {
-                    touches.add(v.getId());
+                    multitouch.add(v.getId());
                 } else if (event.getAction() == 1) {
-                    touches.remove(v.getId());
+                    multitouch.remove(v.getId());
                 }
-                if (touches.size() == 4) {
+                if (multitouch.size() == 4) {
                     Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
                     for (ResolveInfo a : getPackageManager().queryIntentActivities(i, 0)) {
                         if (!a.activityInfo.packageName.contains("baobab")) {
@@ -76,7 +73,6 @@ public class DashboardActivity extends AppCompatActivity {
                                     .setClassName(a.activityInfo.packageName, a.activityInfo.name));
                         }
                     }
-                    return true;
                 }
                 return false;
             }
@@ -128,6 +124,13 @@ public class DashboardActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        multitouch.clear();
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void fullscreen() {
         if (Build.VERSION.SDK_INT < 16) {
@@ -139,5 +142,4 @@ public class DashboardActivity extends AppCompatActivity {
                     View.SYSTEM_UI_FLAG_FULLSCREEN);
         }
     }
-
 }
