@@ -63,7 +63,8 @@ public class GlsImport implements ImportActivity.Importer {
 
     static final Pattern vwz2Pattern = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
-    static final Pattern name = Pattern.compile("[a-zA-Z]+");
+    static final Pattern nameWith = Pattern.compile("[a-zA-Z�]+[\\-\\s]{1}[a-zA-Z�]+");
+    static final Pattern name = Pattern.compile("[a-zA-Z�]+");
     static final Pattern guid = Pattern.compile("\\d+");
 
     public ContentValues readLine(String[] line) {
@@ -296,6 +297,21 @@ public class GlsImport implements ImportActivity.Importer {
         Account account = findAccountBy("guid", guid, vwz);
         if (account == null) {
             account = findAccountBy("name", name, vwz);
+        }
+        if (account == null) {
+            account = findAccountBy("name", nameWith, vwz);
+        }
+        if (account == null) {
+            if (vwz.contains(" ")) {
+                account = findAccountBy("name", nameWith,
+                        vwz.substring(vwz.indexOf(" ")));
+            }
+        }
+        if (account == null) {
+            if (vwz.contains("-")) {
+                account = findAccountBy("name", nameWith,
+                        vwz.substring(vwz.indexOf("-")));
+            }
         }
         return account;
     }

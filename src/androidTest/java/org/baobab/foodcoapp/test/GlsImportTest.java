@@ -20,6 +20,8 @@ public class GlsImportTest extends BaseProviderTests {
         super.setUp();
         createDummyAccount("Susi", "0815");
         createDummyAccount("Albert", "1234");
+        createDummyAccount("CheckR-WG", "1111");
+        createDummyAccount("Coole Leute", "2222");
     }
 
 
@@ -78,6 +80,18 @@ public class GlsImportTest extends BaseProviderTests {
         assertEinlage("Einlage - 0815 Susssli"); // falscher Mitgliedsname
         assertEinlage("Einlage: 0815 : Susssli"); // falscher Mitgliedsname
         assertVerbindlichkeit("MaWoasEsNed: DaSchaugHer", "");
+    }
+
+    public void testNameMitBesonderenZeichen() {
+        assertEinlage("Einlage CheckR-WG", "CheckR-WG");
+        assertEinlage("Einlage Coole Leute", "Coole Leute");
+        assertEinlage("Einlage-Coole Leute", "Coole Leute");
+        assertEinlage("Einlage f�r CheckR-WG", "CheckR-WG");
+        assertEinlage("Einlage f�r-CheckR-WG", "CheckR-WG");
+        assertEinlage("Einlage - Coole Leute", "Coole Leute");
+        assertEinlage("Einlage f�r die CheckR-WG", "CheckR-WG");
+        assertEinlage("Einlage f�r die tolle CheckR-WG", "CheckR-WG");
+        assertEinlage("Einlage f�r die tolle CheckR-WG geht auch", "CheckR-WG");
     }
 
     public void testBeitrag() {
@@ -262,8 +276,12 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     private void assertEinlage(String verwendungszeck1) {
+        assertEinlage(verwendungszeck1, "Susi");
+    }
+
+    private void assertEinlage(String verwendungszeck1, String title) {
         read(gls().vwz1(verwendungszeck1).amount(105));
-        assertTransaction("Einlagen", "Susi", 105, "VWZ: " + verwendungszeck1);
+        assertTransaction("Einlagen", title, 105, "VWZ: " + verwendungszeck1);
     }
 
     private void assertTrägtBei(String verwendungszeck1) {
