@@ -5,5 +5,7 @@
 build
 app/app.iml
 local.properties
+release.properties
+kornkammer.keystore
 /.idea/workspace.xml
 .DS_Store
