@@ -33,6 +33,17 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransaction("Xaver Hupfinger", 2);
     }
 
+    public void testSpenden() {
+        read(gls().vwz1("Spende").amount(20));
+        assertTransaction("Spenden", "Spende", 20, "VWZ: Spende");
+        read(gls().vwz1("Spenden hier").amount(20));
+        assertTransaction("Spenden", "Spende", 20, "VWZ: Spenden hier");
+        read(gls().vwz1("eine kleine spende").amount(5));
+        assertTransaction("Spenden", "Spende", 5, "VWZ: eine kleine spende");
+        read(gls().vwz1("nochmal ").vwz2("Spenden Kornkammer").amount(20));
+        assertTransaction("Spenden", "Spende", 20, "nochmal Spenden Kornkammer");
+    }
+
     public void testEinlage() {
         assertEinlage("Einlage Susi");
         assertEinlage("0815 Einlage");

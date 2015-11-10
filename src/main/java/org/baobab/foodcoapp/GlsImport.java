@@ -100,6 +100,8 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "beiträge", - amount, account.name);
                     } else if (vwz.toLowerCase().contains("einlage")) {
                         storeTransactionItem(transaction, "einlagen", - amount, account.name);
+                    } else if (vwz.toLowerCase().contains("spende")) {
+                        storeTransactionItem(transaction, "spenden", - amount, "Spende");
                     } else { // found account but no keyword
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, account.name);
                     }
@@ -118,6 +120,8 @@ public class GlsImport implements ImportActivity.Importer {
                     if (amount > 0) { // rest barkasse (should never happen!)
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Barkasse");
                     }
+                } else if (vwz.toLowerCase().contains("spende")) {
+                    storeTransactionItem(transaction, "spenden", - amount, "Spende");
                 } else {
                     storeTransactionItem(transaction, "verbindlichkeiten", - amount, vwz);
                 }
