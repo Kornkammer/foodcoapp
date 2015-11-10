@@ -24,8 +24,8 @@
   <string name="prefs_email_title">Mail to</string>
   <string name="prefs_email_summary">Default Email Adresse für Backup Ex(cel)port</string>
 
-  <string name="crash_toast_text">Ooooops! Crash happens.</string>
-  <string name="crash_dialog_text">Bitte hilf mit einer Email...</string>
+  <string name="crash_toast_text">Ooooops! Crash happens :/</string>
+  <string name="crash_dialog_text">Bitte hilf mit! Sende Crash Log per Email...</string>
   <string name="crash_dialog_ok_toast">Danke!</string>
   <string name="deposit">Einzahlen</string>
   <string name="eur"> €</string>
