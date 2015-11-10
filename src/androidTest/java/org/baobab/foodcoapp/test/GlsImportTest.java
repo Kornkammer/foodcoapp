@@ -58,15 +58,15 @@ public class GlsImportTest extends BaseProviderTests {
         assertEinlage("Einlage: 0815-Susi");
         assertEinlage("einlage - - 0815 : Susi");
         assertEinlage("Einlage Susi-0815 und noch liebe Grüße");
-        assertVerbindlichkeit("Einlage Xaver", "Unbekanntes Mitglied");
-        assertVerbindlichkeit("Einlage 76345", "Unbekanntes Mitglied");
+        assertVerbindlichkeit("Einlage Xaver", "");
+        assertVerbindlichkeit("Einlage 76345", "");
         assertEinlage("Einlage-Susi-0827"); // falsche MitgliedsNr
         assertEinlage("Einlage Susi 0827"); // falsche MitgliedsNr
         assertEinlage("Einlage: 0827 - Susi"); // falsche MitgliedsNr
         assertEinlage("Einlage-Susssi-0815"); // falscher Mitgliedsname
         assertEinlage("Einlage - 0815 Susssli"); // falscher Mitgliedsname
         assertEinlage("Einlage: 0815 : Susssli"); // falscher Mitgliedsname
-        assertVerbindlichkeit("MaWoasEsNed: DaSchaugHer", "Unbekanntes Mitglied");
+        assertVerbindlichkeit("MaWoasEsNed: DaSchaugHer", "");
     }
 
     public void testBeitrag() {
@@ -86,7 +86,7 @@ public class GlsImportTest extends BaseProviderTests {
         assertTrägtBei("Beitrag: Susi");
         assertTrägtBei("Beitrag : Susi");
         assertTrägtBei("Beitrag - Susi");
-        assertVerbindlichkeit("Guthaben 7345", "Unbekanntes Mitglied");
+        assertVerbindlichkeit("Guthaben 7345", "");
     }
 
     public void testEinzahlung() {
@@ -112,7 +112,7 @@ public class GlsImportTest extends BaseProviderTests {
         assertZahltEin("Guthaben: Susi");
         assertZahltEin("Guthaben : Susi");
         assertZahltEin("Guthaben - Susi");
-        assertVerbindlichkeit("Guthaben 7345", "Unbekanntes Mitglied");
+        assertVerbindlichkeit("Guthaben 7345", "");
     }
 
     public void testForderungBegleichen() {
@@ -171,11 +171,19 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Barkasse", -1.0f, 20, items);
     }
 
+    public void testKontofuehrungsgebuehren() {
+        read(gls().booking("Kontof�hrung").vwz1("Abrechnung vom  30.10.2015").amount(-7.32));
+        Cursor items = assertTransaction("Kontoführungsgebühren", 2);
+        assertTransactionItem("kosten", "Kosten", "Kontogebühren", 1, 7.32f, items);
+        items.moveToNext();
+        assertTransactionItem("bank", "Bank", "Cash", -7.32f, 1.0f, items);
+    }
+
     public void testAnschaffung() {
         assertBooking("Inventar:Tisch", "Inventar", "Tisch", 3.50f, "Rechnung XY");
         assertBooking("Inventar: Kiste", "Inventar", "Kiste", 5.50f, "Rechnung abc");
         assertBooking("Inventar - Stift", "Inventar", "Stift", 1.5f, "Rechnung 234");
-        assertBooking("Inventar: tolle Sache", "Inventar", "tolle Sache", 3.50f, "Rechnung XY");
+        assertBooking("Inventar, tolle Sache", "Inventar", "tolle Sache", 3.50f, "Rechnung XY");
         assertBooking("Inventar: auch mit-strich", "Inventar", "auch mit-strich", 3, "Rechnung");
     }
 
@@ -259,7 +267,9 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     private void assertBooking(String vwz2, String name, String title, float amount, String comment) {
-        read(gls().vwz1(comment).vwz2(vwz2).amount(-amount));
+        read(gls().vwz5(comment.substring(0, 5)).vwz6(comment.substring(5, comment.length()))
+                .vwz7(vwz2.substring(0, 5)).vwz8(vwz2.substring(5, vwz2.length()))
+                .amount(-amount));
         Cursor items = assertTransaction(comment, 2);
         if (items.getString(11).equals("bank")) { // account order
             assertTransactionItem("bank", "Bank", "Cash", -amount, 1.0f, items);
@@ -332,6 +342,11 @@ public class GlsImportTest extends BaseProviderTests {
 
         public Gls who(String who) {
             line[3] = who;
+            return this;
+        }
+
+        public Gls booking(String booking) {
+            line[4] = booking;
             return this;
         }
 

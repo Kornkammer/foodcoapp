@@ -59,25 +59,22 @@ public class GlsImport implements ImportActivity.Importer {
     static final Pattern vwz1 = Pattern.compile(
             "^(Einlage|einlage|Mitgliedsbeitrag|mitgliedsbeitrag|Beitrag|beitrag" +
                     "|Einzahlung|einzahlung|Guthaben|guthaben|Barkasse|barkasse)" +
-                    "[-:\\s]*([\\da-zA-Z]*)([-:\\s]*|$)([\\da-zA-Z]*)([-:\\s]*|$).*");
+                    "[-:,\\s]*([\\da-zA-Z]*)([-:,\\s]*|$)([\\da-zA-Z]*)([-:,\\s]*|$).*");
 
-    static final Pattern vwz2 = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
+    static final Pattern vwz2Pattern = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
     static final Pattern name = Pattern.compile("[a-zA-Z]+");
     static final Pattern guid = Pattern.compile("\\d+");
 
     public ContentValues readLine(String[] line) {
         try {
-            String vwz = line[5] + line[6];
-            String comment = "VWZ: " + vwz;
             long time = date.parse(line[1]).getTime();
             float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
             if (amount > 0) {
+                String vwz = line[5] + line[6] + line[7] + line[8] ;
+                String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz;
                 Account account = findAccount(vwz);
-                if (account == null) {
-                    comment = "Unbekanntes Mitglied\n" + comment;
-                }
-                Uri transaction = storeTransaction(time, "Bankeingang:\n" + comment);
+                Uri transaction = storeTransaction(time, comment);
                 storeBankCash(transaction, amount);
                 if (account != null && account.guid != null && account.err == null) {
                     if (vwz.toLowerCase().contains("einzahlung") ||
@@ -127,40 +124,43 @@ public class GlsImport implements ImportActivity.Importer {
                 count++;
                 return new ContentValues();
             } else { // amount < 0
-                vwz = line[6];
-                Matcher m = vwz2.matcher(vwz);
-                Account account = null;
+                String vwz1 = line[9] + line[10];
+                String vwz2 = line[11] + line[12] + line[13] + line[14];
+                String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz1 + "\n" + vwz2;
+                Matcher m = vwz2Pattern.matcher(vwz2);
+                Account account = findAccount(vwz2);
                 if (m.matches()) {
-                    account = findAccount(vwz);
-                } else {
-                    comment = "VWZ nicht erkannt\n" + comment;
-                }
-                if (account != null && account.err != null) {
-                    comment = account.err + "\n" + comment;
-                }
-                Uri transaction = storeTransaction(time, "Bankausgang:\n" + comment);
-                if (transaction == null) {
-                    msg += "\nTransaktion gibts schon! " + comment;
-                    return null;
-                }
-                storeBankCash(transaction, amount);
-                if (account != null && account.guid != null && account.err == null) {
-                    storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-                    amount = 0;
-                } else {
-                    Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + vwz + "'");
-                    if (iter.hasNext()) {
-                        Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
-                        txn.moveToFirst();
-                        float sum = txn.getFloat(8) * txn.getFloat(11);
-                        if (sum == amount) {
-                            storeTransactionItem(transaction, "verbindlichkeiten", -amount, vwz);
-                            amount = 0;
+                    Uri transaction = storeTransaction(time, comment);
+                    storeBankCash(transaction, amount);
+                    if (account != null && account.guid != null && account.err == null) {
+                        storeTransactionItem(transaction, account.guid, -amount, m.group(2));
+                        amount = 0;
+                    } else {
+                        Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + vwz2 + "'");
+                        if (iter.hasNext()) {
+                            Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
+                            txn.moveToFirst();
+                            float sum = txn.getFloat(8) * txn.getFloat(11);
+                            if (sum == amount) {
+                                storeTransactionItem(transaction, "verbindlichkeiten", -amount, vwz2);
+                                amount = 0;
+                            }
                         }
                     }
+                    if (amount < 0) { // still
+                        storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                        amount = 0;
+                    }
+                } else if (line[4].equals("Kontof�hrung") && line[5].contains("Abrechnung vom")) {
+                    Uri transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
+                    storeBankCash(transaction, amount);
+                    storeTransactionItem(transaction, "kosten", -amount, "Kontogebühren");
+                    amount = 0;
                 }
                 if (amount < 0) { // still
-                    storeTransactionItem(transaction, "forderungen", -amount, vwz);
+                    Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
+                    storeBankCash(transaction, amount);
+                    storeTransactionItem(transaction, "forderungen", -amount, vwz2);
                 }
             }
             count++;
