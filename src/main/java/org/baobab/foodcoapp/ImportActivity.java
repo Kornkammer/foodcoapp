@@ -29,6 +29,7 @@ public class ImportActivity extends AppCompatActivity {
 
     static final String TAG = PosActivity.TAG;
     Importer importer = null;
+    String err = null;
 
     public interface Importer {
         int read(CSVReader csv)  throws IOException;
@@ -64,11 +65,13 @@ public class ImportActivity extends AppCompatActivity {
                             importer = new GlsImport(ImportActivity.this);
                         } else {
                             Log.d(TAG, "No idea how to import this file (line length " + line.length + ")");
+                            err = "No idea how to import this file (line length " + line.length + ")";
                             return 0;
                         }
                         return importer.read(csv);
                     } catch (Exception e) {
                         Log.e(TAG, "Error " + e);
+                        err = "Error " + e;
                         e.printStackTrace();
                         return 0;
                     }
@@ -79,10 +82,17 @@ public class ImportActivity extends AppCompatActivity {
                     dialog.dismiss();
                     if (importer == null) {
                         ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                        MediaPlayer.create(ImportActivity.this, R.raw.error_3).start();
                         showMsg("Unbekanntes Dateiformat");
                         return;
                     }
-                    if (importer.getMsg() != null) {
+                    if (err != null) {
+                        MediaPlayer.create(ImportActivity.this, R.raw.error_4).start();
+                        ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                        showMsg(err);
+                        return;
+                    }
+                    if (importer.getMsg() != null && !importer.getMsg().equals("")) {
                         ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
                         showMsg(importer.getMsg());
                     }
