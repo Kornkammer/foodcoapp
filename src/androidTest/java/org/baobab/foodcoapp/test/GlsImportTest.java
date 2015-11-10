@@ -182,6 +182,14 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Barkasse", -1.0f, 20, items);
     }
 
+    public void testAuslagen() {
+        read(gls().vwz5("Auslage 0815").amount(-100));
+        Cursor items = assertTransaction("Auslage", 2);
+        assertTransactionItem("bank", "Bank", "Cash", -100, 1, items);
+        items.moveToNext();
+        assertTransactionItem("einlagen", "Einlagen", "Susi", 1.0f, 100, items);
+    }
+
     public void testKontofuehrungsgebuehren() {
         read(gls().booking("Kontof�hrung").vwz1("Abrechnung vom  30.10.2015").amount(-7.32));
         Cursor items = assertTransaction("Kontoführungsgebühren", 2);

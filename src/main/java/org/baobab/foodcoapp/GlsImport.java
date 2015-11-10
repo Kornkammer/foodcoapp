@@ -130,7 +130,8 @@ public class GlsImport implements ImportActivity.Importer {
             } else { // amount < 0
                 String vwz1 = line[9] + line[10];
                 String vwz2 = line[11] + line[12] + line[13] + line[14];
-                String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz1 + "\n" + vwz2;
+                String comment = "Bankausgang:\n\n" + (line[3] != null? line[3]:"") +
+                                    "\nVWZ: " + (vwz1 != null? vwz1+"\n" : "") + vwz2;
                 Matcher m = vwz2Pattern.matcher(vwz2);
                 Account account = findAccount(vwz2);
                 if (m.matches()) {
@@ -162,14 +163,24 @@ public class GlsImport implements ImportActivity.Importer {
                     amount = 0;
                 }
                 if (amount < 0) { // still
-                    Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
-                    storeBankCash(transaction, amount);
-                    if (vwz2.equals("")) {
-                        storeTransactionItem(transaction, "forderungen", -amount, vwz1);
-                    } else if (vwz1.equals("")) {
-                        storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                    if (account == null) {
+                        account = findAccount(vwz1);
+                    }
+                    if (account != null && (vwz1.toLowerCase().contains("auslage")
+                            || vwz2.toLowerCase().contains("auslage"))) {
+                            Uri transaction = storeTransaction(time, comment);
+                            storeBankCash(transaction, amount);
+                            storeTransactionItem(transaction, "einlagen", -amount, account.name);
                     } else {
-                        storeTransactionItem(transaction, "forderungen", -amount, vwz1 + " \n" + vwz2);
+                        Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
+                        storeBankCash(transaction, amount);
+                        if (vwz2.equals("")) {
+                            storeTransactionItem(transaction, "forderungen", -amount, vwz1);
+                        } else if (vwz1.equals("")) {
+                            storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                        } else {
+                            storeTransactionItem(transaction, "forderungen", -amount, vwz1 + " \n" + vwz2);
+                        }
                     }
                 }
             }
