@@ -244,12 +244,12 @@ public class GlsImportTest extends BaseProviderTests {
 
     private void assertEinlage(String verwendungszeck1) {
         read(gls().vwz1(verwendungszeck1).amount(105));
-        assertTransaction("einlagen", "Einlagen", "Susi", "bank", 105, "VWZ: " + verwendungszeck1);
+        assertTransaction("Einlagen", "Susi", 105, "VWZ: " + verwendungszeck1);
     }
 
     private void assertTrägtBei(String verwendungszeck1) {
         read(gls().vwz1(verwendungszeck1).amount(23.42));
-        assertTransaction("beiträge", "Beiträge", "Susi", "bank", 23.42f, "VWZ: " + verwendungszeck1);
+        assertTransaction("Beiträge", "Susi", 23.42f, "VWZ: " + verwendungszeck1);
     }
 
     private void assertZahltEin(String verwendungszeck1) {
@@ -268,12 +268,12 @@ public class GlsImportTest extends BaseProviderTests {
 
     private void assertVerbindlichkeit(String vwz, String title, String comment) {
         read(gls().vwz1(vwz).amount(42.23));
-        assertTransaction("verbindlichkeiten", "Verbindlichkeiten", title, "bank", 42.23f, comment);
+        assertTransaction("Verbindlichkeiten", title, 42.23f, comment);
     }
 
     private void assertBegleichtForderung(String vwz, float amount) {
         read(gls().vwz1(vwz).amount(amount));
-        assertTransaction("forderungen", "Forderungen", "Bank Susi", "bank", amount, "VWZ: " + vwz);
+        assertTransaction("Forderungen", "Bank Susi", amount, "VWZ: " + vwz);
     }
 
     private void assertBooking(String vwz2, String name, String title, float amount, String comment) {
@@ -292,12 +292,16 @@ public class GlsImportTest extends BaseProviderTests {
         }
     }
 
-    private void assertTransaction(String from_account, String fromAccountName,  String fromTitle,
-                                   String to_account, float amount, String comment) {
+    private void assertTransaction(String fromName,  String fromTitle, float amount, String comment) {
+        assertTransaction(fromName.toLowerCase(), fromName, fromTitle, "bank", amount, comment);
+    }
+
+    private void assertTransaction(String fromGuid, String fromName,  String fromTitle,
+                                   String toGuid, float amount, String comment) {
         Cursor items = assertTransaction(comment, 2);
-        assertTransactionItem(to_account, "Bank", "Cash", amount, 1.0f, items);
+        assertTransactionItem(toGuid, "Bank", "Cash", amount, 1.0f, items);
         items.moveToNext();
-        assertTransactionItem(from_account, fromAccountName, fromTitle, -1.0f, amount, items);
+        assertTransactionItem(fromGuid, fromName, fromTitle, -1.0f, amount, items);
     }
     private Cursor assertTransaction(String comment, int assertCount) {
         finalizeSession(importer.getSession());
