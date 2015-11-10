@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -41,7 +42,7 @@ public class GlsImport implements ImportActivity.Importer {
             readLine(lines.get(i));
         }
         if (lines.size() != count) {
-            msg = "Could not read " + (lines.size() - count) + " transactions";
+            msg = "Could not read " + (lines.size() - count) + " transactions" + "\n" + msg;
         }
         return count;
     }
@@ -67,8 +68,9 @@ public class GlsImport implements ImportActivity.Importer {
         try {
             long time = date.parse(line[1]).getTime();
             float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
+            Log.d(PosActivity.TAG, "reading line: " + line[5] + line[6] + line[7] + line[8] + " (amount=" + amount + ")");
             if (amount > 0) {
-                String vwz = line[5] + line[6] + line[7] + line[8] ;
+                String vwz = line[5] + line[6] + line[7] + line[8];
                 String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz;
                 Account account = findAccount(vwz);
                 Uri transaction = storeTransaction(time, comment);
