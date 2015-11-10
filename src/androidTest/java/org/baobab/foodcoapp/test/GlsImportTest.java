@@ -22,6 +22,17 @@ public class GlsImportTest extends BaseProviderTests {
         createDummyAccount("Albert", "1234");
     }
 
+
+    public void testAuftraggeberLandetImKommentar() {
+        read(gls().who("Susanne Meier").vwz1("Beitrag Susi").amount(50));
+        assertTransaction("Susanne Meier", 2);
+    }
+
+    public void testEmpfängerLandetImKommentar() {
+        read(gls().who("Xaver Hupfinger").vwz1("Auslagen zurück").amount(-50));
+        assertTransaction("Xaver Hupfinger", 2);
+    }
+
     public void testEinlage() {
         assertEinlage("Einlage Susi");
         assertEinlage("0815 Einlage");
@@ -316,6 +327,11 @@ public class GlsImportTest extends BaseProviderTests {
         public Gls date(String date) {
             line[0] = date;
             line[1] = date;
+            return this;
+        }
+
+        public Gls who(String who) {
+            line[3] = who;
             return this;
         }
 
