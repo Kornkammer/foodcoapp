@@ -178,12 +178,12 @@ public class GlsImport implements ImportActivity.Importer {
                         } else {
                             Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
                             storeBankCash(transaction, amount);
-                            if (vwz2.equals("")) {
-                                storeTransactionItem(transaction, "forderungen", -amount, vwz1);
-                            } else if (vwz1.equals("")) {
+                            if (!vwz2.equals("")) {
                                 storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                            } else if (!vwz1.equals("")) {
+                                storeTransactionItem(transaction, "forderungen", -amount, vwz1);
                             } else {
-                                storeTransactionItem(transaction, "forderungen", -amount, vwz1 + " \n" + vwz2);
+                                storeTransactionItem(transaction, "forderungen", -amount, line[3]);
                             }
                         }
                     }
@@ -199,7 +199,7 @@ public class GlsImport implements ImportActivity.Importer {
 
     private float settleOpenPayables(Uri transaction, String title, float amount) {
         Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + title + "'");
-        if (iter.hasNext()) {
+        while (iter.hasNext()) {
             Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
             txn.moveToFirst();
             float sum = txn.getFloat(8) * txn.getFloat(11);

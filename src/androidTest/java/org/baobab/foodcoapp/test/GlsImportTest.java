@@ -211,21 +211,21 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testAuszahlung() {
-        read(gls().who("Auszahlung").vwz1("01.07/15.50 UHR GLS Freiburg").amount(-500));
+        read(gls().who("Auszahlung").vwz1("01.07/15.50 UHR GLS Freiburg").amount(-300));
         Cursor items = assertTransaction("Auszahlung", 2);
-        assertTransactionItem("bank", "Bank", "Cash", -500, 1, items);
+        assertTransactionItem("bank", "Bank", "Cash", -300, 1, items);
         items.moveToNext();
-        assertTransactionItem("forderungen", "Forderungen", "Auszahlung", 1.0f, 500, items);
+        assertTransactionItem("forderungen", "Forderungen", "Auszahlung", 1.0f, 300, items);
     }
 
     public void testAuszahlungBegleichtVerbindlichkeit() {
-        insertTransaction("verbindlichkeiten", "inventar", 500, "Auszahlung");
-        read(gls().who("Auszahlung").vwz1("blabla").amount(-500));
+        insertTransaction("verbindlichkeiten", "inventar", 300, "Auszahlung");
+        read(gls().who("Auszahlung").vwz1("blabla").amount(-300));
         Cursor items = assertTransaction("Auszahlung", 2);
-        assertTransactionItem("bank", "Bank", "Cash", -500, 1, items);
+        assertTransactionItem("bank", "Bank", "Cash", -300, 1, items);
         items.moveToNext();
-        assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Auszahlung", 1.0f, 500, items);
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Auszahlung -> 500,00"));
+        assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Auszahlung", 1.0f, 300, items);
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Auszahlung -> 300,00"));
     }
 
     public void testKontofuehrungsgebuehren() {
@@ -244,6 +244,16 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("bank", "Bank", "Cash", -29, 1, items);
         items.moveToNext();
         assertTransactionItem("forderungen", "Forderungen", "Baumaterial", 1, 29, items);
+    }
+
+    public void testStandardUeberweisungOhneVwz() {
+        read(gls().vwz1("BIC:A1").vwz2("IBAN:DE1")
+                .vwz3("Datum: 13.10.15 Zeit: 21:38").vwz4("KD 0012 TAN 345")
+                .who("Xaver").amount(-29));
+        Cursor items = assertTransaction("Xaver", 2);
+        assertTransactionItem("bank", "Bank", "Cash", -29, 1, items);
+        items.moveToNext();
+        assertTransactionItem("forderungen", "Forderungen", "Xaver", 1, 29, items);
     }
 
     public void testAnschaffung() {
