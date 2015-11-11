@@ -238,6 +238,11 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("kosten", "Kosten", "Kontogebühren", 1, 7.32f, items);
         items.moveToNext();
         assertTransactionItem("bank", "Bank", "Cash", -7.32f, 1.0f, items);
+        read(gls().booking("Kontoführung").vwz1("Abrechnung vom  30.10.2015").amount(-7.32));
+        items = assertTransaction("Kontoführungsgebühren", 2);
+        assertTransactionItem("kosten", "Kosten", "Kontogebühren", 1, 7.32f, items);
+        items.moveToNext();
+        assertTransactionItem("bank", "Bank", "Cash", -7.32f, 1.0f, items);
     }
 
     public void testStandardUeberweisung() {

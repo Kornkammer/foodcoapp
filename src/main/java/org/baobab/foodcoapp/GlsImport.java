@@ -174,7 +174,7 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "forderungen", -amount, vwz2);
                         amount = 0;
                     }
-                } else if (line[4].equals("Kontof�hrung") && line[5].contains("Abrechnung vom")) {
+                } else if (line[4].equals("Kontof�hrung") || line[4].equals("Kontoführung")) {
                     Uri transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
                     storeBankCash(transaction, amount);
                     storeTransactionItem(transaction, "kosten", -amount, "Kontogebühren");
@@ -282,6 +282,7 @@ public class GlsImport implements ImportActivity.Importer {
     }
 
     private void storeTransactionItem(Uri transaction, String account, float amount, String title) {
+        if (title == null || title.equals("")) title = "Unbekannt";
         ContentValues b = new ContentValues();
         b.put("account_guid", account);
         b.put("product_id", 2);
