@@ -38,7 +38,7 @@
       android:textStyle="bold"
       android:singleLine="true"
       android:gravity="center_vertical"
-      android:layout_marginRight="@dimen/large"
+      android:layout_marginRight="@dimen/small"
       android:layout_width="@dimen/column_small"
       android:layout_gravity="center_vertical"
       android:layout_height="match_parent" />
