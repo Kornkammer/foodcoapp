@@ -93,7 +93,7 @@ public class TransactionView extends GridLayout {
             lp.setGravity(Gravity.FILL_HORIZONTAL);
             FrameLayout f = new FrameLayout(getContext());
             if (onAmountClick != null) {
-                if (data.getString(10).equals("aktiva")) {
+                if (data.getLong(9) <= 140 ) {
                     if (quantity < 0) {
                         if (account.equals("lager") || account.equals("kasse")) {
                             header.setText("aus " + data.getString(12) + " raus");
@@ -105,6 +105,8 @@ public class TransactionView extends GridLayout {
                             header.setText("Kosten umlegen");
                         } else if (account.equals("inventar")) {
                             header.setText("Inventar abschreiben");
+                        } else if (account.equals("verbindlichkeiten")) {
+                            header.setText("Verbindlich bleiben");
                         }
                         header.setTextColor(getResources().getColor(R.color.medium_red));
                         f.setBackgroundResource(R.drawable.background_red);
@@ -119,6 +121,8 @@ public class TransactionView extends GridLayout {
                             header.setText("Kosten ansammeln");
                         } else if (account.equals("inventar")) {
                             header.setText("Inventar anschaffen");
+                        } else if (account.equals("verbindlichkeiten")) {
+                            header.setText("Verbindlichkeit begleichen");
                         }
                         header.setTextColor(getResources().getColor(R.color.medium_green));
                         f.setBackgroundResource(R.drawable.background_green);
@@ -248,8 +252,8 @@ public class TransactionView extends GridLayout {
         addView(images, lp);
 
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
-        if (data.getColumnCount() == 14 && (data.getString(7).equals("Credits") || data.getInt(3) == 1)) {
-            amount.setVisibility(View.GONE);
+        if ((data.getColumnCount() == 14 && data.getString(7).equals("Credits")) || data.getInt(3) == 1) {
+            amount.setVisibility(View.INVISIBLE);
         } else {
             if (Math.abs(quantity) < 1.0) {
                 amount.setNumber(quantity * 1000);
@@ -266,8 +270,8 @@ public class TransactionView extends GridLayout {
 
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
-        if (data.getColumnCount() == 14 && (data.getString(7).equals("Credits") || data.getInt(3) == 1)) {
-            x.setVisibility(GONE);
+        if ((data.getColumnCount() == 14 && data.getString(7).equals("Credits")) || data.getInt(3) == 1) {
+            x.setVisibility(INVISIBLE);
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
             if (Math.abs(quantity) < 1) {
@@ -294,7 +298,7 @@ public class TransactionView extends GridLayout {
 
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-        if (data.getColumnCount() == 14 && (data.getString(7).equals("Credits") || data.getInt(3) == 1)) {
+        if (data.getColumnCount() == 14 && data.getString(7).equals("Credits")) {
             title.setText(data.getString(12));
         } else {
             title.setText(data.getString(7));
