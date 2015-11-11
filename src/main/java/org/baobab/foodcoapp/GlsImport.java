@@ -129,8 +129,9 @@ public class GlsImport implements ImportActivity.Importer {
             } else { // amount < 0
                 String vwz1 = line[9] + line[10];
                 String vwz2 = line[11] + line[12] + line[13] + line[14];
-                String comment = "Bankausgang:\n\n" + (line[3] != null? line[3]:"") +
-                                    "\nVWZ: " + (vwz1 != null? vwz1+"\n" : "") + vwz2;
+                String comment = "Bankausgang:\n\n" + (!line[3].equals("")? line[3]:"") +
+                                    "\nVWZ: " + (!vwz1.equals("")? vwz1+"\n" : "") +
+                                        (!vwz2.equals("")? vwz2+"\n" : "");
                 Matcher m = vwz2Pattern.matcher(vwz2);
                 Account account = findAccount(vwz2);
                 if (m.matches()) {
@@ -140,16 +141,7 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, account.guid, -amount, m.group(2));
                         amount = 0;
                     } else {
-                        Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + vwz2 + "'");
-                        if (iter.hasNext()) {
-                            Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
-                            txn.moveToFirst();
-                            float sum = txn.getFloat(8) * txn.getFloat(11);
-                            if (sum == amount) {
-                                storeTransactionItem(transaction, "verbindlichkeiten", -amount, vwz2);
-                                amount = 0;
-                            }
-                        }
+                        amount = settleOpenPayables(transaction, vwz2, amount);
                     }
                     if (amount < 0) { // still
                         storeTransactionItem(transaction, "forderungen", -amount, vwz2);
@@ -167,13 +159,18 @@ public class GlsImport implements ImportActivity.Importer {
                     }
                     if (account != null && (vwz1.toLowerCase().contains("auslage")
                             || vwz2.toLowerCase().contains("auslage"))) {
-                            Uri transaction = storeTransaction(time, comment);
-                            storeBankCash(transaction, amount);
-                            storeTransactionItem(transaction, "einlagen", -amount, account.name);
+                        Uri transaction = storeTransaction(time, comment);
+                        storeBankCash(transaction, amount);
+                        storeTransactionItem(transaction, "einlagen", -amount, account.name);
                     } else {
                         Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
                         storeBankCash(transaction, amount);
-                        if (vwz2.equals("")) {
+                        if (line[3].equals("Auszahlung")) {
+                            amount = settleOpenPayables(transaction, "Auszahlung", amount);
+                            if (amount < 0) {
+                                storeTransactionItem(transaction, "forderungen", -amount, "Auszahlung");
+                            }
+                        } else if (vwz2.equals("")) {
                             storeTransactionItem(transaction, "forderungen", -amount, vwz1);
                         } else if (vwz1.equals("")) {
                             storeTransactionItem(transaction, "forderungen", -amount, vwz2);
@@ -190,6 +187,20 @@ public class GlsImport implements ImportActivity.Importer {
             msg += "\nError! " + e.getMessage();
             return null;
         }
+    }
+
+    private float settleOpenPayables(Uri transaction, String title, float amount) {
+        Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + title + "'");
+        if (iter.hasNext()) {
+            Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
+            txn.moveToFirst();
+            float sum = txn.getFloat(8) * txn.getFloat(11);
+            if (sum == amount) {
+                storeTransactionItem(transaction, "verbindlichkeiten", -amount, title);
+                amount = 0;
+            }
+        }
+        return amount;
     }
 
     private Iterator<Long> findOpenTransactions(String guid, String selection) {

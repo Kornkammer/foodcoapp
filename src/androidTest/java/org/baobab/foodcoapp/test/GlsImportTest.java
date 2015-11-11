@@ -204,6 +204,23 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("einlagen", "Einlagen", "Susi", 1.0f, 100, items);
     }
 
+    public void testAuszahlung() {
+        read(gls().who("Auszahlung").vwz1("01.07/15.50 UHR GLS Freiburg").amount(-500));
+        Cursor items = assertTransaction("Auszahlung", 2);
+        assertTransactionItem("bank", "Bank", "Cash", -500, 1, items);
+        items.moveToNext();
+        assertTransactionItem("forderungen", "Forderungen", "Auszahlung", 1.0f, 500, items);
+    }
+
+    public void testAuszahlungBegleichtVerbindlichkeit() {
+        insertTransaction("verbindlichkeiten", "inventar", 500, "Auszahlung");
+        read(gls().who("Auszahlung").vwz1("blabla").amount(-500));
+        Cursor items = assertTransaction("Auszahlung", 2);
+        assertTransactionItem("bank", "Bank", "Cash", -500, 1, items);
+        items.moveToNext();
+        assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Auszahlung", 1.0f, 500, items);
+    }
+
     public void testKontofuehrungsgebuehren() {
         read(gls().booking("Kontof�hrung").vwz1("Abrechnung vom  30.10.2015").amount(-7.32));
         Cursor items = assertTransaction("Kontoführungsgebühren", 2);
