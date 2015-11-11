@@ -37,6 +37,25 @@ public class TransactionFragment extends Fragment
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         scrollView = (ScrollView) flate.inflate(R.layout.fragment_transaction, null, false);
         transaction = (TransactionView) scrollView.findViewById(R.id.transaction);
+        transaction.setOnTitleClick(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                txn.moveToPosition((Integer) v.getTag());
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, new TextDialogFragment(
+                                "Namen ändern", txn.getString(7)) {
+                            @Override
+                            public void onText(String text) {
+                                ContentValues cv = new ContentValues();
+                                cv.put("title", text);
+                                getActivity().getContentResolver()
+                                        .update(getActivity().getIntent().getData().buildUpon()
+                                                .appendEncodedPath("products/" + txn.getLong(0))
+                                                .build(), cv, null, null);
+                            }
+                        }).addToBackStack("text").commit();
+            }
+        });
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
             String text() {
@@ -100,11 +119,10 @@ public class TransactionFragment extends Fragment
                             cv.put("quantity", quantity(number));
                             getActivity().getContentResolver()
                                     .update(getActivity().getIntent().getData().buildUpon()
-                                            .appendEncodedPath("products/" + v.getId())
+                                            .appendEncodedPath("products/" + txn.getLong(0))
                                             .build(), cv, null, null);
                         }
-                    }, "edit")
-                    .addToBackStack("amount").commitAllowingStateLoss();
+                    }, "edit").addToBackStack("amount").commitAllowingStateLoss();
         }
     }
 

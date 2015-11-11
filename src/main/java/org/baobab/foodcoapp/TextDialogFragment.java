@@ -14,22 +14,20 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public abstract class NumberDialogFragment extends DialogFragment {
+public abstract class TextDialogFragment extends DialogFragment {
 
-    private EditText number;
+    private final String value;
     private final String msg;
-    private final float value;
-    private final int inputType;
+    private EditText text;
 
-    public NumberDialogFragment(String msg, float value, int inputType) {
-        this.msg = msg;
+    public TextDialogFragment(String msg, String value) {
         this.value = value;
-        this.inputType = inputType;
+        this.msg = msg;
     }
 
     @Override
     public View onCreateView(LayoutInflater flate, ViewGroup container, Bundle savedInstanceState) {
-        return flate.inflate(R.layout.fragment_dialog_number, null, false);
+        return flate.inflate(R.layout.fragment_dialog_text, null, false);
     }
 
     @Override
@@ -41,15 +39,11 @@ public abstract class NumberDialogFragment extends DialogFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ((TextView) view.findViewById(R.id.message)).setText(msg);
-        number = (EditText) view.findViewById(R.id.number);
-        if (value % 1 == 0) {
-            number.setText(String.valueOf((int) Math.abs(value)));
-        } else {
-            number.setText(String.format("%.3f", Math.abs(value)));
-        }
-        number.setInputType(inputType);
-        number.selectAll();
-        number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        text = (EditText) view.findViewById(R.id.text);
+        text.setText(value);
+        text.requestFocus();
+        text.selectAll();
+        text.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 finish();
@@ -62,32 +56,18 @@ public abstract class NumberDialogFragment extends DialogFragment {
                 finish();
             }
         });
-        number.requestFocus();
         ((InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE))
-                .showSoftInput(number, InputMethodManager.SHOW_FORCED);
+                .showSoftInput(text, InputMethodManager.SHOW_FORCED);
     }
 
     private void finish() {
-        try {
-            float n = Float.valueOf(number.getText().toString());
-            if (value < 0) {
-                n = n * -1;
-            }
-            if (Math.abs(n) > 1000) {
-                Toast.makeText(getActivity(), "So viele gibts ja gar nicht!", Toast.LENGTH_LONG).show();
-                return;
-            }
-            n = (float) (Math.round(n * 1000) / 1000.0d);
-            onNumber(n);
-        } catch (NumberFormatException e) {
-            Log.d("System.err", e.getMessage());
-        }
+        onText(text.getText().toString());
         getFragmentManager().popBackStack();
         ((InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(number.getWindowToken(), 0);
+                .hideSoftInputFromWindow(text.getWindowToken(), 0);
     }
 
-    public abstract void onNumber(float number);
+    public abstract void onText(String text);
 }

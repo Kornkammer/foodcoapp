@@ -418,8 +418,8 @@ public class AccountingProvider extends ContentProvider {
         switch (router.match(uri)) {
             case TRANSACTION_PRODUCT:
                 boolean completeDelete = selection != null;
-                selection = "transaction_id =? AND account_guid IS ? AND product_id = ?";
-                selectionArgs = new String[]{
+                selection = "transaction_id = ? AND account_guid IS ? AND product_id = ?";
+                selectionArgs = new String[] {
                         uri.getPathSegments().get(1),
                         uri.getPathSegments().get(3),
                         uri.getLastPathSegment() };
@@ -455,6 +455,10 @@ public class AccountingProvider extends ContentProvider {
                 break;
             case PRODUCT:
                 db.getWritableDatabase().update("products", values, "_id = " + uri.getLastPathSegment(), null);
+                break;
+            case TRANSACTION_PRODUCT:
+                db.getWritableDatabase().update("transaction_products",
+                        values, "_id = " + uri.getLastPathSegment(), null);
                 break;
             case TRANSACTION:
                 if (values.containsKey("quantity")) {
@@ -492,13 +496,6 @@ public class AccountingProvider extends ContentProvider {
                     db.getWritableDatabase().update("sessions", values,
                             "_id = " + uri.getPathSegments().get(1), null);
                 }
-                break;
-            case TRANSACTION_PRODUCT:
-                db.getWritableDatabase().update("transaction_products", values,
-                        "transaction_id = ? AND product_id = ?",
-                        new String[]{
-                                uri.getPathSegments().get(1),
-                                uri.getLastPathSegment()});
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);

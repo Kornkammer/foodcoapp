@@ -22,11 +22,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
-// yes, this is a mess :/
+// yes, this IS a mess :/
 
 public class TransactionView extends GridLayout {
 
     OnClickListener onAmountClick;
+    OnClickListener onTitleClick;
     OnClickListener onSumClick;
     TextView header;
     String account;
@@ -47,6 +48,10 @@ public class TransactionView extends GridLayout {
 
     public void setOnAmountClick(OnClickListener onAmountClick) {
         this.onAmountClick = onAmountClick;
+    }
+
+    public void setOnTitleClick(OnClickListener onTitleClick) {
+        this.onTitleClick = onTitleClick;
     }
 
     public void setOnSumClick(OnClickListener onSumClick) {
@@ -72,6 +77,7 @@ public class TransactionView extends GridLayout {
     }
 
     private void addProduct(Cursor data) {
+        final long transaction_id = data.getLong(0);
         final long product_id = data.getLong(3);
         float quantity = data.getFloat(4);
         float price = data.getFloat(5);
@@ -178,7 +184,7 @@ public class TransactionView extends GridLayout {
                                         getContext().getContentResolver()
                                                 .update(((FragmentActivity) getContext())
                                                         .getIntent().getData().buildUpon()
-                                                        .appendEncodedPath("products/" + product_id)
+                                                        .appendEncodedPath("products/" + transaction_id)
                                                                 .build(), cv, null, null);
                                     }
                                 }).show();
@@ -305,11 +311,20 @@ public class TransactionView extends GridLayout {
         }
         title.setEllipsize(TextUtils.TruncateAt.END);
         title.setMaxLines(1);
+        FrameLayout f = new FrameLayout(getContext());
+        f.addView(title);
+        f.setClickable(true);
+        f.setId(data.getInt(3));
+        f.setTag(data.getPosition());
+        f.setBackgroundResource(R.drawable.background_translucent);
+        if (onTitleClick != null && data.getLong(3) != 1) {
+            f.setOnClickListener(onTitleClick);
+        }
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2, 3);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.width = getContext().getResources().getDimensionPixelSize(R.dimen.column_medium);
-        addView(title, lp);
+        addView(f, lp);
 
         TextView sum = new TextView(getContext());
         sum.setText(String.format("%.2f", Math.abs(total)));
@@ -320,11 +335,12 @@ public class TransactionView extends GridLayout {
             sum.setTextColor(getResources().getColor(R.color.xdark_green));
         }
         sum.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
-        FrameLayout f = new FrameLayout(getContext());
+        f = new FrameLayout(getContext());
         f.addView(sum);
         f.setClickable(true);
         f.setId(data.getInt(3));
         f.setTag(data.getPosition());
+        f.setBackgroundResource(R.drawable.background_translucent);
         if (onSumClick != null) {
             f.setOnClickListener(onSumClick);
         }
@@ -361,6 +377,5 @@ public class TransactionView extends GridLayout {
         lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
         lp.setGravity(Gravity.RIGHT);
         addView(eq, lp);
-
     }
 }

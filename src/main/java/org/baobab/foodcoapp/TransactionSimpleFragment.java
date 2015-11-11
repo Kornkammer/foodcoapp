@@ -98,11 +98,10 @@ public class TransactionSimpleFragment extends Fragment
                             cv.put("quantity", quantity(number));
                             getActivity().getContentResolver()
                                     .update(getActivity().getIntent().getData().buildUpon()
-                                            .appendEncodedPath("products/" + v.getId())
+                                            .appendEncodedPath("products/" + txn.getLong(0))
                                             .build(), cv, null, null);
                         }
-                    }, "edit")
-                    .addToBackStack("amount").commitAllowingStateLoss();
+                    }, "edit").addToBackStack("amount").commitAllowingStateLoss();
         }
     }
 
