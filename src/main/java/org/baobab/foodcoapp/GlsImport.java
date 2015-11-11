@@ -75,9 +75,9 @@ public class GlsImport implements ImportActivity.Importer {
                 String vwz = line[5] + line[6] + line[7] + line[8];
                 String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz;
                 Account account = findAccount(vwz);
-                Uri transaction = storeTransaction(time, comment);
-                storeBankCash(transaction, amount);
                 if (account != null && account.guid != null && account.err == null) {
+                    Uri transaction = storeTransaction(time, comment);
+                    storeBankCash(transaction, amount);
                     if (vwz.toLowerCase().contains("einzahlung") ||
                                 vwz.toLowerCase().contains("guthaben") ||
                                 vwz.toLowerCase().contains("prepaid")) {
@@ -108,6 +108,8 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, account.name);
                     }
                 } else if (vwz.toLowerCase().contains("barkasse")) {
+                    Uri transaction = storeTransaction(time, comment);
+                    storeBankCash(transaction, amount);
                     Iterator<Long> iter = findOpenTransactions("forderungen", "title LIKE 'Bar%'");
                     while (iter.hasNext()) {
                         Cursor txn = query("forderungen", "transactions._id =" + iter.next());
@@ -121,12 +123,32 @@ public class GlsImport implements ImportActivity.Importer {
                         }
                     }
                     if (amount > 0) { // rest barkasse (should never happen!)
+                        lineMsges += "\n Komischer Rest von Barkasse Einzahlung -> " +String.format("%.2f", amount);
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Barkasse");
                     }
                 } else if (vwz.toLowerCase().contains("spende")) {
+                    Uri transaction = storeTransaction(time, comment);
+                    storeBankCash(transaction, amount);
                     storeTransactionItem(transaction, "spenden", - amount, "Spende");
                 } else {
-                    storeTransactionItem(transaction, "verbindlichkeiten", - amount, vwz);
+                    comment += "\nKein Mitglied gefunden";
+                    Uri transaction = storeTransaction(time, comment);
+                    storeBankCash(transaction, amount);
+                    if (vwz.toLowerCase().contains("einzahlung") ||
+                            vwz.toLowerCase().contains("guthaben") ||
+                            vwz.toLowerCase().contains("prepaid")) {
+                        storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Einzahlung");
+                    } else if (vwz.toLowerCase().contains("mitgliedsbeitrag") ||
+                            vwz.toLowerCase().contains("mitgliederbeitrag") ||
+                            vwz.toLowerCase().contains("beitrag")) {
+                        storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Beitrag");
+                    } else if (vwz.toLowerCase().contains("einlage")) {
+                        storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Einlage");
+                    } else if (vwz.toLowerCase().contains("spende")) {
+                        storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Spende");
+                    } else { // no account and no keyword
+                        storeTransactionItem(transaction, "verbindlichkeiten", - amount, vwz);
+                    }
                 }
                 count++;
                 msg += lineMsges;

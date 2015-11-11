@@ -71,8 +71,6 @@ public class GlsImportTest extends BaseProviderTests {
         assertEinlage("Einlage: 0815-Susi");
         assertEinlage("einlage - - 0815 : Susi");
         assertEinlage("Einlage Susi-0815 und noch liebe Grüße");
-        assertVerbindlichkeit("Einlage Xaver", "");
-        assertVerbindlichkeit("Einlage 76345", "");
         assertEinlage("Einlage-Susi-0827"); // falsche MitgliedsNr
         assertEinlage("Einlage Susi 0827"); // falsche MitgliedsNr
         assertEinlage("Einlage: 0827 - Susi"); // falsche MitgliedsNr
@@ -111,7 +109,6 @@ public class GlsImportTest extends BaseProviderTests {
         assertTrägtBei("Beitrag: Susi");
         assertTrägtBei("Beitrag : Susi");
         assertTrägtBei("Beitrag - Susi");
-        assertVerbindlichkeit("Guthaben 7345", "");
     }
 
     public void testEinzahlung() {
@@ -137,7 +134,14 @@ public class GlsImportTest extends BaseProviderTests {
         assertZahltEin("Guthaben: Susi");
         assertZahltEin("Guthaben : Susi");
         assertZahltEin("Guthaben - Susi");
-        assertVerbindlichkeit("Guthaben 7345", "");
+    }
+
+    public void testSchluesselwortOhneMitglied() {
+        assertVerbindlichkeit("seltsame Einlage von Unbekannt", "Einlage", "Kein Mitglied gefunden");
+        assertVerbindlichkeit("noch Guthaben von Irgendwem", "Einzahlung", "Kein Mitglied gefunden");
+        assertVerbindlichkeit("oder 1. mal Prepaid euro 30", "Einzahlung", "Kein Mitglied gefunden");
+        assertVerbindlichkeit(" und ein Beitrag von Niemandem", "Beitrag", "Kein Mitglied gefunden");
+        assertVerbindlichkeit("vwz ganz ohne Sinn", "vwz ganz ohne Sinn", "Kein Mitglied gefunden");
     }
 
     public void testForderungBegleichen() {
