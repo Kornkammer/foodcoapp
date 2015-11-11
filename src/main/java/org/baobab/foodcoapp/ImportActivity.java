@@ -156,7 +156,7 @@ public class ImportActivity extends AppCompatActivity {
 
     private void showMsg(String msg) {
         new AlertDialog.Builder(ImportActivity.this)
-                .setMessage(msg).show();
+                .setMessage(msg + "\n").show();
     }
 
     @Override

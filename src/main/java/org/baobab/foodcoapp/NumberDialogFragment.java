@@ -17,10 +17,10 @@ import android.widget.Toast;
 public abstract class NumberDialogFragment extends DialogFragment {
 
     private final String msg;
-    private final String value;
+    private final float value;
     private final int inputType;
 
-    public NumberDialogFragment(String msg, String value, int inputType) {
+    public NumberDialogFragment(String msg, float value, int inputType) {
         this.msg = msg;
         this.value = value;
         this.inputType = inputType;
@@ -42,7 +42,11 @@ public abstract class NumberDialogFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         ((TextView) view.findViewById(R.id.message)).setText(msg);
         EditText number = (EditText) view.findViewById(R.id.number);
-        number.setText("" + Math.abs(Float.valueOf(value)));
+        if (value % 1 == 0) {
+            number.setText(String.valueOf((int) Math.abs(value)));
+        } else {
+            number.setText(String.format("%.3f", Math.abs(value)));
+        }
         number.setInputType(inputType);
         number.selectAll();
         number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -68,7 +72,7 @@ public abstract class NumberDialogFragment extends DialogFragment {
         EditText number = (EditText) getView().findViewById(R.id.number);
         try {
             float n = Float.valueOf(number.getText().toString());
-            if (!value.startsWith("-")) {
+            if (value < 0) {
                 n = n * -1;
             }
             if (Math.abs(n) > 1000) {

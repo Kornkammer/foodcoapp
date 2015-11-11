@@ -90,7 +90,7 @@ public class DepositActivity extends AppCompatActivity {
         Uri transaction = getContentResolver().insert(Uri.parse(
                 "content://org.baobab.foodcoapp/transactions"), t);
         ContentValues b = new ContentValues();
-        b.put("product_id", 1);
+        b.put("product_id", 2);
         b.put("account_guid", "forderungen");
         b.put("title", title);
         b.put("quantity", 1);
@@ -113,7 +113,7 @@ public class DepositActivity extends AppCompatActivity {
                                 guid + "/transactions")));
                 finish();
             }
-        }, 300);
+        }, 700);
     }
 
     @Override

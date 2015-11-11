@@ -29,6 +29,7 @@ public class TransactionSimpleFragment extends Fragment
 
     private TransactionView transaction;
     private View scrollView;
+    private Cursor txn;
 
     @Override
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
@@ -36,13 +37,13 @@ public class TransactionSimpleFragment extends Fragment
         transaction = (TransactionView) scrollView.findViewById(R.id.transaction);
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
-            String text(Cursor product) {
-                return "Wie viel " + product.getString(3) + " " + product.getString(1);
+            String text() {
+                return "Wie viel " + txn.getString(6) + " " + txn.getString(7);
             }
 
             @Override
-            int inputType(Cursor product) {
-                if (!product.isNull(3) && product.getString(3).equals(getString(R.string.piece))) {
+            int inputType() {
+                if (!txn.isNull(6) && txn.getString(6).equals(getString(R.string.piece))) {
                     return InputType.TYPE_CLASS_NUMBER;
                 } else {
                     return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
@@ -50,27 +51,27 @@ public class TransactionSimpleFragment extends Fragment
             }
 
             @Override
-            float quantity(float number, Cursor product) {
+            float quantity(float number) {
                 return number;
             }
         });
         transaction.setOnSumClick(new NumberEditListener() {
             @Override
-            String text(Cursor product) {
-                return product.getString(1) + " für wie viel Cash?";
+            String text() {
+                return txn.getString(7) + " für wie viel Cash?";
             }
 
             @Override
-            int inputType(Cursor product) {
+            int inputType() {
                 return InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
             }
 
             @Override
-            float quantity(float number, Cursor product) {
-                if (!product.isNull(3) && product.getString(3).equals(getString(R.string.piece))) {
-                    return (int) (number / product.getFloat(2));
+            float quantity(float number) {
+                if (!txn.isNull(6) && txn.getString(6).equals(getString(R.string.piece))) {
+                    return (int) (number / txn.getFloat(5));
                 } else {
-                    return number / product.getFloat(2);
+                    return number / txn.getFloat(5);
                 }
             }
         });
@@ -79,35 +80,22 @@ public class TransactionSimpleFragment extends Fragment
 
     abstract class NumberEditListener implements View.OnClickListener {
 
-        abstract String text(Cursor product);
+        abstract String text();
 
-        abstract int inputType(Cursor product);
+        abstract int inputType();
 
-        abstract float quantity(float number, Cursor product);
+        abstract float quantity(float number);
 
         @Override
         public void onClick(final View v) {
-            final Cursor c = getActivity().getContentResolver().query(
-                    Uri.parse("content://org.baobab.foodcoapp/products/" + v.getId()),
-                    null, null, null, null);
-            int inputType = InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL;
-            String text = "Wie viel?";
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                text = text(c);
-                inputType = inputType(c);
-            }
+            txn.moveToPosition((Integer) v.getTag());
             getFragmentManager().beginTransaction()
                     .replace(R.id.container, new NumberDialogFragment(
-                            text, (String) v.getTag(), inputType) {
+                            text(), txn.getFloat(4), inputType()) {
                         @Override
                         public void onNumber(float number) {
                             ContentValues cv = new ContentValues();
-                            if (c.getCount() > 0) {
-                                cv.put("quantity", quantity(number, c));
-                            } else {
-                                cv.put("quantity", number);
-                            }
+                            cv.put("quantity", quantity(number));
                             getActivity().getContentResolver()
                                     .update(getActivity().getIntent().getData().buildUpon()
                                             .appendEncodedPath("products/" + v.getId())
@@ -117,6 +105,7 @@ public class TransactionSimpleFragment extends Fragment
                     .addToBackStack("amount").commitAllowingStateLoss();
         }
     }
+
     public void load() {
         getActivity().getSupportLoaderManager().restartLoader(1, null, this);
     }
@@ -141,6 +130,7 @@ public class TransactionSimpleFragment extends Fragment
                     .getSystemService(Context.INPUT_METHOD_SERVICE))
                     .hideSoftInputFromWindow(getView().getWindowToken(), 0);
         }
+        txn = data;
         transaction.populate(data);
         transaction.headersClickable(false);
         Cursor s = getActivity().getContentResolver().query(
@@ -148,8 +138,7 @@ public class TransactionSimpleFragment extends Fragment
                         .appendEncodedPath("sum").build(), null, null, null, null);
         s.moveToFirst();
         final float sum = - s.getFloat(2);
-        TextView ok = ((TextView) ((FragmentActivity) getActivity())
-                .findViewById(R.id.sum));
+        TextView ok = ((TextView) getActivity().findViewById(R.id.sum));
         ok.setText("Bezahlen " + String.format("%.2f", sum));
         ok.setOnClickListener(new View.OnClickListener() {
             @Override

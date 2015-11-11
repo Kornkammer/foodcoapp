@@ -100,7 +100,7 @@
       android:layout_weight="309"
       android:layout_height="wrap_content"
       android:imeOptions="flagNoExtractUi"
-      android:hint="pin" />
+      android:hint="pin wdh" />
 
   </LinearLayout>
 

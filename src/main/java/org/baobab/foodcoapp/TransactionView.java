@@ -73,13 +73,13 @@ public class TransactionView extends GridLayout {
 
     private void addProduct(Cursor data) {
         final long product_id = data.getLong(3);
-        float quantity = - data.getFloat(4);
+        float quantity = data.getFloat(4);
         float price = data.getFloat(5);
         float total = quantity * price;
-        sum += (quantity * price);
-        if (!account.equals(data.getString(2)) || positive != quantity > 0) {
+        sum -= (quantity * price);
+        if (!account.equals(data.getString(2)) || positive != quantity < 0) {
             account = data.getString(2);
-            positive = quantity > 0;
+            positive = quantity < 0;
             header = new TextView(getContext());
 //            header.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
             GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
@@ -88,7 +88,7 @@ public class TransactionView extends GridLayout {
             FrameLayout f = new FrameLayout(getContext());
             if (onAmountClick != null) {
                 if (data.getString(10).equals("aktiva")) {
-                    if (quantity > 0) {
+                    if (quantity < 0) {
                         if (account.equals("lager") || account.equals("kasse")) {
                             header.setText("aus " + data.getString(12) + " raus");
                         } else if (account.equals("forderungen")) {
@@ -106,7 +106,7 @@ public class TransactionView extends GridLayout {
                         if (account.equals("lager") || account.equals("kasse")) {
                             header.setText("in " + data.getString(12) + " rein");
                         } else if (account.equals("forderungen")) {
-                            header.setText("offene Forderung");
+                            header.setText("Forderung öffnen");
                         } else if (account.equals("bank")) {
                             header.setText("auf Bank einzahlen");
                         } else if (account.equals("kosten")) {
@@ -118,7 +118,7 @@ public class TransactionView extends GridLayout {
                         f.setBackgroundResource(R.drawable.background_green);
                     }
                 } else {
-                    if (quantity > 0) {
+                    if (quantity < 0) {
                         header.setText("auf Konto gutschreiben");
                         header.setTextColor(getResources().getColor(R.color.medium_red));
                         f.setBackgroundResource(R.drawable.background_red);
@@ -188,8 +188,13 @@ public class TransactionView extends GridLayout {
             }
         }
         LinearLayout images = new LinearLayout(getContext());
-        if (!data.isNull(8) && showImages) {
-            Uri img = Uri.parse(data.getString(8));
+        if (showImages) {
+            Uri img;
+            if (!data.isNull(8)) {
+                img = Uri.parse(data.getString(8));
+            } else {
+                img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_launcher");
+            }
             images.setOrientation(LinearLayout.HORIZONTAL);
             int numberOfImages = account.equals("lager")? (int) Math.abs(quantity) : 1;
             if (numberOfImages > 23) {
@@ -237,25 +242,27 @@ public class TransactionView extends GridLayout {
         addView(images, lp);
 
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
-        if (data.getLong(3) > 1) {
+        if (data.getColumnCount() == 14 && (data.getString(7).equals("Credits") || data.getInt(3) == 1)) {
+            amount.setVisibility(View.GONE);
+        } else {
             if (Math.abs(quantity) < 1.0) {
                 amount.setNumber(quantity * 1000);
             } else {
                 amount.setNumber(quantity);
             }
-        } else {
-            amount.setVisibility(View.INVISIBLE);
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.setGravity(Gravity.RIGHT);
         addView(amount, lp);
         amount.setId(data.getInt(3));
-        amount.setTag(String.valueOf(quantity));
+        amount.setTag(data.getPosition());
 
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
-        if (data.getLong(3) > 5 && !data.isNull(6) &&
+        if (data.getColumnCount() == 14 && (data.getString(7).equals("Credits") || data.getInt(3) == 1)) {
+            x.setVisibility(GONE);
+        } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
             if (Math.abs(quantity) < 1) {
                 x.setText("g ");
@@ -273,9 +280,6 @@ public class TransactionView extends GridLayout {
             x.setText("x ");
         }
         x.setTextColor(getResources().getColor(R.color.light_blue));
-        if (data.getLong(3) == 1) {
-            x.setVisibility(INVISIBLE);
-        }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.setGravity(Gravity.CENTER);
@@ -284,13 +288,17 @@ public class TransactionView extends GridLayout {
 
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-        title.setText(data.getString(7));
+        if (data.getColumnCount() == 14 && (data.getString(7).equals("Credits") || data.getInt(3) == 1)) {
+            title.setText(data.getString(12));
+        } else {
+            title.setText(data.getString(7));
+        }
         title.setTypeface(null, Typeface.BOLD);
         title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
-        if (quantity <= -100) { // more than 100 in stock
+        if (quantity >= 100) { // more than 100 in stock
             amount.setNumber((int) quantity); // cut off decimals
-            if (quantity <= -1000) {
+            if (quantity >= 1000) {
                 amount.setTextSize(R.dimen.font_size_large);
                 ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
             }
@@ -306,7 +314,7 @@ public class TransactionView extends GridLayout {
         TextView sum = new TextView(getContext());
         sum.setText(String.format("%.2f", Math.abs(total)));
         sum.setTypeface(null, Typeface.BOLD);
-        if (quantity > 0) {
+        if (quantity < 0) {
             sum.setTextColor(getResources().getColor(R.color.xdark_red));
         } else {
             sum.setTextColor(getResources().getColor(R.color.xdark_green));
@@ -316,7 +324,7 @@ public class TransactionView extends GridLayout {
         f.addView(sum);
         f.setClickable(true);
         f.setId(data.getInt(3));
-        f.setTag(String.valueOf(total));
+        f.setTag(data.getPosition());
         if (onSumClick != null) {
             f.setOnClickListener(onSumClick);
         }
