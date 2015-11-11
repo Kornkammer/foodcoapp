@@ -145,10 +145,13 @@ public class GlsImportTest extends BaseProviderTests {
         insertTransaction("0815", "forderungen", 20, "Bank Andere"); // offen
         insertTransaction("0815", "forderungen", 20, "andere Forderung");
         assertBegleichtForderung("Einzahlung - Susi", 20);
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 20,00"));
         insertTransaction("0815", "forderungen", 50, "Bank Susi"); // offen
         assertBegleichtForderung("Einzahlung - Susi", 50);
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 50,00"));
         insertTransaction("0815", "forderungen", 50, "Bank Susi"); // offen
         assertBegleichtForderung("Einzahlung - Susi", 50);
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 50,00"));
     }
 
     public void testForderungBegleichenMitRestguthaben() {
@@ -185,6 +188,9 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("forderungen", "Forderungen", "Bar Susi", -1.0f, 30, items);
         items.moveToNext();
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Barkasse", -1.0f, 10, items);
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Albert -> 20,00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Susi -> 10,00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Susi -> 30,00"));
         read(gls().vwz1("Barkasse").amount(100)); // neue überweisung kommt an
         items = assertTransaction("Barkasse", 4); // begleicht die zwei weiteren
         assertTransactionItem("bank", "Bank", "Cash", 100, 1.0f, items);
@@ -219,6 +225,7 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("bank", "Bank", "Cash", -500, 1, items);
         items.moveToNext();
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Auszahlung", 1.0f, 500, items);
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Auszahlung -> 500,00"));
     }
 
     public void testKontofuehrungsgebuehren() {
@@ -256,11 +263,14 @@ public class GlsImportTest extends BaseProviderTests {
     public void testRechnungBegleichen() {
         insertTransaction("verbindlichkeiten", "lager", 100, "Lieferung 123"); // offen
         assertBooking("Lieferung 123", "Verbindlichkeiten", "Lieferung 123", 100, "bezahlt");
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Lieferung 123 -> 100,00"));
         insertTransaction("verbindlichkeiten", "lager", 42.23f, "Lieferung 123"); // offen
         assertBooking("Lieferung 123", "Verbindlichkeiten", "Lieferung 123", 42.23f, "bezahlt");
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Lieferung 123 -> 42,23"));
         insertTransaction("verbindlichkeiten", "lager", 30, "Lieferung 123"); // offen
         // Verbindlichkeit nicht begleichen, sondern wenn nicht zugeordnet, dann neue Forderung
         assertBooking("Lieferung 123", "Forderungen", "Lieferung 123", 50, "bezahlt"); // zuviel
+        assertTrue(!importer.getMsg().contains("Verbindlichkeit beglichen: Lieferung 123 -> 50,00"));
     }
 
     public void testIdempotency() { // selber Tag mit selbem VWZ geht nicht
@@ -385,12 +395,11 @@ public class GlsImportTest extends BaseProviderTests {
     };
 
     static { GlsImport.AUTHORITY = "org.baobab.foodcoapp.test"; }
-    private ContentValues[] values = new ContentValues[1];
     private GlsImport importer;
 
     private void read(Gls gls) {
         importer = new GlsImport(ctx);
-        values[0] = importer.readLine(gls.line);
+        importer.readLine(gls.line);
     }
 
     long time = System.currentTimeMillis();

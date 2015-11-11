@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -127,6 +128,7 @@ public class ImportActivity extends AppCompatActivity {
                     protected Integer doInBackground(Void... params) {
                         ContentValues cv = new ContentValues();
                         cv.put("status", "final");
+                        cv.put("session_log", importer.getMsg());
                         return getContentResolver().update(importer.getSession(), cv, null, null);
                     }
 

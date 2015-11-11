@@ -26,6 +26,7 @@ public class GlsImport implements ImportActivity.Importer {
     private String msg = "";
     public final Uri uri;
     private int count = 0;
+    String lineMsges = "";
 
     public GlsImport(Context ctx) {
         this.ctx = ctx;
@@ -42,7 +43,7 @@ public class GlsImport implements ImportActivity.Importer {
             readLine(lines.get(i));
         }
         if (lines.size() != count) {
-            msg = "Could not read " + (lines.size() - count) + " transactions" + "\n" + msg;
+            msg = "Could not read " + (lines.size() - count) + " transactions!" + "\n\n" + msg;
         }
         return count;
     }
@@ -64,8 +65,9 @@ public class GlsImport implements ImportActivity.Importer {
 
     static final Pattern vwz2Pattern = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
-    public ContentValues readLine(String[] line) {
+    public void readLine(String[] line) {
         try {
+            lineMsges = "";
             long time = date.parse(line[1]).getTime();
             float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
             Log.d(PosActivity.TAG, "reading line: " + line[5] + line[6] + line[7] + line[8] + " (amount=" + amount + ")");
@@ -86,6 +88,7 @@ public class GlsImport implements ImportActivity.Importer {
                             txn.moveToFirst();
                             float sum = txn.getFloat(8) * txn.getFloat(11);
                             if (amount + sum >= 0) { // quantity negative after groupBy from users perspective
+                                lineMsges += "\nForderung beglichen: " + title + " -> " + String.format("%.2f", -sum);
                                 storeTransactionItem(transaction, "forderungen", sum, title);
                                 amount += sum;
                             }
@@ -111,6 +114,7 @@ public class GlsImport implements ImportActivity.Importer {
                         txn.moveToNext();
                         float sum = txn.getFloat(8) * txn.getFloat(11);
                         if (amount + sum >= 0) { // quantity negative after groupBy from users perspective
+                            lineMsges += "\nForderung beglichen: Bar " + txn.getString(3) + " -> " + String.format("%.2f", -sum);
                             storeTransactionItem(transaction, "forderungen",
                                     sum, "Bar " + txn.getString(3));
                             amount += sum;
@@ -125,7 +129,8 @@ public class GlsImport implements ImportActivity.Importer {
                     storeTransactionItem(transaction, "verbindlichkeiten", - amount, vwz);
                 }
                 count++;
-                return new ContentValues();
+                msg += lineMsges;
+                return;
             } else { // amount < 0
                 String vwz1 = line[9] + line[10];
                 String vwz2 = line[11] + line[12] + line[13] + line[14];
@@ -163,29 +168,32 @@ public class GlsImport implements ImportActivity.Importer {
                         storeBankCash(transaction, amount);
                         storeTransactionItem(transaction, "einlagen", -amount, account.name);
                     } else {
-                        Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
-                        storeBankCash(transaction, amount);
                         if (line[3].equals("Auszahlung")) {
+                            Uri transaction = storeTransaction(time, comment + "\nVWZ " + line[5] + " " + line[6]);
+                            storeBankCash(transaction, amount);
                             amount = settleOpenPayables(transaction, "Auszahlung", amount);
                             if (amount < 0) {
                                 storeTransactionItem(transaction, "forderungen", -amount, "Auszahlung");
                             }
-                        } else if (vwz2.equals("")) {
-                            storeTransactionItem(transaction, "forderungen", -amount, vwz1);
-                        } else if (vwz1.equals("")) {
-                            storeTransactionItem(transaction, "forderungen", -amount, vwz2);
                         } else {
-                            storeTransactionItem(transaction, "forderungen", -amount, vwz1 + " \n" + vwz2);
+                            Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
+                            storeBankCash(transaction, amount);
+                            if (vwz2.equals("")) {
+                                storeTransactionItem(transaction, "forderungen", -amount, vwz1);
+                            } else if (vwz1.equals("")) {
+                                storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                            } else {
+                                storeTransactionItem(transaction, "forderungen", -amount, vwz1 + " \n" + vwz2);
+                            }
                         }
                     }
                 }
             }
             count++;
-            return new ContentValues();
+            msg += lineMsges;
         } catch (ParseException e) {
             e.printStackTrace();
             msg += "\nError! " + e.getMessage();
-            return null;
         }
     }
 
@@ -197,6 +205,7 @@ public class GlsImport implements ImportActivity.Importer {
             float sum = txn.getFloat(8) * txn.getFloat(11);
             if (sum == amount) {
                 storeTransactionItem(transaction, "verbindlichkeiten", -amount, title);
+                lineMsges += "\nVerbindlichkeit beglichen: " + title + " -> " + String.format("%.2f", -amount);
                 amount = 0;
             }
         }

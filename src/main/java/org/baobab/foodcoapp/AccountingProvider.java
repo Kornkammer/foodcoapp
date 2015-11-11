@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.util.UUID;
@@ -74,6 +73,7 @@ public class AccountingProvider extends ContentProvider {
                     "account_guid TEXT, " +
                     "start INTEGER, " +
                     "stop INTEGER, " +
+                    "comment TEXT, " +
                     "img TEXT" +
                     ");");
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.foodcoapp/drawable/cash');");
@@ -474,6 +474,8 @@ public class AccountingProvider extends ContentProvider {
                 }
                 break;
             case SESSION:
+                String sessionLog = values.getAsString("session_log");
+                values.remove("session_log");
                 Cursor txns = query(uri.buildUpon().appendPath(
                         "transactions").build(), null, null, null, null);
                 boolean allValid = true;
@@ -485,6 +487,10 @@ public class AccountingProvider extends ContentProvider {
                 if (allValid) {
                     result = db.getWritableDatabase().update("transactions", values,
                             "session_id = " + uri.getPathSegments().get(1), null);
+                    values = new ContentValues();
+                    values.put("comment", sessionLog);
+                    db.getWritableDatabase().update("sessions", values,
+                            "_id = " + uri.getPathSegments().get(1), null);
                 }
                 break;
             case TRANSACTION_PRODUCT:
