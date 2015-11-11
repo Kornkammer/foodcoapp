@@ -174,7 +174,7 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "forderungen", -amount, vwz2);
                         amount = 0;
                     }
-                } else if (line[4].equals("Kontof�hrung") || line[4].equals("Kontoführung")) {
+                } else if (line[4].contains("Kontof�hrung") || line[4].contains("Kontoführung")) {
                     Uri transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
                     storeBankCash(transaction, amount);
                     storeTransactionItem(transaction, "kosten", -amount, "Kontogebühren");
