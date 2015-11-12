@@ -3,7 +3,9 @@ package org.baobab.foodcoapp;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -21,6 +23,7 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -75,6 +78,11 @@ public class ProductEditActivity extends AppCompatActivity
         if (getIntent().getData() != null) {
             setTitle("Edit product " + getIntent().getData().getLastPathSegment());
             getSupportLoaderManager().initLoader(0, null, this);
+        }
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (getResources().getConfiguration().hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
+            Toast.makeText(this, "Switch hardware keyboard OFF", Toast.LENGTH_LONG).show();
+            imm.showInputMethodPicker();
         }
     }
 

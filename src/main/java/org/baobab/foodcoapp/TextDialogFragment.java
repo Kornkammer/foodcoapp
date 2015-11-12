@@ -2,6 +2,7 @@ package org.baobab.foodcoapp;
 
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -59,6 +60,26 @@ public abstract class TextDialogFragment extends DialogFragment {
         ((InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE))
                 .showSoftInput(text, InputMethodManager.SHOW_FORCED);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (getResources().getConfiguration().hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
+            Toast.makeText(getActivity(), "Switch hardware keyboard OFF", Toast.LENGTH_LONG).show();
+            imm.showInputMethodPicker();
+        } else {
+            imm.showSoftInput(text, InputMethodManager.SHOW_FORCED);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(text.getWindowToken(), 0);
     }
 
     private void finish() {

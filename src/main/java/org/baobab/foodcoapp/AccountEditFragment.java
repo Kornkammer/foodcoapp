@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -23,9 +24,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -113,6 +116,26 @@ public class AccountEditFragment extends Fragment
     public int rand() {
         Random r = new Random( System.currentTimeMillis() );
         return (1 + r.nextInt(2)) * 10000 + r.nextInt(10000);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (getResources().getConfiguration().hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
+            Toast.makeText(getActivity(), "Switch hardware keyboard OFF", Toast.LENGTH_LONG).show();
+            imm.showInputMethodPicker();
+        } else {
+            imm.showSoftInput(getView().findViewById(R.id.name), InputMethodManager.SHOW_FORCED);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(((TextView) getView().findViewById(R.id.name)).getWindowToken(), 0);
     }
 
     @Override
