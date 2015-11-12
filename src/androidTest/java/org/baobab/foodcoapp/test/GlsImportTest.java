@@ -269,7 +269,7 @@ public class GlsImportTest extends BaseProviderTests {
         assertBooking("Inventar:Tisch", "Inventar", "Tisch", 3.50f, "Rechnung XY");
         assertBooking("Inventar: Kiste", "Inventar", "Kiste", 5.50f, "Rechnung abc");
         assertBooking("Inventar - Stift", "Inventar", "Stift", 1.5f, "Rechnung 234");
-        assertBooking("Inventar, tolle Sache", "Inventar", "tolle Sache", 3.50f, "Rechnung XY");
+        assertBooking("Inventar, tolle+Sache", "Inventar", "tolle+Sache", 3.50f, "Rechnung XY");
         assertBooking("Inventar: auch mit-strich", "Inventar", "auch mit-strich", 3, "Rechnung");
     }
 
@@ -280,16 +280,20 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testRechnungBegleichen() {
-        insertTransaction("verbindlichkeiten", "lager", 100, "Lieferung 123"); // offen
-        assertBooking("Lieferung 123", "Verbindlichkeiten", "Lieferung 123", 100, "bezahlt");
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Lieferung 123 -> 100,00"));
-        insertTransaction("verbindlichkeiten", "lager", 42.23f, "Lieferung 123"); // offen
-        assertBooking("Lieferung 123", "Verbindlichkeiten", "Lieferung 123", 42.23f, "bezahlt");
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Lieferung 123 -> 42,23"));
-        insertTransaction("verbindlichkeiten", "lager", 30, "Lieferung 123"); // offen
-        // Verbindlichkeit nicht begleichen, sondern wenn nicht zugeordnet, dann neue Forderung
-        assertBooking("Lieferung 123", "Forderungen", "Lieferung 123", 50, "bezahlt"); // zuviel
-        assertTrue(!importer.getMsg().contains("Verbindlichkeit beglichen: Lieferung 123 -> 50,00"));
+        insertTransaction("verbindlichkeiten", "lager", 23.42f, "RefNr 123"); // offen
+        read(gls().vwz5("RefNr 123").vwz6("blabla").amount(-23.42));
+        assertBookingTxn("Verbindlichkeiten", "RefNr 123", 23.42f, "blabla");
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23,42"));
+
+        insertTransaction("verbindlichkeiten", "lager", 23.42f, "RefNr 123"); // offen
+        read(gls().vwz5("RefNr 123").vwz7("blabla").amount(-23.42));
+        assertBookingTxn("Verbindlichkeiten", "RefNr 123", 23.42f, "blabla");
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23,42"));
+
+        insertTransaction("verbindlichkeiten", "lager", 23.42f, "RefNr 123"); // offen
+        read(gls().vwz5("blabla").vwz7("RefNr 123").amount(-23.42));
+        assertBookingTxn("Verbindlichkeiten", "RefNr 123", 23.42f, "blabla");
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23,42"));
     }
 
     public void testIdempotency() { // selber Tag mit selbem VWZ geht nicht
@@ -360,9 +364,17 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     private void assertBooking(String vwz2, String name, String title, float amount, String comment) {
+        read(gls().vwz5(comment).vwz6(vwz2).amount(-amount));
+        assertBookingTxn(name, title, amount, comment);
+        read(gls().vwz5(comment).vwz7(vwz2).amount(-amount));
+        assertBookingTxn(name, title, amount, comment);
         read(gls().vwz5(comment.substring(0, 5)).vwz6(comment.substring(5, comment.length()))
                 .vwz7(vwz2.substring(0, 5)).vwz8(vwz2.substring(5, vwz2.length()))
                 .amount(-amount));
+        assertBookingTxn(name, title, amount, comment);
+    }
+
+    private void assertBookingTxn(String name, String title, float amount, String comment) {
         Cursor items = assertTransaction(comment, 2);
         if (items.getString(11).equals("bank")) { // account order
             assertTransactionItem("bank", "Bank", "Cash", -amount, 1.0f, items);

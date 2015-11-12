@@ -159,45 +159,53 @@ public class GlsImport implements ImportActivity.Importer {
                 String comment = "Bankausgang:\n\n" + (!line[3].equals("")? line[3]:"") +
                                     "\nVWZ: " + (!vwz1.equals("")? vwz1+"\n" : "") +
                                         (!vwz2.equals("")? vwz2+"\n" : "");
-                Matcher m = vwz2Pattern.matcher(vwz2);
-                Account account = findAccount(vwz2);
-                if (m.matches()) {
-                    Uri transaction = storeTransaction(time, comment);
-                    storeBankCash(transaction, amount);
-                    if (account != null && account.guid != null && account.err == null) {
-                        storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-                        amount = 0;
-                    } else {
-                        amount = settleOpenPayables(transaction, vwz2, amount);
-                    }
-                    if (amount < 0) { // still
-                        storeTransactionItem(transaction, "forderungen", -amount, vwz2);
-                        amount = 0;
+                if (line[3].equals("Auszahlung")) {
+                    comment = comment + "\nVWZ " + line[5] + " " + line[6];
+                    if (!settleOpenPayable("Auszahlung", amount, time, comment)) {
+                        Uri transaction = storeTransaction(time, comment);
+                        storeBankCash(transaction, amount);
+                        storeTransactionItem(transaction, "forderungen", -amount, "Auszahlung");
                     }
                 } else if (line[4].contains("Kontof�hrung") || line[4].contains("Kontoführung")) {
                     Uri transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
                     storeBankCash(transaction, amount);
                     storeTransactionItem(transaction, "kosten", -amount, "Kontogebühren");
-                    amount = 0;
-                }
-                if (amount < 0) { // still
-                    if (account == null) {
-                        account = findAccount(vwz1);
-                    }
-                    if (account != null && (vwz1.toLowerCase().contains("auslage")
-                            || vwz2.toLowerCase().contains("auslage"))) {
-                        Uri transaction = storeTransaction(time, comment);
-                        storeBankCash(transaction, amount);
-                        storeTransactionItem(transaction, "einlagen", -amount, account.name);
-                    } else {
-                        if (line[3].equals("Auszahlung")) {
-                            Uri transaction = storeTransaction(time, comment + "\nVWZ " + line[5] + " " + line[6]);
+                } else {
+                    Matcher m = vwz2Pattern.matcher(vwz2);
+                    Account account = findAccount(vwz2);
+                    if (m.matches() && account != null && account.guid != null && account.err == null) {
+                            Uri transaction = storeTransaction(time, comment);
                             storeBankCash(transaction, amount);
-                            amount = settleOpenPayables(transaction, "Auszahlung", amount);
-                            if (amount < 0) {
-                                storeTransactionItem(transaction, "forderungen", -amount, "Auszahlung");
-                            }
+                            storeTransactionItem(transaction, account.guid, -amount, m.group(2));
+                            amount = 0;
+                    } else {
+                        if (account == null) {
+                            account = findAccount(vwz1);
+                        }
+                        if (account != null && (vwz1.toLowerCase().contains("auslage")
+                                || vwz2.toLowerCase().contains("auslage"))) {
+                            Uri transaction = storeTransaction(time, comment);
+                            storeBankCash(transaction, amount);
+                            storeTransactionItem(transaction, "einlagen", -amount, account.name);
+                            amount = 0;
                         } else {
+                            if (account == null) {
+                                account = findAccount(line[10]);
+                            }
+                            m = vwz2Pattern.matcher(line[10]);
+                            if (m.matches() && account != null && account.guid != null && account.err == null) {
+                                Uri transaction = storeTransaction(time, comment);
+                                storeBankCash(transaction, amount);
+                                storeTransactionItem(transaction, account.guid, -amount, m.group(2));
+                                amount = 0;
+                            }
+                        }
+                    }
+                    if (amount < 0) {
+                        if (!settleOpenPayable(line[9], amount, time, comment)
+                                && !settleOpenPayable(vwz1, amount, time, comment)
+                                && !settleOpenPayable(vwz2, amount, time, comment)) {
+
                             Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
                             storeBankCash(transaction, amount);
                             if (!vwz2.equals("")) {
@@ -219,19 +227,21 @@ public class GlsImport implements ImportActivity.Importer {
         }
     }
 
-    private float settleOpenPayables(Uri transaction, String title, float amount) {
+    private boolean settleOpenPayable(String title, float amount, long time, String comment) {
         Iterator<Long> iter = findOpenTransactions("verbindlichkeiten", "title IS '" + title + "'");
         while (iter.hasNext()) {
             Cursor txn = query("verbindlichkeiten", "transactions._id =" + iter.next());
             txn.moveToFirst();
             float sum = txn.getFloat(8) * txn.getFloat(11);
             if (sum == amount) {
+                Uri transaction = storeTransaction(time, comment);
+                storeBankCash(transaction, amount);
                 storeTransactionItem(transaction, "verbindlichkeiten", -amount, title);
                 lineMsges += "\nVerbindlichkeit beglichen: " + title + " -> " + String.format("%.2f", -amount);
-                amount = 0;
+                return true;
             }
         }
-        return amount;
+        return false;
     }
 
     private Iterator<Long> findOpenTransactions(String guid, String selection) {
