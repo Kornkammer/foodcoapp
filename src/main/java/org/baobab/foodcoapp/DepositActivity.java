@@ -85,7 +85,7 @@ public class DepositActivity extends AppCompatActivity {
         MediaPlayer.create(this, R.raw.chaching).start();
         ContentValues t = new ContentValues();
         t.put("status", "final");
-        t.put("comment", title + "\n" +
+        t.put("comment", "Einzahlung:\n" + title + "\n" +
                 ((EditText) findViewById(R.id.comment)).getText().toString());
         Uri transaction = getContentResolver().insert(Uri.parse(
                 "content://org.baobab.foodcoapp/transactions"), t);

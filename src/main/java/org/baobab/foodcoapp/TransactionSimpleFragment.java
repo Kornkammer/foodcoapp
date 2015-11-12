@@ -246,6 +246,7 @@ public class TransactionSimpleFragment extends Fragment
     private void saveStatus(String status) {
         ContentValues cv = new ContentValues();
         cv.put("status", status);
+        cv.put("comment", "Einkauf:");
         cv.put("stop", System.currentTimeMillis());
         getActivity().getContentResolver().update(
                 getActivity().getIntent().getData(), cv, null, null);
