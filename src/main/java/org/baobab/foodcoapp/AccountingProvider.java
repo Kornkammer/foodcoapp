@@ -486,20 +486,35 @@ public class AccountingProvider extends ContentProvider {
                 values.remove("session_log");
                 Cursor txns = query(uri.buildUpon().appendPath(
                         "transactions").build(), null, null, null, null);
-                boolean allValid = true;
+                db.getWritableDatabase().beginTransaction();
+                int alreadyExisting = 0;
+                int invalidNotZeroSum = 0;
                 while (txns.moveToNext()) {
-                    if (!isTransactionValid(txns.getString(0), txns.getString(2), txns.getString(4))) {
-                        allValid = false;
+                    if (!exists(txns.getString(0), txns.getString(2), txns.getString(4))) {
+                        if (zerSum(txns.getString(0))) {
+                            result += db.getWritableDatabase().update("transactions", values,
+                                    "_id = " + txns.getString(0), null);
+                        } else {
+                            invalidNotZeroSum++;
+                        }
+                    } else {
+                        alreadyExisting++;
                     }
                 }
-                if (allValid) {
-                    result = db.getWritableDatabase().update("transactions", values,
-                            "session_id = " + uri.getPathSegments().get(1), null);
-                    values = new ContentValues();
-                    values.put("comment", sessionLog);
-                    db.getWritableDatabase().update("sessions", values,
-                            "_id = " + uri.getPathSegments().get(1), null);
+                Log.d(PosActivity.TAG, "already existing txns: " + alreadyExisting);
+                Log.d(PosActivity.TAG, "invalid non-zero-sum: " + invalidNotZeroSum);
+                if (invalidNotZeroSum == 0) {
+                    db.getWritableDatabase().setTransactionSuccessful();
+                    db.getWritableDatabase().endTransaction();
+                } else {
+                    Log.e(PosActivity.TAG, "roll back! should never happen! ");
                 }
+                values = new ContentValues();
+                values.put("comment", sessionLog +
+                    "\nalready existing txns: " + alreadyExisting +
+                    "\ninvalid non-zero-sum: " + invalidNotZeroSum);
+                db.getWritableDatabase().update("sessions", values,
+                        "_id = " + uri.getPathSegments().get(1), null);
                 break;
         }
         getContext().getContentResolver().notifyChange(uri, null);
@@ -510,17 +525,19 @@ public class AccountingProvider extends ContentProvider {
         Cursor txn = db.getReadableDatabase().query("transactions", null,
                 "_id = " + id, null, null, null, null);
         txn.moveToFirst();
-        return isTransactionValid(txn.getString(0), txn.getString(3), txn.getString(4));
+        return zerSum(id) && !exists(txn.getString(0), txn.getString(3), txn.getString(4));
     }
 
-    private boolean isTransactionValid(String id, String stop, String comment) {
+    private boolean zerSum(String id) {
         Cursor sum = getTransactionSum(id);
         sum.moveToFirst();
-        boolean zeroSum = sum.getFloat(2) == 0;
-        Cursor c = db.getWritableDatabase().query("transactions", null,
+        return sum.getFloat(2) == 0;
+    }
+
+    private boolean exists(String id, String stop, String comment) {
+        Cursor c = db.getReadableDatabase().query("transactions", null,
                 "status IS 'final' AND stop = ? AND comment IS ?",
                 new String[] { stop, comment }, null, null, null);
-        boolean exists = c.getCount() > 0;
-        return zeroSum && !exists;
+        return c.getCount() > 0;
     }
 }
