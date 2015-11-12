@@ -216,7 +216,7 @@ public class PoSimpleActivity extends AppCompatActivity
         cv.put("account_guid", "lager");
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != -1) {
+        if (quantity != -1 && quantity != 0) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);
