@@ -23,7 +23,8 @@ import java.util.HashMap;
 public class Scale implements Runnable {
 
     private static final String TAG = "Scale";
-    private static final int PID = 32773;
+    private static final int M5 = 32773;
+    private static final int M10 = 32771;
     private static final int VID = 2338;
     public static final String USB_PERMISSION = "org.baobab.foodcoapp.USB_PERMISSION";
 
@@ -101,8 +102,8 @@ public class Scale implements Runnable {
         HashMap<String, UsbDevice> devices = mUsbManager.getDeviceList();
         UsbDevice selected = null;
         for (UsbDevice device : devices.values()) {
-            Toast.makeText(activity, "searching usb scale ", Toast.LENGTH_LONG).show();
-            if (device.getVendorId() == VID && device.getProductId() == PID) {
+            if (device.getVendorId() == VID &&
+                    (device.getProductId() == M5 || device.getProductId() == M10)) {
                 selected = device;
                 break;
             }

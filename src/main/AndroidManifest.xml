@@ -21,6 +21,7 @@
       android:name="org.baobab.foodcoapp.DashboardActivity"
       android:screenOrientation="landscape"
       android:label="KornkammR"
+      android:taskAffinity="org.baobab.foodcoapp.simple"
       android:theme="@style/FullscreenTheme" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -95,11 +96,11 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="portrait"
-      android:taskAffinity="accounts.transactions"
       android:name="org.baobab.foodcoapp.TransactionsActivity" >
     </activity>
     <activity
       android:screenOrientation="portrait"
+      android:taskAffinity="org.baobab.foodcoapp.pos"
       android:name="org.baobab.foodcoapp.ImportActivity" >
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
@@ -119,7 +120,6 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="landscape"
-      android:taskAffinity="accounts.accounts"
       android:windowSoftInputMode="adjustPan"
       android:label="@string/balance" >
       <intent-filter>
