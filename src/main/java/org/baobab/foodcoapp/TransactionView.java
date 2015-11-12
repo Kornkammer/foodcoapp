@@ -26,14 +26,15 @@ import android.widget.TextView;
 
 public class TransactionView extends GridLayout {
 
-    OnClickListener onAmountClick;
-    OnClickListener onTitleClick;
-    OnClickListener onSumClick;
-    TextView header;
-    String account;
-    double sum;
-    boolean positive;
-    boolean showImages = true;
+    private OnClickListener onAmountClick;
+    private OnClickListener onTitleClick;
+    private OnClickListener onSumClick;
+    private TextView header;
+    private String account;
+    private double sum;
+    private boolean positive;
+    private boolean showImages = true;
+    private boolean showHeaders = true;
     private boolean headersClickable = true;
     private int columnWidth = R.dimen.column_large;
 
@@ -61,6 +62,10 @@ public class TransactionView extends GridLayout {
 
     public void showImages(boolean showImages) {
         this.showImages = showImages;
+    }
+
+    public void showHeaders(boolean showHeaders) {
+        this.showHeaders = showHeaders;
     }
 
     public void headersClickable(boolean headersClickable) {
@@ -97,7 +102,7 @@ public class TransactionView extends GridLayout {
             lp.columnSpec = GridLayout.spec(0, 6);
             lp.setGravity(Gravity.FILL_HORIZONTAL);
             FrameLayout f = new FrameLayout(getContext());
-            if (onAmountClick != null) {
+            if (showHeaders) {
                 if (data.getLong(9) <= 140 ) {
                     if (quantity < 0) {
                         if (account.equals("lager") || account.equals("kasse")) {
@@ -152,7 +157,7 @@ public class TransactionView extends GridLayout {
                 f.setId(data.getInt(3));
                 f.setTag(String.valueOf(quantity));
             }
-            if (headersClickable) {
+            if (showHeaders && headersClickable) {
                 f.setClickable(true);
                 f.setOnClickListener(new OnClickListener() {
                     @Override
@@ -255,7 +260,7 @@ public class TransactionView extends GridLayout {
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         addView(images, lp);
-
+//
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
         if ((data.getColumnCount() == 14 && data.getString(7).equals("Credits")) || data.getInt(3) == 1) {
             amount.setVisibility(View.INVISIBLE);
@@ -322,13 +327,14 @@ public class TransactionView extends GridLayout {
         title.setMaxLines(1);
         FrameLayout f = new FrameLayout(getContext());
         f.addView(title);
-        f.setClickable(true);
         f.setId(data.getInt(3));
-        f.setTag(data.getPosition());
-        f.setBackgroundResource(R.drawable.background_translucent);
         if (onTitleClick != null && data.getLong(3) != 1) {
+            f.setClickable(true);
+            f.setFocusable(true);
+            f.setTag(data.getPosition());
             f.setOnClickListener(onTitleClick);
         }
+        f.setBackgroundResource(R.drawable.background_translucent);
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2, 3);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
@@ -346,12 +352,12 @@ public class TransactionView extends GridLayout {
         sum.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
         f = new FrameLayout(getContext());
         f.addView(sum);
-        f.setClickable(true);
-        f.setId(data.getInt(3));
-        f.setTag(data.getPosition());
-        f.setBackgroundResource(R.drawable.background_translucent);
         if (onSumClick != null) {
+            f.setClickable(true);
+            f.setId(data.getInt(3));
+            f.setTag(data.getPosition());
             f.setOnClickListener(onSumClick);
+            f.setBackgroundResource(R.drawable.background_translucent);
         }
         lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);

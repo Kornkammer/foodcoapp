@@ -45,9 +45,9 @@ public class DecimalView extends LinearLayout {
         decimals.setPadding(0, -small, 3, -small);
         addView(decimals);
 
-        setFocusable(true);
-        setClickable(true);
         if (onClick != null) {
+            setFocusable(true);
+            setClickable(true);
             setOnClickListener(onClick);
         }
     }

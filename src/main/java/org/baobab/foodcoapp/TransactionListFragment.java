@@ -129,21 +129,38 @@ public class TransactionListFragment extends ListFragment
             setClickable(true);
         }
 
+        public void expand() {
+            org.baobab.foodcoapp.TransactionView transaction = new org.baobab.foodcoapp.TransactionView(getActivity());
+            transaction.showImages(true);
+            transaction.headersClickable(false);
+            Cursor c = getActivity().getContentResolver().query(
+                    Uri.parse("content://org.baobab.foodcoapp/transactions/" + id),
+                    null, null, null, null);
+            transaction.setColumnWidth(R.dimen.column_small);
+            transaction.headersClickable(false);
+            transaction.showHeaders(true);
+            transaction.populate(c);
+            LayoutParams lp = new LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.bottomMargin = 42;
+            addView(transaction, lp);
+            expanded = true;
+        }
+
+        public void collapse() {
+            if (expanded) {
+                removeViewAt(1);
+            }
+            expanded = false;
+        }
         @Override
         public void onClick(View v) {
             if (expanded) {
-                removeViewAt(1);
+                collapse();
             } else {
-                org.baobab.foodcoapp.TransactionView transaction = new org.baobab.foodcoapp.TransactionView(getActivity());
-                transaction.showImages(true);
-                transaction.headersClickable(false);
-                Cursor c = getActivity().getContentResolver().query(
-                        Uri.parse("content://org.baobab.foodcoapp/transactions/" + id),
-                        null, null, null, null);
-                transaction.populate(c);
-                ((LinearLayout) v).addView(transaction);
+                expand();
             }
-            expanded = !expanded;
         }
 
     }
