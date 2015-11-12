@@ -3,6 +3,7 @@ package org.baobab.foodcoapp;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
@@ -145,7 +146,17 @@ public class ImportActivity extends AppCompatActivity {
                             },  400);
                         } else {
                             ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
-                            showMsg(stored + " Transaktionen importiert (von " + readCount + ")");
+                            new AlertDialog.Builder(ImportActivity.this)
+                                    .setMessage(stored + " Transaktionen importiert\n" +
+                                            " (von " + readCount + ")" + "\n")
+                                    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            startActivity(new Intent(ImportActivity.this, AccountActivity.class));
+                                            finish();
+                                        }
+                                    })
+                                    .show();
                             MediaPlayer.create(ImportActivity.this, R.raw.error_2).start();
                         }
                     }
