@@ -35,6 +35,7 @@ public class TransactionView extends GridLayout {
     boolean positive;
     boolean showImages = true;
     private boolean headersClickable = true;
+    private int columnWidth = R.dimen.column_large;
 
     public TransactionView(Context context) {
         this(context, null);
@@ -64,6 +65,10 @@ public class TransactionView extends GridLayout {
 
     public void headersClickable(boolean headersClickable) {
         this.headersClickable = headersClickable;
+    }
+
+    public void setColumnWidth(int width) {
+        columnWidth = width;
     }
 
     public void populate(Cursor data) {
@@ -327,7 +332,7 @@ public class TransactionView extends GridLayout {
         lp = new GridLayout.LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2, 3);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
-        lp.width = getContext().getResources().getDimensionPixelSize(R.dimen.column_medium);
+        lp.width = getContext().getResources().getDimensionPixelSize(columnWidth);
         addView(f, lp);
 
         TextView sum = new TextView(getContext());
