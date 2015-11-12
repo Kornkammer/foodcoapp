@@ -173,6 +173,27 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("0815", "Susi", "Credits", -1.0f, 10, items);
     }
 
+    public void testForderungBegleichenMehrfach() {
+        insertTransaction("0815", "forderungen", 40, "Bank Susi");
+        importer = new GlsImport(ctx);
+        importer.readLine(gls().vwz1("Einzahlung - Susi").amount(40).line); // überweisen
+        importer.readLine(gls().vwz1("Einzahlung - Susi").amount(60).line); // überweisen
+        finalizeSession(importer.getSession());
+        Cursor transactions = query(importer.getSession()
+                .buildUpon().appendPath("transactions").build(), 2);
+        assertEquals("booked", "final", transactions.getString(12));
+        Cursor items = query("transactions/" + transactions.getLong(0), 2);
+        assertTransactionItem("bank", "Bank", "Cash", 40, 1.0f, items);
+        items.moveToNext();
+        assertTransactionItem("forderungen", "Forderungen", "Bank Susi", -1.0f, 40, items);
+        transactions.moveToNext();
+        assertEquals("booked", "final", transactions.getString(12));
+        items = query("transactions/" + transactions.getLong(0), 2);
+        assertTransactionItem("bank", "Bank", "Cash", 60, 1.0f, items);
+        items.moveToNext();
+        assertTransactionItem("0815", "Susi", "Credits", -1.0f, 60, items);
+    }
+
     public void testBarEinzahlung() {
         insertTransaction("1234", "forderungen", 20, "Bar Albert"); // 1
         insertTransaction("0815", "forderungen", 30, "Bar Susi");   // 2

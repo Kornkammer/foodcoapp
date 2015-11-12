@@ -245,8 +245,8 @@ public class GlsImport implements ImportActivity.Importer {
     }
 
     private Iterator<Long> findOpenTransactions(String guid, String selection) {
-        Cursor products = ctx.getContentResolver().query(Uri.parse(
-                        "content://" + AUTHORITY + "/accounts/" + guid + "/products"),
+        Cursor products = ctx.getContentResolver().query(uri.buildUpon()
+                        .appendEncodedPath("accounts/" + guid + "/products").build(),
                             null, selection, null , null);
         TreeSet<Long> ids = new TreeSet<>();
         while (products.moveToNext()) {

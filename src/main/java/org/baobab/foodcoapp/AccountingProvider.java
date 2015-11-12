@@ -138,6 +138,7 @@ public class AccountingProvider extends ContentProvider {
         router.addURI(AUTHORITY, "accounts", ACCOUNTS);
         router.addURI(AUTHORITY, "accounts/*/accounts", ACCOUNTS);
         router.addURI(AUTHORITY, "accounts/*/products", ACCOUNT_PRODUCTS);
+        router.addURI(AUTHORITY, "sessions/#/accounts/*/products", ACCOUNT_PRODUCTS);
         router.addURI(AUTHORITY, "products", PRODUCTS);
         router.addURI(AUTHORITY, "sessions", SESSIONS);
         router.addURI(AUTHORITY, "sessions/#", SESSION);
@@ -206,8 +207,10 @@ public class AccountingProvider extends ContentProvider {
                 break;
             case ACCOUNT_PRODUCTS:
                 String account_guid = "";
-                if (uri.getPathSegments().size() > 1) {
+                if (uri.getPathSegments().size() == 3) {
                     account_guid = uri.getPathSegments().get(1);
+                } else if (uri.getPathSegments().size() == 5) {
+                    account_guid = uri.getPathSegments().get(3);
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transaction_products._id, transaction_id, account_guid," +
@@ -218,7 +221,8 @@ public class AccountingProvider extends ContentProvider {
                                 "SELECT _id, guid, name, max(_id), parent_guid FROM accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
-                        " WHERE account_guid IS ? AND transactions.status IS NOT 'draft'" +
+                        " WHERE account_guid IS ? AND (transactions.status IS NOT 'draft'" +
+                        (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
                         " GROUP BY title, price" +
                         " HAVING stock != 0" +
                         (selection != null? " AND " + selection : ""),
@@ -247,7 +251,7 @@ public class AccountingProvider extends ContentProvider {
                     selection = "session_id = " + uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT transactions._id AS _id, session.name, transactions.stop, accounts.name, transactions.comment, " +
+                        "SELECT transactions._id AS _id, session._id, transactions.stop, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
