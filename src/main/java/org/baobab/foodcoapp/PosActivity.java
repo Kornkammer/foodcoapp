@@ -16,11 +16,13 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -32,7 +34,7 @@ import java.util.Date;
 
 public class PosActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener {
+        View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener, View.OnKeyListener {
 
     public static final String TAG = "FoodCoApp";
     private ViewPager pager;
@@ -49,7 +51,7 @@ public class PosActivity extends AppCompatActivity
         }
         getSupportLoaderManager().initLoader(0, null, this);
         pager = (ViewPager) findViewById(R.id.pager);
-
+        findViewById(R.id.scanner).setOnKeyListener(this);
         findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -196,27 +198,48 @@ public class PosActivity extends AppCompatActivity
         addProductToTransaction(b.id, b.title, (- (float) weight) / 1000, b.price, b.unit, b.img);
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent d) {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case 0:
                     String ean = d.getStringExtra("SCAN_RESULT");
-                    Cursor p = getContentResolver().query(Uri.parse(
-                                    "content://org.baobab.foodcoapp/products"),
-                            null, "ean IS ?", new String[] { ean }, null);
-                    if (p.getCount() > 0) {
-                        p.moveToFirst();
-                        addProductToTransaction(p.getLong(0), p.getString(1), 1, p.getFloat(2), p.getString(3), p.getString(4));
-                        Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
-                    } else {
-                        Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
-                    }
+                    handleBarcode(ean);
                     break;
                 case 42:
-                    addProductToTransaction(d.getLongExtra("id", 0), d.getStringExtra("title"), 1,
+                    addProductToTransaction(d.getLongExtra("id", 0), d.getStringExtra("title"), -1,
                             d.getFloatExtra("price", 1.0f), d.getStringExtra("unit"), d.getStringExtra("img"));
             }
+        }
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_ENTER) {
+            EditText scan = (EditText) findViewById(R.id.scanner);
+            String ean = scan.getText().toString();
+            if (ean.length() > 0) {
+                handleBarcode(ean);
+                scan.setText("");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void handleBarcode(String ean) {
+        Cursor p = getContentResolver().query(Uri.parse(
+                        "content://org.baobab.foodcoapp/products"),
+                null, "ean IS ?", new String[] { ean }, null);
+        if (p.getCount() > 0) {
+            p.moveToFirst();
+            String title = p.getString(1).replace("AND ", "").replace("Adechser ", "")
+                    .replace("Bioland ", "").replace("Demeter ", "");
+            addProductToTransaction(p.getLong(0), title, -1, p.getFloat(2), p.getString(3), p.getString(4));
+//            Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -225,16 +248,14 @@ public class PosActivity extends AppCompatActivity
         cv.put("account_guid", "lager");
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != 0) {
+        if (quantity != -1) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);
         cv.put("unit", unit);
         cv.put("img", img);
-        getContentResolver().insert(
-                getIntent().getData().buildUpon()
-                        .appendEncodedPath("products")
-                        .build(), cv);
+        getContentResolver().insert(getIntent().getData().buildUpon()
+                .appendEncodedPath("products").build(), cv);
     }
 
     @Override
