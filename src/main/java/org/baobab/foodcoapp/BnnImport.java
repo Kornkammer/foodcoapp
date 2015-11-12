@@ -35,12 +35,8 @@ public class BnnImport implements ImportActivity.Importer {
         }
         if (values.size() != count) {
             msg += "Could not read " + (count - values.size()) + " products (of " + count +")\n";
-        } else {
-
         }
-        int result = store();
-        msg += "imported " + result + " products (of " + values.size() + ")";
-        return result;
+        return store();
     }
 
     @Override
@@ -57,7 +53,7 @@ public class BnnImport implements ImportActivity.Importer {
         int count = ctx.getContentResolver().bulkInsert(Uri.parse(
                         "content://org.baobab.foodcoapp/products"),
                 values.toArray(new ContentValues[values.size()]));
-        msg = "Imported " + count + " (out of " + values.size() + " products)";
+        msg = "\nImported " + count + " (out of " + values.size() + " products)\n";
         return count;
     }
 

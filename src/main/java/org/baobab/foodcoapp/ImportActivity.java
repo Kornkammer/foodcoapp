@@ -60,7 +60,7 @@ public class ImportActivity extends AppCompatActivity {
                         CSVReader csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), ';');
 
                         String[] line = csv.readNext();
-                        if (line.length == 69) {
+                        if (line.length == 12) {
                             importer = new BnnImport(ImportActivity.this);
                         } else if (line.length == 22) {
                             importer = new GlsImport(ImportActivity.this);
