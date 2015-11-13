@@ -385,6 +385,8 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     private void assertBooking(String vwz2, String name, String title, float amount, String comment) {
+        read(gls().vwz5(vwz2).vwz6(comment).amount(-amount));
+        assertBookingTxn(name, title, amount, comment);
         read(gls().vwz5(comment).vwz6(vwz2).amount(-amount));
         assertBookingTxn(name, title, amount, comment);
         read(gls().vwz5(comment).vwz7(vwz2).amount(-amount));

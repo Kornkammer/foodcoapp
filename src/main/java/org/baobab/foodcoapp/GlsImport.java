@@ -171,52 +171,79 @@ public class GlsImport implements ImportActivity.Importer {
                     storeBankCash(transaction, amount);
                     storeTransactionItem(transaction, "kosten", -amount, "Kontogebühren");
                 } else {
-                    Matcher m = vwz2Pattern.matcher(vwz2);
-                    Account account = findAccount(vwz2);
-                    if (m.matches() && account != null && account.guid != null && account.err == null) {
-                            Uri transaction = storeTransaction(time, comment);
-                            storeBankCash(transaction, amount);
-                            storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-                            amount = 0;
-                    } else {
-                        if (account == null) {
-                            account = findAccount(vwz1);
-                        }
-                        if (account != null && (vwz1.toLowerCase().contains("auslage")
-                                || vwz2.toLowerCase().contains("auslage"))) {
+                    String text = line[9] + " " + line[10] + " " + vwz2;
+                    if (text.toLowerCase().contains("auslage")) {
+                        Account account = findAccount(vwz1);
+                        if (account != null) {
                             Uri transaction = storeTransaction(time, comment);
                             storeBankCash(transaction, amount);
                             storeTransactionItem(transaction, "einlagen", -amount, account.name);
                             amount = 0;
-                        } else {
-                            if (account == null) {
-                                account = findAccount(line[10]);
-                            }
-                            m = vwz2Pattern.matcher(line[10]);
-                            if (m.matches() && account != null && account.guid != null && account.err == null) {
-                                Uri transaction = storeTransaction(time, comment);
-                                storeBankCash(transaction, amount);
-                                storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-                                amount = 0;
-                            }
                         }
                     }
                     if (amount < 0) {
-                        if (!settleOpenPayable(line[9], amount, time, comment)
-                                && !settleOpenPayable(vwz1, amount, time, comment)
-                                && !settleOpenPayable(vwz2, amount, time, comment)) {
+                        if (findBookingInstruction(time, amount, comment, line[9])) {
+                        } else if (findBookingInstruction(time, amount, comment, line[10])) {
+                        } else if (findBookingInstruction(time, amount, comment, text)) {
+                        } else {
+                            if (!settleOpenPayable(line[9], amount, time, comment)
+                                    && !settleOpenPayable(vwz1, amount, time, comment)
+                                    && !settleOpenPayable(vwz2, amount, time, comment)) {
 
-                            Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
-                            storeBankCash(transaction, amount);
-                            if (!vwz2.equals("")) {
-                                storeTransactionItem(transaction, "forderungen", -amount, vwz2);
-                            } else if (!vwz1.equals("")) {
-                                storeTransactionItem(transaction, "forderungen", -amount, vwz1);
-                            } else {
-                                storeTransactionItem(transaction, "forderungen", -amount, line[3]);
+                                Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
+                                storeBankCash(transaction, amount);
+                                if (!vwz2.equals("")) {
+                                    storeTransactionItem(transaction, "forderungen", -amount, vwz2);
+                                } else if (!vwz1.equals("")) {
+                                    storeTransactionItem(transaction, "forderungen", -amount, vwz1);
+                                } else {
+                                    storeTransactionItem(transaction, "forderungen", -amount, line[3]);
+                                }
                             }
                         }
                     }
+//                    Matcher m = vwz2Pattern.matcher(vwz2);
+//                    Account account = findAccount(vwz2);
+//                    if (m.matches() && account != null && account.guid != null && account.err == null) {
+////                            Uri transaction = storeTransaction(time, comment);
+////                            storeBankCash(transaction, amount);
+////                            storeTransactionItem(transaction, account.guid, -amount, m.group(2));
+//                            amount = 0;
+//                    } else {
+//                        if (account == null) {
+//                            account = findAccount(vwz1);
+//                        }
+//                        if (account != null && (vwz1.toLowerCase().contains("auslage")
+//                                || vwz2.toLowerCase().contains("auslage"))) {
+////                            Uri transaction = storeTransaction(time, comment);
+////                            storeBankCash(transaction, amount);
+////                            storeTransactionItem(transaction, "einlagen", -amount, account.name);
+////                            amount = 0;
+//                        } else {
+//                            if (account == null) {
+//                                account = findAccount(line[10]);
+//                            }
+//                            m = vwz2Pattern.matcher(line[10]);
+//                            if (m.matches() && account != null && account.guid != null && account.err == null) {
+//                                Uri transaction = storeTransaction(time, comment);
+//                                storeBankCash(transaction, amount);
+//                                storeTransactionItem(transaction, account.guid, -amount, m.group(2));
+//                                amount = 0;
+//                            }
+//                            if (amount < 0) {
+//                                m = vwz2Pattern.matcher(line[9]);
+//                                if (m.matches() && account != null && account.guid != null && account.err == null) {
+//                                    Uri transaction = storeTransaction(time, comment);
+//                                    storeBankCash(transaction, amount);
+//                                    storeTransactionItem(transaction, account.guid, -amount, m.group(2));
+//                                    amount = 0;
+//                                }
+//                            }
+//                        }
+//                    }
+//                    if (amount < 0) {
+//
+//                    }
                 }
             }
             count++;
@@ -225,6 +252,18 @@ public class GlsImport implements ImportActivity.Importer {
             e.printStackTrace();
             msg += "\nError! " + e.getMessage();
         }
+    }
+
+    static final Pattern pattern =  Pattern.compile(".*([Kk]osten|[Ii]nventar)[-:,\\s]+(.*)");
+    private boolean findBookingInstruction(long time, float amount, String comment, String text) {
+        Matcher m = pattern.matcher(text);
+        if (m.matches()) {
+            Uri transaction = storeTransaction(time, comment);
+            storeBankCash(transaction, amount);
+            storeTransactionItem(transaction, m.group(1).toLowerCase(), -amount, m.group(2));
+            return true;
+        }
+        return false;
     }
 
     private boolean settleOpenPayable(String title, float amount, long time, String comment) {
