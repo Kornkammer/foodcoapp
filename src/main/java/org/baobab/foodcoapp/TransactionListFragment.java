@@ -77,6 +77,7 @@ public class TransactionListFragment extends ListFragment
                             v.comment.setText(cursor.getString(4));
                         }
                         v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
+                        v.collapse();
                     }
                 }
         );
