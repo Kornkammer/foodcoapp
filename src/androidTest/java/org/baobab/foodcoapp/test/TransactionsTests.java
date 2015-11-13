@@ -11,6 +11,16 @@ import org.baobab.foodcoapp.AccountingProvider;
 
 public class TransactionsTests extends BaseProviderTests {
 
+    public void testGetSingleTransaction() {
+        createDummyAccount("dummy");
+        Uri uri = insertTransaction("dummy", "kasse");
+        Cursor t = query(uri, 1);
+        assertEquals("who", "dummy", t.getString(3));
+        assertEquals("amount", -42f, t.getFloat(8));
+        assertEquals("price", 1f, t.getFloat(11));
+        assertTrue("involved accounts", t.getString(5).contains("kasse"));
+    }
+
     public void testDeposit() { // Bilanzerhöhung
         createDummyAccount("dummy");
         insertTransaction("dummy", "kasse");

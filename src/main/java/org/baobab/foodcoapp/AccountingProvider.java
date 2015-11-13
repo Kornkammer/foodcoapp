@@ -246,6 +246,8 @@ public class AccountingProvider extends ContentProvider {
                         new String[] { uri.getQueryParameter("pin"),
                                 uri.getQueryParameter("pin")});
                 break;
+            case TRANSACTION:
+                selection = "transaction_products.transaction_id = " + uri.getPathSegments().get(1);
             case TRANSACTIONS:
                 if (uri.getPathSegments().get(0).equals("sessions")) {
                     selection = "session_id = " + uri.getPathSegments().get(1);
@@ -444,7 +446,8 @@ public class AccountingProvider extends ContentProvider {
                     db.getWritableDatabase().update(
                             "transaction_products", dec, selection, selectionArgs);
                 }
-                getContext().getContentResolver().notifyChange(uri, null);
+                getContext().getContentResolver().notifyChange(Uri.parse("content://" + AUTHORITY +
+                        "/transactions/" + uri.getPathSegments().get(1) + "/products"), null);
                 break;
         }
         return 0;
