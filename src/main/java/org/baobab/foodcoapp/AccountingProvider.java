@@ -505,10 +505,11 @@ public class AccountingProvider extends ContentProvider {
                 Log.d(PosActivity.TAG, "invalid non-zero-sum: " + invalidNotZeroSum);
                 if (invalidNotZeroSum == 0) {
                     db.getWritableDatabase().setTransactionSuccessful();
-                    db.getWritableDatabase().endTransaction();
                 } else {
                     Log.e(PosActivity.TAG, "roll back! should never happen! ");
+                    result = 0;
                 }
+                db.getWritableDatabase().endTransaction();
                 values = new ContentValues();
                 values.put("comment", sessionLog +
                     "\nalready existing txns: " + alreadyExisting +
