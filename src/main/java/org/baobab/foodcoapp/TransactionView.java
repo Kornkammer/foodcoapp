@@ -117,6 +117,8 @@ public class TransactionView extends GridLayout {
                             header.setText("Inventar abschreiben");
                         } else if (account.equals("verbindlichkeiten")) {
                             header.setText("Verbindlich bleiben");
+                        } else {
+                            header.setText("auf Konto " + data.getString(12)  + " gutschreiben");
                         }
                         header.setTextColor(getResources().getColor(R.color.medium_red));
                         f.setBackgroundResource(R.drawable.background_red);
@@ -133,6 +135,8 @@ public class TransactionView extends GridLayout {
                             header.setText("Inventar anschaffen");
                         } else if (account.equals("verbindlichkeiten")) {
                             header.setText("Verbindlichkeit begleichen");
+                        } else {
+                            header.setText("von Konto " + data.getString(12)  + " abbuchen");
                         }
                         header.setTextColor(getResources().getColor(R.color.medium_green));
                         f.setBackgroundResource(R.drawable.background_green);
