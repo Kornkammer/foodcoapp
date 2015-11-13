@@ -135,7 +135,7 @@ public class TransactionListFragment extends ListFragment
             transaction.showImages(true);
             transaction.headersClickable(false);
             Cursor c = getActivity().getContentResolver().query(
-                    Uri.parse("content://org.baobab.foodcoapp/transactions/" + id),
+                    Uri.parse("content://org.baobab.foodcoapp/transactions/" + id + "/products"),
                     null, null, null, null);
             transaction.setColumnWidth(R.dimen.column_small);
             transaction.headersClickable(false);

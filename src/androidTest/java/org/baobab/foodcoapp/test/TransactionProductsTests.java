@@ -18,19 +18,22 @@ public class TransactionProductsTests extends BaseProviderTests {
         b.put("price", 50);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        Cursor products = query(transaction, 3);
+        Cursor products = query(transaction
+                .buildUpon().appendPath("products").build(), 3);
         assertEquals("lager", products.getString(11));
         assertEquals("quantity", -1.0, products.getDouble(4));
         // press button again
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        products = query(transaction, 3);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 3);
         assertEquals("quantity", -2.0, products.getDouble(4));
         // press button again
         b.put("price", 1000);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        products = query(transaction, 4);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 4);
         assertEquals("quantity", -2.0, products.getDouble(4));
         assertEquals("price", 50.0, products.getDouble(5));
         products.moveToNext();
@@ -43,11 +46,13 @@ public class TransactionProductsTests extends BaseProviderTests {
         Uri transaction = insertTransaction("lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/lager/products/23").build(), null, null);
-        Cursor products = query(transaction, 2);
+        Cursor products = query(transaction
+                .buildUpon().appendPath("products").build(), 2);
         assertEquals("quantity", -41.0, products.getDouble(4));
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/dummy/products/23").build(), null, null);
-        products = query(transaction, 2);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 2);
         products.moveToLast();
         assertEquals("quantity", 41.0, products.getDouble(4));
     }
@@ -57,7 +62,7 @@ public class TransactionProductsTests extends BaseProviderTests {
         Uri transaction = insertTransaction("lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
                 .appendEncodedPath("accounts/lager/products/23").build(), "nix null", null);
-        query(transaction, 1);
+        query(transaction.buildUpon().appendPath("products").build(), 1);
     }
 
     public void testEditAmount() {
@@ -71,21 +76,24 @@ public class TransactionProductsTests extends BaseProviderTests {
         b.put("quantity", -4.0);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        Cursor products = query(transaction, 3);
+        Cursor products = query(transaction
+                .buildUpon().appendPath("products").build(), 3);
         assertEquals("lager", products.getString(11));
         assertEquals("quantity", -4.0, products.getDouble(4));
         // same product in another account
         b.put("account_guid", "inventar");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        products = query(transaction, 4);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 4);
         assertEquals("quantity", -4.0, products.getDouble(4));
         // same product but other title
         b.put("quantity", 20);
         b.put("title", "B Product");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        products = query(transaction, 5);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 5);
         assertEquals("quantity", -4.0, products.getDouble(4));
         products.moveToNext();
         assertEquals("quantity", 20.0, products.getDouble(4));
@@ -94,10 +102,12 @@ public class TransactionProductsTests extends BaseProviderTests {
     public void testAccountsOrder() {
         createDummyAccount("dummy");
         Uri transaction = insertTransaction("lager", "kasse");
-        Cursor products = query(transaction, 2);
+        Cursor products = query(transaction
+                .buildUpon().appendPath("products").build(), 2);
         assertEquals("lager", products.getString(11));
         transaction = insertTransaction("lager", "dummy");
-        products = query(transaction, 2);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 2);
         assertEquals("lager", products.getString(11));
     }
 
@@ -112,14 +122,16 @@ public class TransactionProductsTests extends BaseProviderTests {
         b.put("quantity", -5.5);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        Cursor products = query(transaction, 3);
+        Cursor products = query(transaction
+                .buildUpon().appendPath("products").build(), 3);
         assertEquals("lager", products.getString(11));
         assertEquals("quantity", -5.5, products.getDouble(4));
 
         b.put("quantity", -1.5);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        products = query(transaction, 3);
+        products = query(transaction
+                .buildUpon().appendPath("products").build(), 3);
         assertEquals("lager", products.getString(11));
         assertEquals("quantity", -7.0, products.getDouble(4));
     }

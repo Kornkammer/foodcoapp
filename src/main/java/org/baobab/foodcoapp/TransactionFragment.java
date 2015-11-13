@@ -133,7 +133,8 @@ public class TransactionFragment extends Fragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
-                getActivity().getIntent().getData(),
+                getActivity().getIntent().getData()
+                        .buildUpon().appendPath("products").build(),
                 null, null, null, null);
     }
 
@@ -197,7 +198,7 @@ public class TransactionFragment extends Fragment
             Toast.makeText(getActivity(), "Noch " + sum + " offen!", Toast.LENGTH_LONG).show();
         } else {
             Cursor t = getActivity().getContentResolver().query(
-                    getActivity().getIntent().getData(), null, null, null, null);
+                    getActivity().getIntent().getData().buildUpon().appendPath("products").build(), null, null, null, null);
             String msg = "";
             if (t.getCount() == 0) return;
             for (int i = 0; i < t.getCount(); i++) {

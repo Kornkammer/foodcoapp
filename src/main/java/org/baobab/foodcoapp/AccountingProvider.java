@@ -124,7 +124,7 @@ public class AccountingProvider extends ContentProvider {
     private static final int TRANSACTION = 9;
     private static final int TRANSACTIONS = 10;
     private static final int ACCOUNT_PRODUCTS = 11;
-    private static final int TRANSACTION_PRODUCT = 12;
+    private static final int TRANSACTION_PRODUCTS = 12;
 
     public static String AUTHORITY = "org.baobab.foodcoapp";
 
@@ -149,9 +149,9 @@ public class AccountingProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "sessions/#/transactions", TRANSACTIONS);
-        router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCT);
-        router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCT);
-        router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCT);
+        router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCTS);
+        router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCTS);
+        router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCTS);
         return false;
     }
 
@@ -168,7 +168,7 @@ public class AccountingProvider extends ContentProvider {
                         "_id = ?", new String[] {uri.getLastPathSegment()},
                         null, null, null);
                 break;
-            case TRANSACTION:
+            case TRANSACTION_PRODUCTS:
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT * FROM transaction_products" +
                         " LEFT JOIN (" +
@@ -177,7 +177,7 @@ public class AccountingProvider extends ContentProvider {
                         " WHERE transaction_id = ?" +
                         " GROUP BY accounts.guid, title, price" +
                         " ORDER BY accounts._id, transaction_products.title",
-                        new String[] { uri.getLastPathSegment() });
+                        new String[] { uri.getPathSegments().get(1) });
                 break;
             case SUM:
                 result = getTransactionSum(uri.getPathSegments().get(1));
@@ -321,7 +321,7 @@ public class AccountingProvider extends ContentProvider {
                 uri = ContentUris.withAppendedId(uri,
                         db.getWritableDatabase().insert("products", null, values));
                 break;
-            case TRANSACTION_PRODUCT:
+            case TRANSACTION_PRODUCTS:
                 String quantity = null;
                 if (values.containsKey("unit")) { // not cash
                     if (values.containsKey("quantity")) { // then overwrite
@@ -420,7 +420,7 @@ public class AccountingProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         switch (router.match(uri)) {
-            case TRANSACTION_PRODUCT:
+            case TRANSACTION_PRODUCTS:
                 boolean completeDelete = selection != null;
                 selection = "transaction_id = ? AND account_guid IS ? AND product_id = ?";
                 selectionArgs = new String[] {
@@ -460,7 +460,7 @@ public class AccountingProvider extends ContentProvider {
             case PRODUCT:
                 db.getWritableDatabase().update("products", values, "_id = " + uri.getLastPathSegment(), null);
                 break;
-            case TRANSACTION_PRODUCT:
+            case TRANSACTION_PRODUCTS:
                 db.getWritableDatabase().update("transaction_products",
                         values, "_id = " + uri.getLastPathSegment(), null);
                 break;

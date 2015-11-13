@@ -182,13 +182,13 @@ public class GlsImportTest extends BaseProviderTests {
         Cursor transactions = query(importer.getSession()
                 .buildUpon().appendPath("transactions").build(), 2);
         assertEquals("booked", "final", transactions.getString(12));
-        Cursor items = query("transactions/" + transactions.getLong(0), 2);
+        Cursor items = query("transactions/" + transactions.getLong(0) + "/products", 2);
         assertTransactionItem("bank", "Bank", "Cash", 40, 1.0f, items);
         items.moveToNext();
         assertTransactionItem("forderungen", "Forderungen", "Bank Susi", -1.0f, 40, items);
         transactions.moveToNext();
         assertEquals("booked", "final", transactions.getString(12));
-        items = query("transactions/" + transactions.getLong(0), 2);
+        items = query("transactions/" + transactions.getLong(0) + "/products", 2);
         assertTransactionItem("bank", "Bank", "Cash", 60, 1.0f, items);
         items.moveToNext();
         assertTransactionItem("0815", "Susi", "Credits", -1.0f, 60, items);
@@ -428,7 +428,7 @@ public class GlsImportTest extends BaseProviderTests {
         assertTrue(transactions.getString(4) + "' should contain '" + comment,
                 transactions.getString(4).contains(comment));
         assertEquals("booked", "final", transactions.getString(12));
-        return query("transactions/" + transactions.getLong(0), assertCount);
+        return query("transactions/" + transactions.getLong(0) + "/products", assertCount);
     }
 
     private void assertTransactionItem(String guid, String name, String title, float quantity, float price, Cursor items) {

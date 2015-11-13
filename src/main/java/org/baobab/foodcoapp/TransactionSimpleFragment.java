@@ -112,7 +112,8 @@ public class TransactionSimpleFragment extends Fragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
-                getActivity().getIntent().getData(),
+                getActivity().getIntent().getData()
+                        .buildUpon().appendPath("products").build(),
                 null, null, null, null);
     }
 
@@ -167,7 +168,7 @@ public class TransactionSimpleFragment extends Fragment
 
     private boolean transactionValid() {
         Cursor t = getActivity().getContentResolver().query(
-                getActivity().getIntent().getData(), null, null, null, null);
+                getActivity().getIntent().getData().buildUpon().appendPath("products").build(), null, null, null, null);
         String msg = "";
         if (t.getCount() == 0) return false;
         for (int i = 0; i < t.getCount(); i++) {
