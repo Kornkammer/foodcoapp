@@ -98,7 +98,6 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="portrait"
-      android:theme="@style/FullscreenTheme"
       android:name="org.baobab.foodcoapp.TransactionsActivity" >
     </activity>
     <activity
