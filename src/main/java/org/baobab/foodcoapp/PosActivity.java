@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -100,23 +101,10 @@ public class PosActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
-        fullscreen();
         ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         scale.registerForUsb();
-    }
-
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    protected void fullscreen() {
-        if (Build.VERSION.SDK_INT < 16) {
-            getWindow().setFlags(
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        } else {
-            getWindow().getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_FULLSCREEN);
-        }
     }
 
     @Override

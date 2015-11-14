@@ -42,6 +42,7 @@
       android:icon="@drawable/ic_launcher"
       android:taskAffinity="org.baobab.foodcoapp.pos"
       android:launchMode="singleTask"
+      android:theme="@style/FullscreenTheme"
       android:windowSoftInputMode="adjustPan|stateAlwaysHidden"
       android:screenOrientation="landscape" >
       <intent-filter>
@@ -59,6 +60,7 @@
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/shopping"
       android:launchMode="singleTask"
+      android:theme="@style/FullscreenTheme"
       android:windowSoftInputMode="adjustPan|stateAlwaysHidden"
       android:screenOrientation="landscape" >
       <intent-filter>
@@ -121,6 +123,7 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="landscape"
+      android:theme="@style/FullscreenTheme"
       android:windowSoftInputMode="adjustResize"
       android:label="@string/balance" >
       <intent-filter>

@@ -126,7 +126,7 @@ public class AccountEditFragment extends Fragment
             Toast.makeText(getActivity(), "Switch hardware keyboard OFF", Toast.LENGTH_LONG).show();
             imm.showInputMethodPicker();
         } else {
-            imm.showSoftInput(getView().findViewById(R.id.name), InputMethodManager.SHOW_FORCED);
+//            imm.showSoftInput(getView().findViewById(R.id.name), InputMethodManager.SHOW_FORCED);
         }
     }
 
