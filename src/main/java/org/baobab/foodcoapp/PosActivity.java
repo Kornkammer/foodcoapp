@@ -90,6 +90,13 @@ public class PosActivity extends AppCompatActivity
             }
         });
         scale = new Scale(this);
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                sout
+                fullscreen();
+            }
+        });
     }
 
     public void resetTransaction() {
@@ -101,10 +108,29 @@ public class PosActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+        fullscreen();
         ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         scale.registerForUsb();
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                fullscreen();
+            }
+        });
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    protected void fullscreen() {
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_FULLSCREEN);
+        }
     }
 
     @Override
