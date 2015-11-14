@@ -94,7 +94,7 @@ public class GlsImport implements ImportActivity.Importer {
                             }
                         }
                         if (amount > 0) { // rest guthaben
-                            storeTransactionItem(transaction, account.guid, - amount, "Credits");
+                            storeTransactionKorn(transaction, account.guid, - amount, "Korns");
                         }
                     } else if (vwz.toLowerCase().contains("mitgliedsbeitrag") ||
                                 vwz.toLowerCase().contains("mitgliederbeitrag") ||
@@ -254,7 +254,7 @@ public class GlsImport implements ImportActivity.Importer {
         }
     }
 
-    static final Pattern pattern =  Pattern.compile(".*([Kk]osten|[Ii]nventar)[-:,\\s]+(.*)");
+    static final Pattern pattern =  Pattern.compile(".*([Kk]osten|[Ii]nventar)[-:,N\\s]+(.*)");
     private boolean findBookingInstruction(long time, float amount, String comment, String text) {
         Matcher m = pattern.matcher(text);
         if (m.matches()) {
@@ -330,11 +330,23 @@ public class GlsImport implements ImportActivity.Importer {
                 "content://" + AUTHORITY + "/transactions"), t);
     }
 
-    private void storeTransactionItem(Uri transaction, String account, float amount, String title) {
+    private void storeTransactionKorn(Uri transaction, String account, float amount, String title) {
         if (title == null || title.equals("")) title = "Unbekannt";
         ContentValues b = new ContentValues();
         b.put("account_guid", account);
         b.put("product_id", 2);
+        b.put("title", title);
+        b.put("quantity", amount);
+        b.put("price", 1.0f);
+        ctx.getContentResolver().insert(transaction.buildUpon()
+                .appendEncodedPath("products").build(), b);
+    }
+
+    private void storeTransactionItem(Uri transaction, String account, float amount, String title) {
+        if (title == null || title.equals("")) title = "Unbekannt";
+        ContentValues b = new ContentValues();
+        b.put("account_guid", account);
+        b.put("product_id", 3);
         b.put("title", title);
         b.put("quantity", amount > 0? 1: -1);
         b.put("price", Math.abs(amount));

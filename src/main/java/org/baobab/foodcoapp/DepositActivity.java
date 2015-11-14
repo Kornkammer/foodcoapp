@@ -87,7 +87,7 @@ public class DepositActivity extends AppCompatActivity {
         Uri transaction = getContentResolver().insert(Uri.parse(
                 "content://org.baobab.foodcoapp/transactions"), t);
         ContentValues b = new ContentValues();
-        b.put("product_id", 2);
+        b.put("product_id", 3);
         b.put("account_guid", "forderungen");
         b.put("title", title);
         b.put("quantity", 1);
@@ -96,10 +96,10 @@ public class DepositActivity extends AppCompatActivity {
                 .appendEncodedPath("products").build(), b);
         b = new ContentValues();
         b.put("product_id", 2);
-        b.put("title", "Credits");
+        b.put("title", "Korns");
         b.put("account_guid", guid);
-        b.put("quantity", - 1);
-        b.put("price", amount);
+        b.put("quantity", - amount);
+        b.put("price", 1);
         getContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         new Handler().postDelayed(new Runnable() {

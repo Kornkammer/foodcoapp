@@ -170,7 +170,7 @@ public class GlsImportTest extends BaseProviderTests {
         items.moveToNext();
         assertTransactionItem("forderungen", "Forderungen", "Bank Susi", -1.0f, 20, items);
         items.moveToNext();
-        assertTransactionItem("0815", "Susi", "Credits", -1.0f, 10, items);
+        assertTransactionItem("0815", "Susi", "Korns", -10, 1.0f, items);
     }
 
     public void testForderungBegleichenMehrfach() {
@@ -191,7 +191,7 @@ public class GlsImportTest extends BaseProviderTests {
         items = query("transactions/" + transactions.getLong(0) + "/products", 2);
         assertTransactionItem("bank", "Bank", "Cash", 60, 1.0f, items);
         items.moveToNext();
-        assertTransactionItem("0815", "Susi", "Credits", -1.0f, 60, items);
+        assertTransactionItem("0815", "Susi", "Korns", -60, 1.0f, items);
     }
 
     public void testBarEinzahlung() {
@@ -337,7 +337,7 @@ public class GlsImportTest extends BaseProviderTests {
     // HELPER
 
     private void assertGebucht(String account, float amount, String vwz) {
-        assertTransaction("0815", account, "Credits", "bank", amount, "VWZ: " + vwz);
+        assertCreditTransaction("0815", account, "Korns", "bank", amount, "VWZ: " + vwz);
     }
 
     private void assertNichtGebucht() {
@@ -362,12 +362,12 @@ public class GlsImportTest extends BaseProviderTests {
 
     private void assertZahltEin(String verwendungszeck1) {
         read(gls().vwz1(verwendungszeck1).amount(42.23));
-        assertTransaction("0815", "Susi", "Credits", "bank", 42.23f, "VWZ: " + verwendungszeck1);
+        assertCreditTransaction("0815", "Susi", "Korns", "bank", 42.23f, "VWZ: " + verwendungszeck1);
     }
 
     private void assertZahltEin(String vwz1, String vwz2) {
         read(gls().vwz1(vwz1).vwz2(vwz2).amount(42.23));
-        assertTransaction("0815", "Susi", "Credits", "bank", 42.23f, "VWZ: " + vwz1);
+        assertCreditTransaction("0815", "Susi", "Korns", "bank", 42.23f, "VWZ: " + vwz1);
     }
 
     private void assertVerbindlichkeit(String vwz, String comment) {
@@ -414,6 +414,14 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransaction(fromName.toLowerCase(), fromName, fromTitle, "bank", amount, comment);
     }
 
+    private void assertCreditTransaction(String fromGuid, String fromName,  String fromTitle,
+                                   String toGuid, float amount, String comment) {
+        Cursor items = assertTransaction(comment, 2);
+        assertTransactionItem(toGuid, "Bank", "Cash", amount, 1.0f, items);
+        items.moveToNext();
+        assertTransactionItem(fromGuid, fromName, fromTitle, -amount, 1, items);
+    }
+
     private void assertTransaction(String fromGuid, String fromName,  String fromTitle,
                                    String toGuid, float amount, String comment) {
         Cursor items = assertTransaction(comment, 2);
@@ -421,6 +429,7 @@ public class GlsImportTest extends BaseProviderTests {
         items.moveToNext();
         assertTransactionItem(fromGuid, fromName, fromTitle, -1.0f, amount, items);
     }
+
     private Cursor assertTransaction(String comment, int assertCount) {
         finalizeSession(importer.getSession());
         Cursor transactions = query(importer.getSession()

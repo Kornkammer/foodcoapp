@@ -212,7 +212,7 @@ public class TransactionView extends GridLayout {
             }
         }
         LinearLayout images = new LinearLayout(getContext());
-        if (showImages) {
+        if (showImages || data.getInt(3) < 3) {
             Uri img;
             if (!data.isNull(8)) {
                 img = Uri.parse(data.getString(8));
@@ -266,8 +266,8 @@ public class TransactionView extends GridLayout {
         addView(images, lp);
 //
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
-        if ((data.getColumnCount() == 14 && data.getString(7).equals("Credits")) || data.getInt(3) == 1) {
-            amount.setVisibility(View.INVISIBLE);
+        if (data.getInt(3) < 3) {
+            amount.setVisibility(INVISIBLE);
         } else {
             if (Math.abs(quantity) < 1.0) {
                 amount.setNumber(quantity * 1000);
@@ -284,7 +284,7 @@ public class TransactionView extends GridLayout {
 
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
-        if ((data.getColumnCount() == 14 && data.getString(7).equals("Credits")) || data.getInt(3) == 1) {
+        if (data.getInt(3) < 3) {
             x.setVisibility(INVISIBLE);
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
@@ -312,7 +312,7 @@ public class TransactionView extends GridLayout {
 
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-        if (data.getColumnCount() == 14 && data.getString(7).equals("Credits")) {
+        if (data.getColumnCount() == 14 && data.getString(7).equals("Korns")) {
             title.setText(data.getString(12));
         } else {
             title.setText(data.getString(7));

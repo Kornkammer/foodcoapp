@@ -138,7 +138,7 @@ public class LegitimateActivity extends AppCompatActivity {
             ContentValues b = new ContentValues();
             b.put("account_guid", auth.getString(3));
             b.put("quantity", - sum.getFloat(2));
-            b.put("title", "Credits");
+            b.put("title", "Korns");
             b.put("product_id", 2);
             b.put("price", 1);
             getContentResolver().insert(
