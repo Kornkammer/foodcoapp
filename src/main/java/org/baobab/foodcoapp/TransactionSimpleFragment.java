@@ -101,7 +101,7 @@ public class TransactionSimpleFragment extends Fragment
                                             .appendEncodedPath("products/" + txn.getLong(0))
                                             .build(), cv, null, null);
                         }
-                    }, "edit").addToBackStack("amount").commitAllowingStateLoss();
+                    }, "amount").addToBackStack("amount").commit();
         }
     }
 
@@ -146,7 +146,6 @@ public class TransactionSimpleFragment extends Fragment
                 if (transactionValid()) {
                     startActivityForResult(new Intent(getActivity(),
                             LegitimateActivity.class)
-                            .setData(getActivity().getIntent().getData())
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET), 42);
                 }
             }

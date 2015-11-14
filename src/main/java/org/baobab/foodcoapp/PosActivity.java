@@ -201,6 +201,7 @@ public class PosActivity extends AppCompatActivity
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent d) {
+        super.onActivityResult(requestCode, resultCode, d);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case 0:
