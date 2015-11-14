@@ -11,13 +11,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.internal.widget.AdapterViewCompat;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
@@ -67,11 +63,11 @@ public class AccountListFragment extends Fragment
             @Override
             protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
                 AccountView a = ((AccountView) view);
-                if (cursor.isNull(4)) {
+                if (cursor.isNull(3)) {
                     a.balance.setText("0.00");
                 } else {
                     a.balance.setText(
-                            String.format("%.2f", invert * cursor.getFloat(4)));
+                            String.format("%.2f", invert * cursor.getFloat(3)));
                 }
                 a.name.setText(cursor.getString(1));
                 a.guid = cursor.getString(2);
@@ -161,7 +157,7 @@ public class AccountListFragment extends Fragment
             if (cursor.isNull(3)) {
                 balance.setText("0.00");
             } else {
-                balance.setText(String.format("%.2f", cursor.getFloat(4)));
+                balance.setText(String.format("%.2f", cursor.getFloat(3)));
             }
             name.setText(cursor.getString(1));
         }

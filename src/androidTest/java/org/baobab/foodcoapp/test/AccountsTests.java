@@ -9,11 +9,21 @@ public class AccountsTests extends BaseProviderTests {
 
     public void testAccountBalance() {
         createDummyAccount("dummy");
+        createDummyAccount("sub", "sub", "dummy");
+        createDummyAccount("sub2", "sub2", "dummy");
         insertTransaction("kasse", "dummy");
+        insertTransaction("kasse", "dummy");
+        insertTransaction("kasse", "sub");
+        insertTransaction("kasse", "sub");
+        insertTransaction("kasse", "sub2");
         Cursor accounts = query("accounts/passiva/accounts", 5);
         accounts.moveToPosition(4);
         assertEquals("name", "dummy", accounts.getString(1));
-        assertEquals("balance", 42.0, accounts.getDouble(4));
+        assertEquals("balance", 5 * 42.0, accounts.getDouble(3));
+        accounts = query("accounts/dummy/accounts", 2);
+        assertEquals("name", "sub", accounts.getString(1));
+        assertEquals("balance", 84.0, accounts.getDouble(3));
+        assertEquals("parent", "dummy", accounts.getString(4));
     }
 
     public void testEmptyAccount() {

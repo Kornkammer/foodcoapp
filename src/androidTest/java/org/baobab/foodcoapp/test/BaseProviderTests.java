@@ -47,16 +47,20 @@ public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
     }
 
     public Uri createDummyAccount(String name) {
-        return createDummyAccount(name, name);
+        return createDummyAccount(name, name, "passiva");
     }
 
     public Uri createDummyAccount(String name, String guid) {
+        return createDummyAccount(name, guid, "passiva");
+    }
+
+    public Uri createDummyAccount(String name, String guid, String parent) {
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("guid", guid);
-        values.put("parent_guid", "passiva");
+        values.put("parent_guid", parent);
         return getMockContentResolver().insert(
-                Uri.parse("content://org.baobab.foodcoapp.test/accounts/passiva/accounts"), values);
+                Uri.parse("content://org.baobab.foodcoapp.test/accounts"), values);
     }
 
     public Uri insertTransaction(String from_account, String to_account) {

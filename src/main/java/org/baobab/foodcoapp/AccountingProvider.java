@@ -188,21 +188,44 @@ public class AccountingProvider extends ContentProvider {
                     parent_guid = uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT accounts._id AS _id, name, guid, max(accounts._id)," +
-                            " sum(txn.quantity * txn.price) AS balance, parent_guid" +
+                        "SELECT _id, name, guid, sum(balance), parent_guid " +
+                        "FROM (" +
+                        " SELECT accounts._id AS _id, accounts.name, accounts.guid, max(accounts._id)," +
+                            " sum(txn.quantity * txn.price) AS balance, accounts.parent_guid" +
                         " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
                                 " FROM accounts GROUP BY guid" +
                                 ") AS accounts" +
-                        " LEFT OUTER JOIN (" +
+                        " LEFT JOIN (" +
                                 "SELECT * FROM transaction_products" +
                                 " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
-                                ") AS txn ON txn.account_guid = accounts.guid" +
+                                ") AS txn ON accounts.guid = txn.account_guid" +
+                                (uri.getPathSegments().size() > 1?
+                                        " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
+                                " GROUP BY accounts.guid" +
+                        " UNION " +
+                        "SELECT accounts._id AS _id, accounts.name, accounts.guid, max(accounts._id)," +
+                            " sum(txn.quantity * txn.price) AS balance, accounts.parent_guid" +
+                        " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
+                                " FROM accounts GROUP BY guid" +
+                                ") AS accounts" +
+                        " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid" +
+                                " FROM accounts GROUP BY guid" +
+                                ") AS children ON accounts.guid = children.parent_guid" +
+                        " LEFT JOIN (" +
+                                "SELECT * FROM transaction_products" +
+                                " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
+                                " WHERE transactions.status IS NOT 'draft'" +
+                                ") AS txn ON children.guid = txn.account_guid" +
+                                (uri.getPathSegments().size() > 1?
+                                        " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
+                                " GROUP BY accounts.guid" +
+                        ")" +
                         (uri.getPathSegments().size() > 1?
                             " WHERE parent_guid IS '" + parent_guid + "'" : "") +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
-                        " ORDER BY accounts._id",
+                        " ORDER BY _id",
                         (selectionArgs != null? selectionArgs : null));
                 break;
             case ACCOUNT_PRODUCTS:
