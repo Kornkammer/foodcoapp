@@ -36,7 +36,7 @@ public class TransactionView extends GridLayout {
     private boolean showImages = true;
     private boolean showHeaders = true;
     private boolean headersClickable = true;
-    private int columnWidth = R.dimen.column_large;
+    private int columnWidth = R.dimen.column_title;
 
     public TransactionView(Context context) {
         this(context, null);
@@ -327,14 +327,14 @@ public class TransactionView extends GridLayout {
                 ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
             }
         }
-        title.setEllipsize(TextUtils.TruncateAt.END);
+        title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
         title.setMaxLines(1);
         FrameLayout f = new FrameLayout(getContext());
         f.addView(title);
-        f.setId(data.getInt(3));
         if (onTitleClick != null && data.getLong(3) != 1) {
             f.setClickable(true);
             f.setFocusable(true);
+            f.setId(data.getInt(1));
             f.setTag(data.getPosition());
             f.setOnClickListener(onTitleClick);
         }

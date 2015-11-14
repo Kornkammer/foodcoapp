@@ -6,7 +6,7 @@
   <dimen name="xlarge">64dp</dimen>
 
   <dimen name="font_size_xlarge">68sp</dimen>
-  <dimen name="font_size_larger">52sp</dimen>
+  <dimen name="font_size_larger">51sp</dimen>
   <dimen name="font_size_large">48sp</dimen>
   <dimen name="font_size_medium">30sp</dimen>
   <dimen name="font_size_small">23sp</dimen>
@@ -16,6 +16,7 @@
   <dimen name="column_smaller">96dp</dimen>
   <dimen name="column_small">118dp</dimen>
   <dimen name="column_medium">128dp</dimen>
+  <dimen name="column_title">159dp</dimen>
   <dimen name="column_large">224dp</dimen>
 
   <dimen name="padding_xxsmall">5dp</dimen>

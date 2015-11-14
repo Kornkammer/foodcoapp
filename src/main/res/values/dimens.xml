@@ -17,6 +17,7 @@
   <dimen name="column_smaller">64dp</dimen>
   <dimen name="column_small">70dp</dimen>
   <dimen name="column_medium">96dp</dimen>
+  <dimen name="column_title">128dp</dimen>
   <dimen name="column_large">140dp</dimen>
 
   <dimen name="padding_xxsmall">3dp</dimen>

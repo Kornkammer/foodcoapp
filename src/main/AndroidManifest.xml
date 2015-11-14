@@ -42,7 +42,7 @@
       android:icon="@drawable/ic_launcher"
       android:taskAffinity="org.baobab.foodcoapp.pos"
       android:launchMode="singleTask"
-      android:windowSoftInputMode="adjustResize"
+      android:windowSoftInputMode="adjustPan"
       android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -59,6 +59,7 @@
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/shopping"
       android:launchMode="singleTask"
+      android:windowSoftInputMode="adjustPan|stateAlwaysHidden"
       android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
