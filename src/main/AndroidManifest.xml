@@ -42,7 +42,7 @@
       android:icon="@drawable/ic_launcher"
       android:taskAffinity="org.baobab.foodcoapp.pos"
       android:launchMode="singleTask"
-      android:windowSoftInputMode="adjustPan"
+      android:windowSoftInputMode="adjustPan|stateAlwaysHidden"
       android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
@@ -121,7 +121,7 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="landscape"
-      android:windowSoftInputMode="adjustPan"
+      android:windowSoftInputMode="adjustResize"
       android:label="@string/balance" >
       <intent-filter>
         <action android:name="android.intent.action.EDIT" />
