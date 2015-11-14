@@ -93,7 +93,6 @@ public class PosActivity extends AppCompatActivity
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                sout
                 fullscreen();
             }
         });

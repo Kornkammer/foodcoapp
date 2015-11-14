@@ -1,6 +1,8 @@
 package org.baobab.foodcoapp;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -8,14 +10,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.internal.widget.AdapterViewCompat;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class AccountListFragment extends Fragment
@@ -59,14 +66,17 @@ public class AccountListFragment extends Fragment
 
             @Override
             protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
+                AccountView a = ((AccountView) view);
                 if (cursor.isNull(4)) {
-                    ((AccountView) view).balance.setText("0.00");
+                    a.balance.setText("0.00");
                 } else {
-                    ((AccountView) view).balance.setText(
+                    a.balance.setText(
                             String.format("%.2f", invert * cursor.getFloat(4)));
                 }
-                ((AccountView) view).name.setText(cursor.getString(1));
-                ((AccountView) view).guid = cursor.getString(2);
+                a.name.setText(cursor.getString(1));
+                a.guid = cursor.getString(2);
+                a.id = cursor.getLong(0);
+                a.collapse();
             }
 
             @Override
@@ -77,12 +87,10 @@ public class AccountListFragment extends Fragment
             @Override
             protected void bindChildView(View view, Context context, Cursor cursor, boolean isLastChild) {
                 ((AccountView) view).populate(cursor);
-                ((AccountView) view).makeExpandable();
             }
         };
         list = (ExpandableListView) view.findViewById(android.R.id.list);
         list.setGroupIndicator(null);
-        registerForContextMenu(list);
         list.setAdapter(adapter);
     }
 
@@ -115,24 +123,13 @@ public class AccountListFragment extends Fragment
         if (loader.getId() < 0) {
             adapter.changeCursor(data);
         } else {
-            if (data.getCount() == 0) {
-                ((AccountView) list.getChildAt(loader.getId()
-                        - list.getFirstVisiblePosition())).expand();
-            } else {
+//            if (data.getCount() == 0) {
+//                ((AccountView) list.getChildAt(loader.getId()
+//                        - list.getFirstVisiblePosition())).expand();
+//            } else {
                 adapter.setChildrenCursor(loader.getId(), data);
-            }
+//            }
         }
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-        if (!editable) return;
-        adapter.getCursor().moveToPosition((int)
-                ((ExpandableListView.ExpandableListContextMenuInfo) menuInfo).id);
-        ((AccountActivity) getActivity()).editAccount(
-                Uri.parse("content://org.baobab.foodcoapp/accounts/"
-                        + adapter.getCursor().getString(2)));
     }
 
     @Override
@@ -140,11 +137,12 @@ public class AccountListFragment extends Fragment
 
     }
 
-    private class AccountView extends LinearLayout implements View.OnClickListener {
+    private class AccountView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
         private boolean expanded;
         final TextView balance;
         final TextView name;
         String guid;
+        long id;
 
         public AccountView(Context ctx) {
             super(ctx);
@@ -154,16 +152,8 @@ public class AccountListFragment extends Fragment
             name = (TextView) findViewById(R.id.name);
             findViewById(R.id.container)
                     .setBackgroundResource(R.drawable.background_translucent);
-        }
-
-        public void makeExpandable() {
-            setClickable(true);
-            setOnClickListener(this);
-        }
-
-        public void expand() {
-            makeExpandable();
-            onClick(this);
+            findViewById(R.id.container).setOnClickListener(this);
+            findViewById(R.id.container).setOnLongClickListener(this);
         }
 
         public void populate(Cursor cursor) {
@@ -176,26 +166,91 @@ public class AccountListFragment extends Fragment
             name.setText(cursor.getString(1));
         }
 
+        public void expand() {
+            TransactionView transaction = new TransactionView(getActivity());
+            Cursor c = getActivity().getContentResolver().query(
+                    Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
+                    null, null, null, null);
+            transaction.setColumnWidth(R.dimen.column_medium);
+            transaction.headersClickable(false);
+            transaction.showHeaders(false);
+            transaction.showImages(false);
+            transaction.setOnTitleClick(new OnClickListener() {
+
+                @Override
+                public void onClick(final View v) {
+                    String[] menu = new String[]{"Kontoumsätze", "Umbuchen"};
+                    new AlertDialog.Builder(getActivity())
+                            .setItems(menu, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case 0:
+                                            startActivity(new Intent(getActivity(), TransactionsActivity.class)
+                                                    .setData(Uri.parse("content://org.baobab.foodcoapp/transactions/" + v.getId())));
+                                            break;
+                                        case 1:
+                                            Toast.makeText(getActivity(), "Ja des wiad spannend!", Toast.LENGTH_LONG).show();
+                                            break;
+                                    }
+                                }
+                            }).show();
+                }
+            });
+            transaction.populate(c);
+            LayoutParams lp = new LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.topMargin = -23;
+            lp.bottomMargin = 42;
+            addView(transaction, lp);
+            expanded = true;
+            findViewById(R.id.container).setClickable(true);
+            findViewById(R.id.container).setOnClickListener(this);
+        }
+
+        public void collapse() {
+            if (expanded) {
+                removeViewAt(1);
+            }
+            expanded = false;
+        }
+
         @Override
         public void onClick(View v) {
             if (expanded) {
-                removeViewAt(1);
+                collapse();
             } else {
-                TransactionView transaction = new TransactionView(getActivity());
-                transaction.showImages(false);
-                transaction.headersClickable(false);
-                Cursor c = getActivity().getContentResolver().query(
-                        Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
-                        null, null, null, null);
-                transaction.populate(c);
-                LayoutParams lp = new LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT);
-                lp.topMargin = -23;
-                lp.bottomMargin = 23;
-                ((LinearLayout) v).addView(transaction, lp);
+                expand();
             }
-            expanded = !expanded;
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            String[] menu;
+            if (editable && id > 140) {
+                menu = new String[]{"Kontoumsätze", "Editieren"};
+            } else {
+                menu = new String[]{"Kontoumsätze"};
+            }
+            new AlertDialog.Builder(getActivity())
+                    .setItems(menu, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            switch (which) {
+                                case 0:
+                                    startActivity(new Intent(getActivity(), TransactionsActivity.class)
+                                            .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                                    guid + "/transactions")));
+                                    break;
+                                case 1:
+                                    ((AccountActivity) getActivity()).editAccount(
+                                    Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid));
+                                    break;
+                            }
+                        }
+                    }).show();
+            return false;
         }
     }
 }
