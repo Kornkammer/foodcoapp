@@ -5,6 +5,9 @@
   android:layout_height="wrap_content">
 
   <LinearLayout
+    android:id="@+id/container"
+    android:clickable="true"
+    android:background="@drawable/background_translucent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
 

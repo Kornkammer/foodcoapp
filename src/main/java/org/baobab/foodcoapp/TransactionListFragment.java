@@ -86,11 +86,6 @@ public class TransactionListFragment extends ListFragment
     }
 
     @Override
-    public void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-    }
-
-    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(getActivity(),
                 (Uri) getArguments().getParcelable("uri"),
@@ -126,8 +121,7 @@ public class TransactionListFragment extends ListFragment
             who = (TextView) findViewById(R.id.who);
             sum = (TextView) findViewById(R.id.sum);
             comment = (TextView) findViewById(R.id.comment);
-            setOnClickListener(this);
-            setClickable(true);
+            findViewById(R.id.container).setOnClickListener(this);
         }
 
         public void expand() {
@@ -140,6 +134,12 @@ public class TransactionListFragment extends ListFragment
             transaction.setColumnWidth(R.dimen.column_small);
             transaction.headersClickable(false);
             transaction.showHeaders(true);
+            transaction.setOnTitleClick(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
             transaction.populate(c);
             LayoutParams lp = new LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
