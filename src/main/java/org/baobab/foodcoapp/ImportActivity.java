@@ -46,6 +46,7 @@ public class ImportActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (getIntent().getScheme().equals("file") ||
                     getIntent().getScheme().equals("content")) {
+            getSupportActionBar().setTitle("Import " + getIntent().getData().getLastPathSegment());
             final ProgressDialog dialog = new ProgressDialog(this);
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             dialog.setMessage("Reading. Please wait...");
