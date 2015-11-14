@@ -70,7 +70,7 @@ public class GlsImport implements ImportActivity.Importer {
             lineMsges = "";
             long time = date.parse(line[1]).getTime();
             float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
-            Log.d(PosActivity.TAG, "reading line: " + line[5] + line[6] + line[7] + line[8] + " (amount=" + amount + ")");
+//            Log.d(PosActivity.TAG, "reading line: " + line[5] + line[6] + line[7] + line[8] + " (amount=" + amount + ")");
             if (amount > 0) {
                 String vwz = line[5] + line[6] + line[7] + line[8];
                 String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz;
@@ -94,7 +94,7 @@ public class GlsImport implements ImportActivity.Importer {
                             }
                         }
                         if (amount > 0) { // rest guthaben
-                            storeTransactionKorn(transaction, account.guid, - amount, "Korns");
+                            storeTransactionKorn(transaction, account.guid, -amount, "Korns");
                         }
                     } else if (vwz.toLowerCase().contains("mitgliedsbeitrag") ||
                                 vwz.toLowerCase().contains("mitgliederbeitrag") ||
@@ -169,7 +169,7 @@ public class GlsImport implements ImportActivity.Importer {
                 } else if (line[4].contains("Kontof�hrung") || line[4].contains("Kontoführung")) {
                     Uri transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
                     storeBankCash(transaction, amount);
-                    storeTransactionItem(transaction, "kosten", -amount, "Kontogebühren");
+                    storeBankCash(transaction, -amount, "kosten", "Kontogebühren");
                 } else {
                     String text = line[9] + " " + line[10] + " " + vwz2;
                     if (text.toLowerCase().contains("auslage")) {
@@ -202,48 +202,6 @@ public class GlsImport implements ImportActivity.Importer {
                             }
                         }
                     }
-//                    Matcher m = vwz2Pattern.matcher(vwz2);
-//                    Account account = findAccount(vwz2);
-//                    if (m.matches() && account != null && account.guid != null && account.err == null) {
-////                            Uri transaction = storeTransaction(time, comment);
-////                            storeBankCash(transaction, amount);
-////                            storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-//                            amount = 0;
-//                    } else {
-//                        if (account == null) {
-//                            account = findAccount(vwz1);
-//                        }
-//                        if (account != null && (vwz1.toLowerCase().contains("auslage")
-//                                || vwz2.toLowerCase().contains("auslage"))) {
-////                            Uri transaction = storeTransaction(time, comment);
-////                            storeBankCash(transaction, amount);
-////                            storeTransactionItem(transaction, "einlagen", -amount, account.name);
-////                            amount = 0;
-//                        } else {
-//                            if (account == null) {
-//                                account = findAccount(line[10]);
-//                            }
-//                            m = vwz2Pattern.matcher(line[10]);
-//                            if (m.matches() && account != null && account.guid != null && account.err == null) {
-//                                Uri transaction = storeTransaction(time, comment);
-//                                storeBankCash(transaction, amount);
-//                                storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-//                                amount = 0;
-//                            }
-//                            if (amount < 0) {
-//                                m = vwz2Pattern.matcher(line[9]);
-//                                if (m.matches() && account != null && account.guid != null && account.err == null) {
-//                                    Uri transaction = storeTransaction(time, comment);
-//                                    storeBankCash(transaction, amount);
-//                                    storeTransactionItem(transaction, account.guid, -amount, m.group(2));
-//                                    amount = 0;
-//                                }
-//                            }
-//                        }
-//                    }
-//                    if (amount < 0) {
-//
-//                    }
                 }
             }
             count++;
@@ -310,10 +268,14 @@ public class GlsImport implements ImportActivity.Importer {
     }
 
     private void storeBankCash(Uri transaction, float amount) {
+        storeBankCash(transaction, amount, "bank", "Cash");
+
+    }
+    private void storeBankCash(Uri transaction, float amount, String guid, String title) {
         ContentValues b = new ContentValues();
-        b.put("account_guid", "bank");
+        b.put("account_guid", guid);
         b.put("product_id", 1);
-        b.put("title", "Cash");
+        b.put("title", title);
         b.put("quantity", amount);
         b.put("price", 1.0);
         ctx.getContentResolver().insert(transaction.buildUpon()

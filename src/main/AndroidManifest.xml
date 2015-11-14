@@ -101,6 +101,7 @@
       android:name="org.baobab.foodcoapp.TransactionsActivity" >
     </activity>
     <activity
+      android:label="Import"
       android:screenOrientation="portrait"
       android:taskAffinity="org.baobab.foodcoapp.pos"
       android:name="org.baobab.foodcoapp.ImportActivity" >

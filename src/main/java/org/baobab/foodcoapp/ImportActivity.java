@@ -144,7 +144,7 @@ public class ImportActivity extends AppCompatActivity {
                                     startActivity(new Intent(ImportActivity.this, AccountActivity.class));
                                     finish();
                                 }
-                            },  400);
+                            },  700);
                         } else {
                             ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
                             new AlertDialog.Builder(ImportActivity.this)

@@ -214,10 +214,21 @@ public class TransactionView extends GridLayout {
         LinearLayout images = new LinearLayout(getContext());
         if (showImages || data.getInt(3) < 3) {
             Uri img;
+            int imgWidth = getContext().getResources().getDimensionPixelSize(R.dimen.img_width);
             if (!data.isNull(8)) {
                 img = Uri.parse(data.getString(8));
             } else {
-                img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_launcher");
+                imgWidth = imgWidth / 2;
+                switch (data.getInt(3)) {
+                    case 1:
+                        img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/cash");
+                        break;
+                    case 2:
+                        img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_launcher");
+                        break;
+                    default:
+                        img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_menu_moreoverflow");
+                }
             }
             images.setOrientation(LinearLayout.HORIZONTAL);
             int numberOfImages = account.equals("lager")? (int) Math.abs(quantity) : 1;
@@ -232,39 +243,41 @@ public class TransactionView extends GridLayout {
                 image.setImageURI(img);
                 image.setPadding(2, 2, 2, 2);
                 image.setScaleType(ImageView.ScaleType.FIT_XY);
-                int width = getContext().getResources().getDimensionPixelSize(R.dimen.img_width);
+                int width = imgWidth;
                 int height = getContext().getResources().getDimensionPixelSize(R.dimen.img_height);
                 double factor = (2.0 - (1.0 / numberOfImages)) / numberOfImages;
                 images.addView(image, new LinearLayout.LayoutParams((int) (width * factor ), height));
             }
-            images.setClickable(true);
-            final String account_guid = data.getString(2);
-            images.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    getContext().getContentResolver().delete(
-                            ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                    .appendEncodedPath("accounts/" + account_guid +
-                                            "/products/" + product_id).build(), null, null);
-                }
-            });
-            images.setOnLongClickListener(new OnLongClickListener() {
+            if (onAmountClick != null) {
+                images.setClickable(true);
+                final String account_guid = data.getString(2);
+                images.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getContext().getContentResolver().delete(
+                                ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                        .appendEncodedPath("accounts/" + account_guid +
+                                                "/products/" + product_id).build(), null, null);
+                    }
+                });
+                images.setOnLongClickListener(new OnLongClickListener() {
 
-                @Override
-                public boolean onLongClick(View v) {
-                    getContext().getContentResolver().delete(
-                            ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                    .appendEncodedPath("accounts/" + account_guid +
-                                            "/products/" + product_id).build(), "all", null);
-                    return false;
-                }
-            });
+                    @Override
+                    public boolean onLongClick(View v) {
+                        getContext().getContentResolver().delete(
+                                ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                        .appendEncodedPath("accounts/" + account_guid +
+                                                "/products/" + product_id).build(), "all", null);
+                        return false;
+                    }
+                });
+            }
         }
         GridLayout.LayoutParams lp = new GridLayout.LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         addView(images, lp);
-//
+
         DecimalView amount = new DecimalView(getContext(), onAmountClick);
         if (data.getInt(3) < 3) {
             amount.setVisibility(INVISIBLE);
@@ -285,7 +298,7 @@ public class TransactionView extends GridLayout {
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         if (data.getInt(3) < 3) {
-            x.setVisibility(INVISIBLE);
+            x.setVisibility(GONE);
         } else if (data.getLong(3) > 5 && !data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
             if (Math.abs(quantity) < 1) {
@@ -331,7 +344,7 @@ public class TransactionView extends GridLayout {
         title.setMaxLines(1);
         FrameLayout f = new FrameLayout(getContext());
         f.addView(title);
-        if (onTitleClick != null && data.getLong(3) != 1) {
+        if (onTitleClick != null) {
             f.setClickable(true);
             f.setFocusable(true);
             f.setId(data.getInt(1));
