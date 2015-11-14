@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorTreeAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,9 +50,6 @@ public class AccountListFragment extends Fragment
 
             @Override
             protected Cursor getChildrenCursor(Cursor groupCursor) {
-                Bundle b = new Bundle();
-                b.putString("group_guid", groupCursor.getString(2));
-                getLoaderManager().restartLoader(groupCursor.getPosition(), b, AccountListFragment.this);
                 return null;
             }
 
@@ -62,17 +60,7 @@ public class AccountListFragment extends Fragment
 
             @Override
             protected void bindGroupView(View view, Context context, Cursor cursor, boolean isExpanded) {
-                AccountView a = ((AccountView) view);
-                if (cursor.isNull(3)) {
-                    a.balance.setText("0.00");
-                } else {
-                    a.balance.setText(
-                            String.format("%.2f", invert * cursor.getFloat(3)));
-                }
-                a.name.setText(cursor.getString(1));
-                a.guid = cursor.getString(2);
-                a.id = cursor.getLong(0);
-                a.collapse();
+                ((AccountView) view).populate(cursor);
             }
 
             @Override
@@ -119,12 +107,8 @@ public class AccountListFragment extends Fragment
         if (loader.getId() < 0) {
             adapter.changeCursor(data);
         } else {
-//            if (data.getCount() == 0) {
-//                ((AccountView) list.getChildAt(loader.getId()
-//                        - list.getFirstVisiblePosition())).expand();
-//            } else {
-                adapter.setChildrenCursor(loader.getId(), data);
-//            }
+            adapter.setChildrenCursor(loader.getId(), data);
+            list.expandGroup(loader.getId());
         }
     }
 
@@ -139,6 +123,7 @@ public class AccountListFragment extends Fragment
         final TextView name;
         String guid;
         long id;
+        int pos;
 
         public AccountView(Context ctx) {
             super(ctx);
@@ -153,16 +138,40 @@ public class AccountListFragment extends Fragment
         }
 
         public void populate(Cursor cursor) {
-            guid = cursor.getString(2);
             if (cursor.isNull(3)) {
                 balance.setText("0.00");
             } else {
-                balance.setText(String.format("%.2f", cursor.getFloat(3)));
+                balance.setText(String.format("%.2f", invert * cursor.getFloat(3)));
             }
-            name.setText(cursor.getString(1));
+            if (cursor.getString(4).equals("mitglieder")) {
+                name.setText("   " + cursor.getString(1));
+            } else {
+                name.setText(cursor.getString(1));
+            }
+            guid = cursor.getString(2);
+            if (guid.equals("mitglieder")) {
+                ImageView icn = (ImageView) findViewById(R.id.indicator);
+                icn.setVisibility(VISIBLE);
+                if (expanded) {
+                    icn.setImageResource(R.drawable.ic_menu_more);
+                } else {
+                    icn.setImageResource(R.drawable.ic_launcher);
+                }
+            } else {
+                collapse();
+            }
+            pos = cursor.getPosition();
+            id = cursor.getLong(0);
         }
 
         public void expand() {
+            if (guid.equals("mitglieder")) {
+                Bundle b = new Bundle();
+                b.putString("group_guid", guid);
+                getLoaderManager().restartLoader(pos, b, AccountListFragment.this);
+                expanded = true;
+                return;
+            }
             TransactionView transaction = new TransactionView(getActivity());
             Cursor c = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
@@ -207,7 +216,11 @@ public class AccountListFragment extends Fragment
 
         public void collapse() {
             if (expanded) {
-                removeViewAt(1);
+                if (guid.equals("mitglieder")) {
+                    list.collapseGroup(pos);
+                } else {
+                    removeViewAt(1);
+                }
             }
             expanded = false;
         }
