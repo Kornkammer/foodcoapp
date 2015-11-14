@@ -72,8 +72,8 @@
     <activity
       android:name="org.baobab.foodcoapp.ProductEditActivity"
       android:windowSoftInputMode="stateAlwaysVisible"
-      android:screenOrientation="landscape"
-      android:theme="@style/AppTheme" >
+      android:theme="@style/FullscreenTheme"
+      android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.intent.action.EDIT" />
         <category android:name="android.intent.category.DEFAULT" />
@@ -99,6 +99,7 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="portrait"
+      android:theme="@style/FullscreenTheme"
       android:name="org.baobab.foodcoapp.TransactionsActivity" >
     </activity>
     <activity
