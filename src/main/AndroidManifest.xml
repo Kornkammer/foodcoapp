@@ -72,7 +72,6 @@
     <activity
       android:name="org.baobab.foodcoapp.ProductEditActivity"
       android:windowSoftInputMode="stateAlwaysVisible"
-      android:theme="@style/FullscreenTheme"
       android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.intent.action.EDIT" />
