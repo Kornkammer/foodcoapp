@@ -255,7 +255,7 @@ public class AccountingProvider extends ContentProvider {
             case ACCOUNT:
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT accounts._id AS _id, guid, name, contact, pin, qr, max(accounts._id), " +
-                                "sum(transaction_products.quantity * transaction_products.price) " +
+                                "sum(transaction_products.quantity * transaction_products.price), parent_guid " +
                         " FROM accounts" +
                         " LEFT OUTER JOIN transaction_products ON transaction_products.account_guid = accounts.guid" +
 //                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +
@@ -399,6 +399,9 @@ public class AccountingProvider extends ContentProvider {
                 }
                 if (uri.getPathSegments().size() > 1) {
                     values.put("parent_guid", uri.getPathSegments().get(1));
+                }
+                if (!values.containsKey("parent_guid")) {
+                    values.put("parent_guid", "passiva");
                 }
                 uri = ContentUris.withAppendedId(uri,
                     db.getWritableDatabase().insert("accounts", null, values));

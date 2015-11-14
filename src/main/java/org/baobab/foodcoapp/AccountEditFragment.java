@@ -234,7 +234,7 @@ public class AccountEditFragment extends Fragment
                     getLoaderManager().initLoader(1, null, this);
                 }
                 if (!data.isNull(1)) {
-                    getArguments().putString("parent_guid", data.getString(1));
+                    getArguments().putString("parent_guid", data.getString(8));
                 }
                 break;
             case 1:
@@ -316,7 +316,7 @@ public class AccountEditFragment extends Fragment
             }
         }
         if (getArguments().containsKey("parent_guid")) {
-            values.put("parent_guid", getArguments().getString("guid"));
+            values.put("parent_guid", getArguments().getString("parent_guid"));
         }
         if (getArguments().containsKey("contact")) {
             values.put("contact", getArguments().getString("contact"));
@@ -333,7 +333,7 @@ public class AccountEditFragment extends Fragment
             values.put("qr", getArguments().getString("qr"));
         }
         getActivity().getContentResolver().insert(
-                Uri.parse("content://org.baobab.foodcoapp/accounts/passiva/accounts"),
+                Uri.parse("content://org.baobab.foodcoapp/accounts"),
                 values);
         Snackbar.make(getView(), "Gespeichert", Snackbar.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();

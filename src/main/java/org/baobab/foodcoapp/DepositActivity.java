@@ -110,7 +110,7 @@ public class DepositActivity extends AppCompatActivity {
                                 guid + "/transactions")));
                 finish();
             }
-        }, 700);
+        }, 550);
     }
 
     @Override
