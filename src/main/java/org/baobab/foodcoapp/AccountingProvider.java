@@ -226,7 +226,7 @@ public class AccountingProvider extends ContentProvider {
                             " WHERE parent_guid IS '" + parent_guid + "'" : "") +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
-                        " ORDER BY _id",
+                        (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),
                         (selectionArgs != null? selectionArgs : null));
                 break;
             case ACCOUNT_PRODUCTS:

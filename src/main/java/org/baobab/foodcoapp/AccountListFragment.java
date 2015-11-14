@@ -98,7 +98,7 @@ public class AccountListFragment extends Fragment
             return new CursorLoader(getActivity(), Uri.parse(
                     "content://org.baobab.foodcoapp/accounts/" +
                             args.getString("group_guid") + "/accounts"),
-                    null, null, null, null);
+                    null, null, null, "_id DESC");
         }
     }
 
@@ -239,6 +239,8 @@ public class AccountListFragment extends Fragment
             String[] menu;
             if (editable && id > 150) {
                 menu = new String[]{"Kontoumsätze", "Editieren"};
+            } else if (guid.equals("mitglieder")) {
+                menu = new String[]{"Kontoumsätze", "Mitglied hinzufügen"};
             } else {
                 menu = new String[]{"Kontoumsätze"};
             }
@@ -253,8 +255,15 @@ public class AccountListFragment extends Fragment
                                                     guid + "/transactions")));
                                     break;
                                 case 1:
-                                    ((AccountActivity) getActivity()).editAccount(
-                                    Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid));
+                                    if (guid.equals("mitglieder")) {
+                                        getActivity().getSupportFragmentManager() .beginTransaction()
+                                                .replace(R.id.container, AccountEditFragment.newInstance())
+                                                .addToBackStack("add")
+                                                .commit();
+                                    } else {
+                                        ((AccountActivity) getActivity()).editAccount(
+                                                Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid));
+                                    }
                                     break;
                             }
                         }

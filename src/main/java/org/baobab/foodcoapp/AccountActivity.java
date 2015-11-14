@@ -15,8 +15,8 @@ public class AccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_accounts);
+        getSupportActionBar().hide();
 
         getWindow().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.xdark_blue)));
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.active))
@@ -43,32 +43,5 @@ public class AccountActivity extends AppCompatActivity {
                 .replace(R.id.container, AccountEditFragment.newInstance(uri))
                 .addToBackStack("add")
                 .commit();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.accounts, menu);
-        MenuItem add = menu.findItem(R.id.add);
-        getSupportActionBar().setDisplayOptions(
-                ActionBar.DISPLAY_SHOW_HOME | ActionBar.DISPLAY_SHOW_TITLE);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        int id = item.getItemId();
-        switch (item.getItemId()) {
-            case R.id.add:
-                getSupportFragmentManager() .beginTransaction()
-                        .replace(R.id.container, AccountEditFragment.newInstance())
-                        .addToBackStack("add")
-                        .commit();
-                break;
-            case android.R.id.home:
-                finish();
-        }
-        if (id == R.id.add) {
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

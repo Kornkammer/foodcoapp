@@ -41,6 +41,7 @@ public class AccountEditFragment extends Fragment
     static AccountEditFragment newInstance() {
         AccountEditFragment f = new AccountEditFragment();
         Bundle b = new Bundle();
+        b.putString("parent_guid", "mitglieder");
         f.setArguments(b);
         return f;
     }
@@ -142,7 +143,7 @@ public class AccountEditFragment extends Fragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-        menu.findItem(R.id.add).setVisible(false);
+        actionBar.show();
         actionBar.setDisplayOptions(
                 ActionBar.DISPLAY_SHOW_CUSTOM,
                 ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME
@@ -337,6 +338,7 @@ public class AccountEditFragment extends Fragment
                 values);
         Snackbar.make(getView(), "Gespeichert", Snackbar.LENGTH_SHORT).show();
         getActivity().getSupportFragmentManager().popBackStack();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
         return;
     }
 
