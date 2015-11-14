@@ -19,9 +19,6 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import java.text.NumberFormat;
-import java.text.ParseException;
-
 
 public class DepositActivity extends AppCompatActivity {
 
@@ -44,9 +41,9 @@ public class DepositActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             final float amount;
             try {
-                amount = NumberFormat.getInstance().parse(
-                        ((EditText) findViewById(R.id.amount)).getText().toString()).floatValue();
-            } catch (ParseException e) {
+                amount = Float.parseFloat(((EditText) findViewById(R.id.amount))
+                        .getText().toString().replace(",", "."));
+            } catch (Exception e) {
                 Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 return;
             }

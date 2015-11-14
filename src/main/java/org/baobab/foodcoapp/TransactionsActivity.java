@@ -20,19 +20,24 @@ public class TransactionsActivity extends AppCompatActivity {
                             Uri.parse("content://org.baobab.foodcoapp/transactions")))
                     .commit();
             getSupportActionBar().setTitle("Transaction Log");
-        } else if (getIntent().getDataString().contains("/accounts")) {
+        } else if (getIntent().getDataString().contains("/transactions")) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, TransactionListFragment
                             .newInstance(getIntent().getData()))
                     .commit();
-            Cursor account = getContentResolver().query(
-                    Uri.parse("content://org.baobab.foodcoapp/accounts"),
-                    null, "guid IS '" +
-                            getIntent().getData().getPathSegments().get(1) +
-                            "'", null, null);
-            account.moveToFirst();
-            getSupportActionBar().setTitle(account.getString(1) + " Guthaben: "
-                    + String.format("%.2f", - account.getFloat(4)));
+            if (getIntent().getDataString().contains("/accounts")) {
+                Cursor account = getContentResolver().query(
+                        Uri.parse("content://org.baobab.foodcoapp/accounts"),
+                        null, "guid IS '" +
+                                getIntent().getData().getPathSegments().get(1) +
+                                "'", null, null);
+                account.moveToFirst();
+                getSupportActionBar().setTitle("Umsätze für Konto: " + account.getString(1) +
+                        "  -- Guthaben: " + String.format("%.2f", - account.getFloat(4)));
+            } else {
+                getSupportActionBar().setTitle("Umsätze " );
+            }
+
         }
     }
 

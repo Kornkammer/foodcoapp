@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
+import android.text.method.DigitsKeyListener;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -49,6 +50,7 @@ public abstract class NumberDialogFragment extends DialogFragment {
             number.setText(String.format("%.3f", Math.abs(value)));
         }
         number.setInputType(inputType);
+        number.setKeyListener(DigitsKeyListener.getInstance("0123456789.,"));
         number.selectAll();
         number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -88,12 +90,12 @@ public abstract class NumberDialogFragment extends DialogFragment {
 
     private void finish() {
         try {
-            float n = Float.valueOf(number.getText().toString());
+            float n = Float.valueOf(number.getText().toString().replace(",", "."));
             if (value < 0) {
                 n = n * -1;
             }
             if (Math.abs(n) > 1000) {
-                Toast.makeText(getActivity(), "So viele gibts ja gar nicht!", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "So viel gibts ja gar nicht!", Toast.LENGTH_LONG).show();
                 return;
             }
             n = (float) (Math.round(n * 1000) / 1000.0d);

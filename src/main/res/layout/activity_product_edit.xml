@@ -33,7 +33,8 @@
     android:layout_below="@id/title"
     android:layout_toRightOf="@id/image"
     android:imeOptions="flagNoExtractUi"
-    android:inputType="numberSigned|numberDecimal"
+    android:inputType="numberDecimal"
+    android:digits="0123456789.,"
     android:textStyle="bold"
     android:textSize="@dimen/font_size_large"
     android:hint="1.50" />

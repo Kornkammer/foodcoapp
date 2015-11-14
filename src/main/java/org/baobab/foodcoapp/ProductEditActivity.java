@@ -31,8 +31,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.text.NumberFormat;
-import java.text.ParseException;
 
 public class ProductEditActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -196,20 +194,20 @@ public class ProductEditActivity extends AppCompatActivity
             Toast.makeText(this, "no image", Toast.LENGTH_LONG).show();
             return;
         }
-        NumberFormat nf = NumberFormat.getInstance();
         try {
-            if (nf.parse(price.getText().toString()).floatValue() > 1000) {
+            float p = Float.parseFloat(price.getText().toString().replace(",", "."));
+            if (p > 1000) {
                 Toast.makeText(this, "Preis ist zu hoch!", Toast.LENGTH_LONG).show();
                 return;
             }
             ContentValues cv = new ContentValues();
             cv.put("title", title.getText().toString());
             cv.put("img", img.toString());
-            cv.put("price", nf.parse(price.getText().toString()).floatValue());
+            cv.put("price", p);
             cv.put("unit", unit.getText().toString());
             getContentResolver().update(getIntent().getData(), cv, null, null);
             finish();
-        } catch (ParseException e) {
+        } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }

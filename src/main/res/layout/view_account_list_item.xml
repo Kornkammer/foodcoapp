@@ -7,6 +7,7 @@
   <LinearLayout
     android:id="@+id/container"
     android:orientation="horizontal"
+    android:clickable="true"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
