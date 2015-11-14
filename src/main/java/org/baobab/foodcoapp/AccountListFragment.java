@@ -224,7 +224,7 @@ public class AccountListFragment extends Fragment
         @Override
         public boolean onLongClick(View v) {
             String[] menu;
-            if (editable && id > 140) {
+            if (editable && id > 150) {
                 menu = new String[]{"Kontoumsätze", "Editieren"};
             } else {
                 menu = new String[]{"Kontoumsätze"};

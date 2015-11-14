@@ -98,6 +98,7 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (120, 'passiva', 'beiträge','Beiträge');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (130, 'passiva', 'spenden','Spenden');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (140, 'passiva', 'verbindlichkeiten','Verbindlichkeiten');");
+            db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (150, 'passiva', 'mitglieder','Mitglieder');");
             Log.d(TAG, "created DB");
         }
 

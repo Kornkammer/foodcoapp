@@ -16,8 +16,8 @@ public class AccountsTests extends BaseProviderTests {
         insertTransaction("kasse", "sub");
         insertTransaction("kasse", "sub");
         insertTransaction("kasse", "sub2");
-        Cursor accounts = query("accounts/passiva/accounts", 5);
-        accounts.moveToPosition(4);
+        Cursor accounts = query("accounts/passiva/accounts", 6);
+        accounts.moveToPosition(5);
         assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", 5 * 42.0, accounts.getDouble(3));
         accounts = query("accounts/dummy/accounts", 2);
@@ -28,7 +28,7 @@ public class AccountsTests extends BaseProviderTests {
 
     public void testEmptyAccount() {
         createDummyAccount("dummy");
-        query("accounts/passiva/accounts", 5);
+        query("accounts/passiva/accounts", 6);
         Uri transaction = insertTransaction("draft", "lager", "dummy");
         ContentValues b = new ContentValues();
         b.put("account_guid", "dummy");
@@ -36,15 +36,15 @@ public class AccountsTests extends BaseProviderTests {
         b.put("quantity", 42);
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        query("accounts/passiva/accounts", 5);
+        query("accounts/passiva/accounts", 6);
     }
 
     public void testListAccounts() {
-        query("accounts", 12);
-        createDummyAccount("dummy");
         query("accounts", 13);
+        createDummyAccount("dummy");
+        query("accounts", 14);
         query("accounts/aktiva/accounts", 6);
-        query("accounts/passiva/accounts", 5);
+        query("accounts/passiva/accounts", 6);
     }
 
     public void testFindAccountByName() {

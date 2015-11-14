@@ -103,7 +103,7 @@ public class TransactionView extends GridLayout {
             lp.setGravity(Gravity.FILL_HORIZONTAL);
             FrameLayout f = new FrameLayout(getContext());
             if (showHeaders) {
-                if (data.getLong(9) <= 140 ) {
+                if (data.getLong(9) <= 150 ) {
                     if (quantity < 0) {
                         if (account.equals("lager") || account.equals("kasse")) {
                             header.setText("aus " + data.getString(12) + " raus");
