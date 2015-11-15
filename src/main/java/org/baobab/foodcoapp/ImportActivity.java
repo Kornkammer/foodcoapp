@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -67,9 +66,17 @@ public class ImportActivity extends AppCompatActivity {
                         } else if (line.length == 22) {
                             importer = new GlsImport(ImportActivity.this);
                         } else {
-                            Log.d(TAG, "No idea how to import this file (line length " + line.length + ")");
-                            err = "No idea how to import this file (line length " + line.length + ")";
-                            return 0;
+                            is = getContentResolver().openInputStream(getIntent().getData());
+                            csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), '\t');
+                            String[] l = csv.readNext();
+                            if (l.length == 5) {
+                                importer = new KnkImport(ImportActivity.this);
+                            } else {
+                                Log.d(TAG, "No idea how to import this file (line length " + line.length + ")");
+                                err = "No idea how to import this file (line length " + line.length + ")";
+                                return 0;
+                            }
+
                         }
                         return importer.read(csv);
                     } catch (Exception e) {
