@@ -69,10 +69,14 @@ public class PoSimpleActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
-        if (data.getCount() == 0) return;
-        data.moveToLast();
-        final int pages = (data.getInt(5) / 16) + 1;
-        data.moveToFirst();
+        final int pages;
+        if (data.getCount() > 0) {
+            data.moveToLast();
+            pages = (data.getInt(5) / 16) + 1;
+            data.moveToFirst();
+        } else {
+            pages = 1;
+        }
         pager.setOffscreenPageLimit(42);
         pager.setAdapter(new PagerAdapter() {
             @Override
