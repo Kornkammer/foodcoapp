@@ -160,7 +160,7 @@ public class PosActivity extends AppCompatActivity
                 StretchableGrid page = new StretchableGrid(PosActivity.this, 4, 4);
                 for (int i = 1; i <= 16; i++) {
                     int button = (int) position * 16 + i;
-                    if (data.getInt(5) == button) {
+                    if (data.getCount() > 0 && data.getInt(5) == button) {
                         page.addView(new ProductButton(
                                 PosActivity.this,
                                 data.getLong(0),
