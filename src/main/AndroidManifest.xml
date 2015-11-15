@@ -103,7 +103,7 @@
     <activity
       android:label="Import"
       android:screenOrientation="portrait"
-      android:taskAffinity="org.baobab.foodcoapp.pos"
+      android:taskAffinity="org.baobab.foodcoapp.import"
       android:name="org.baobab.foodcoapp.ImportActivity" >
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
