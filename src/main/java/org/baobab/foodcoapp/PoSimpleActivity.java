@@ -29,6 +29,7 @@ public class PoSimpleActivity extends AppCompatActivity
     private ViewPager pager;
     private Scale scale;
     private int weight;
+    float currency = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,31 +128,8 @@ public class PoSimpleActivity extends AppCompatActivity
         if (((ProductButton) v).empty) {
             return;
         }
-        if (((ProductButton) v).id == 5) {
-            Barcode.scan(this, "EAN_8");
-            return;
-        } else if (((ProductButton) v).id == 6) {
-            startActivityForResult(new Intent(this, ProductEditActivity.class), 42);
-            return;
-        }
         ProductButton b = (ProductButton) v;
-        addProductToTransaction(b.id, b.title, (- (float) weight) / 1000, b.price, b.unit, b.img);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent d) {
-        super.onActivityResult(requestCode, resultCode, d);
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case 0:
-                    String ean = d.getStringExtra("SCAN_RESULT");
-                    handleBarcode(ean);
-                    break;
-                case 42:
-                    addProductToTransaction(d.getLongExtra("id", 0), d.getStringExtra("title"), -1,
-                            d.getFloatExtra("price", 1.0f), d.getStringExtra("unit"), d.getStringExtra("img"));
-            }
-        }
+        addProductToTransaction(b.id, b.title, (-(float) weight) / 1000, b.price, b.unit, b.img);
     }
 
     @Override

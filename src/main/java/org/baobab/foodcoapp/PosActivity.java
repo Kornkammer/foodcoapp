@@ -166,6 +166,14 @@ public class PosActivity extends AppCompatActivity
                         if (!data.isLast()) {
                             data.moveToNext();
                         }
+                    } else if (button == 13) {
+                        page.addView(new ProductButton(
+                                PosActivity.this, -1, "EAN", 1, "",
+                                "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add", button), 13);
+                    } else if (button == 16) {
+                        page.addView(new ProductButton(
+                                PosActivity.this, -2, "EAN", 1, "",
+                                "android.resource://org.baobab.foodcoapp/drawable/scan", button), 16);
                     } else {
                         page.addView(new ProductButton(
                                 PosActivity.this, 0, "", 0, null, null, button), i);
@@ -199,10 +207,10 @@ public class PosActivity extends AppCompatActivity
         if (((ProductButton) v).empty) {
             return;
         }
-        if (((ProductButton) v).id == 5) {
+        if (((ProductButton) v).id == -2) {
             Barcode.scan(this, "EAN_8");
             return;
-        } else if (((ProductButton) v).id == 6) {
+        } else if (((ProductButton) v).id == -1) {
             startActivityForResult(new Intent(this, ProductEditActivity.class), 42);
             return;
         }
