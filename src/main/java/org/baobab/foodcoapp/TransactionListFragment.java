@@ -75,6 +75,8 @@ public class TransactionListFragment extends ListFragment
                         }
                         if (!cursor.isNull(4)) {
                             v.comment.setText(cursor.getString(4));
+                        } else {
+                            v.comment.setText("");
                         }
                         v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
                         v.collapse();
@@ -144,7 +146,7 @@ public class TransactionListFragment extends ListFragment
             LayoutParams lp = new LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);
-            lp.bottomMargin = 42;
+            lp.bottomMargin = 96;
             addView(transaction, lp);
             expanded = true;
         }

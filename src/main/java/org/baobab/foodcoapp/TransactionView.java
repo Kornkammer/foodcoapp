@@ -117,6 +117,8 @@ public class TransactionView extends GridLayout {
                             header.setText("Inventar abschreiben");
                         } else if (account.equals("verbindlichkeiten")) {
                             header.setText("Verbindlich bleiben");
+                        } else if (account.equals("spenden")) {
+                            header.setText("Spenden annehmen");
                         } else {
                             header.setText("auf Konto " + data.getString(12)  + " gutschreiben");
                         }
@@ -299,14 +301,14 @@ public class TransactionView extends GridLayout {
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         if (data.getInt(3) < 3) {
             x.setVisibility(GONE);
-        } else if (data.getLong(3) > 5 && !data.isNull(6) &&
+        } else if (!data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.weight))) {
             if (Math.abs(quantity) < 1) {
                 x.setText("g ");
             } else {
                 x.setText("kg");
             }
-        } else if (data.getLong(3) > 5 && !data.isNull(6) &&
+        } else if (!data.isNull(6) &&
                 data.getString(6).equals(getContext().getString(R.string.volume))) {
             if (Math.abs(quantity) < 1) {
                 x.setText("ml ");
