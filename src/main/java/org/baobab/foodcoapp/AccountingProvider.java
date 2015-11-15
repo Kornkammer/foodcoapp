@@ -561,7 +561,7 @@ public class AccountingProvider extends ContentProvider {
     private boolean zerSum(String id) {
         Cursor sum = getTransactionSum(id);
         sum.moveToFirst();
-        return sum.getFloat(2) == 0;
+        return -0.01 < sum.getFloat(2) && sum.getFloat(2) < 0.01;
     }
 
     private boolean exists(String id, String stop, String comment) {
