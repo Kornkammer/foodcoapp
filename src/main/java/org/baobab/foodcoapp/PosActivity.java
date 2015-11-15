@@ -135,15 +135,14 @@ public class PosActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
                 Uri.parse("content://org.baobab.foodcoapp/products"),
-                null, "button != 0", null, null);
+                null, "_id >= 5", null, "title");
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         final int pages;
         if (data.getCount() > 0) {
-            data.moveToLast();
-            pages = (data.getInt(5) / 16) + 1;
+            pages = (data.getCount() + 3) / 16 + 1;
             data.moveToFirst();
         } else {
             pages = 1;
@@ -160,7 +159,15 @@ public class PosActivity extends AppCompatActivity
                 StretchableGrid page = new StretchableGrid(PosActivity.this, 4, 4);
                 for (int i = 1; i <= 16; i++) {
                     int button = (int) position * 16 + i;
-                    if (data.getCount() > 0 && data.getInt(5) == button) {
+                    if (button == 13) {
+                        page.addView(new ProductButton(
+                                PosActivity.this, -1, "EAN", 1, "",
+                                "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add", button), 13);
+                    } else if (button == 16) {
+                        page.addView(new ProductButton(
+                                PosActivity.this, -2, "EAN", 1, "",
+                                "android.resource://org.baobab.foodcoapp/drawable/scan", button), 16);
+                    } else if (data.getCount() > 0 && !data.isLast()) {
                         page.addView(new ProductButton(
                                 PosActivity.this,
                                 data.getLong(0),
@@ -171,14 +178,6 @@ public class PosActivity extends AppCompatActivity
                         if (!data.isLast()) {
                             data.moveToNext();
                         }
-                    } else if (button == 13) {
-                        page.addView(new ProductButton(
-                                PosActivity.this, -1, "EAN", 1, "",
-                                "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add", button), 13);
-                    } else if (button == 16) {
-                        page.addView(new ProductButton(
-                                PosActivity.this, -2, "EAN", 1, "",
-                                "android.resource://org.baobab.foodcoapp/drawable/scan", button), 16);
                     } else {
                         page.addView(new ProductButton(
                                 PosActivity.this, 0, "", 0, null, null, button), i);

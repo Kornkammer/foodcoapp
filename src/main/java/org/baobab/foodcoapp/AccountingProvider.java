@@ -80,6 +80,7 @@ public class AccountingProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (title, price, img) VALUES ('Korns', 1, 'android.resource://org.baobab.foodcoapp/drawable/ic_launcher');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
+            db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (1, 'Baola', 1.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/baola');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (2, 'Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (3, 'Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
@@ -161,7 +162,7 @@ public class AccountingProvider extends ContentProvider {
         switch (router.match(uri)) {
             case PRODUCTS:
                 result = db.getReadableDatabase().query("products",
-                        projection, selection, selectionArgs, null, null, "button", null);
+                        projection, selection, selectionArgs, null, null, sortOrder, null);
                 break;
             case PRODUCT:
                 result = db.getReadableDatabase().query("products", projection,
@@ -345,6 +346,7 @@ public class AccountingProvider extends ContentProvider {
             case PRODUCTS:
                 uri = ContentUris.withAppendedId(uri,
                         db.getWritableDatabase().insert("products", null, values));
+                getContext().getContentResolver().notifyChange(uri, null);
                 break;
             case TRANSACTION_PRODUCTS:
                 String quantity = null;
