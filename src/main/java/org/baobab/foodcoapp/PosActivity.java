@@ -135,7 +135,7 @@ public class PosActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
                 Uri.parse("content://org.baobab.foodcoapp/products"),
-                null, "_id >= 5", null, "title");
+                null, "_id >= 5", null, "UPPER(title)");
     }
 
     @Override

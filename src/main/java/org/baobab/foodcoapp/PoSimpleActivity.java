@@ -64,7 +64,7 @@ public class PoSimpleActivity extends AppCompatActivity
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
                 Uri.parse("content://org.baobab.foodcoapp/products"),
-                null, "_id > 5", null, "title");
+                null, "_id > 5", null, "UPPER(title)");
     }
 
     @Override
@@ -89,7 +89,7 @@ public class PoSimpleActivity extends AppCompatActivity
                 StretchableGrid page = new StretchableGrid(PoSimpleActivity.this, 4, 4);
                 for (int i = 1; i <= 16; i++) {
                     int button = (int) position * 16 + i;
-                    if (data.getCount() > 0 && !data.isLast()) {
+                    if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
                                 PoSimpleActivity.this,
                                 data.getLong(0),
@@ -97,7 +97,7 @@ public class PoSimpleActivity extends AppCompatActivity
                                 data.getFloat(2),
                                 data.getString(3),
                                 data.getString(4), button), i);
-                        if (!data.isLast()) {
+                        if (!data.isAfterLast()) {
                             data.moveToNext();
                         }
                     } else {
