@@ -69,6 +69,7 @@ public class PoSimpleActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
+        if (data.getCount() == 0) return;
         data.moveToLast();
         final int pages = (data.getInt(5) / 16) + 1;
         data.moveToFirst();
