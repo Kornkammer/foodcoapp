@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.view;
 
 import android.content.Context;
 import android.util.AttributeSet;

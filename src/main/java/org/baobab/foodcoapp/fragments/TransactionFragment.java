@@ -26,7 +26,7 @@ import android.widget.Toast;
 
 import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.R;
-import org.baobab.foodcoapp.TransactionView;
+import org.baobab.foodcoapp.view.TransactionView;
 
 public class TransactionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {

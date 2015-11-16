@@ -128,7 +128,7 @@ public class TransactionListFragment extends ListFragment
         }
 
         public void expand() {
-            org.baobab.foodcoapp.TransactionView transaction = new org.baobab.foodcoapp.TransactionView(getActivity());
+            org.baobab.foodcoapp.view.TransactionView transaction = new org.baobab.foodcoapp.view.TransactionView(getActivity());
             transaction.showImages(true);
             transaction.headersClickable(false);
             Cursor c = getActivity().getContentResolver().query(

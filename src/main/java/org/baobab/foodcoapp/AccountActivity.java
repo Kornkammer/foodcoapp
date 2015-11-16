@@ -29,6 +29,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.baobab.foodcoapp.fragments.TransactionFragment;
+import org.baobab.foodcoapp.io.Export;
+import org.baobab.foodcoapp.util.Barcode;
+import org.baobab.foodcoapp.util.Scale;
+import org.baobab.foodcoapp.view.StretchableGrid;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;

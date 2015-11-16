@@ -27,7 +27,7 @@ import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.CheckoutActivity;
 import org.baobab.foodcoapp.LegitimateActivity;
 import org.baobab.foodcoapp.R;
-import org.baobab.foodcoapp.TransactionView;
+import org.baobab.foodcoapp.view.TransactionView;
 import org.baobab.foodcoapp.TransactionsActivity;
 
 public class TransactionSimpleFragment extends Fragment

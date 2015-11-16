@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.util;
 
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;

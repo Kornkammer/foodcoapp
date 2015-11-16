@@ -23,7 +23,7 @@ import android.widget.Toast;
 
 import org.baobab.foodcoapp.BalanceActivity;
 import org.baobab.foodcoapp.R;
-import org.baobab.foodcoapp.TransactionView;
+import org.baobab.foodcoapp.view.TransactionView;
 import org.baobab.foodcoapp.TransactionsActivity;
 
 

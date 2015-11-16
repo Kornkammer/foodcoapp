@@ -1,9 +1,11 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.view;
 
 import android.content.Context;
 import android.util.TypedValue;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.baobab.foodcoapp.R;
 
 import java.util.Locale;
 

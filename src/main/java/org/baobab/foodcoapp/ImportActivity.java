@@ -19,6 +19,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.baobab.foodcoapp.fragments.TransactionListFragment;
+import org.baobab.foodcoapp.io.BnnImport;
+import org.baobab.foodcoapp.io.GlsImport;
+import org.baobab.foodcoapp.io.KnkImport;
 
 import java.io.BufferedReader;
 import java.io.IOException;

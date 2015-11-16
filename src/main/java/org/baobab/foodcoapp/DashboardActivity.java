@@ -14,6 +14,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import org.baobab.foodcoapp.io.Export;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;

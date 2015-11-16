@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.view;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -20,6 +20,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import org.baobab.foodcoapp.R;
 
 
 // yes, this IS a mess :/

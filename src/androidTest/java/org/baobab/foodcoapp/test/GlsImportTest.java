@@ -2,12 +2,11 @@ package org.baobab.foodcoapp.test;
 
 
 import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.test.mock.MockContext;
 
-import org.baobab.foodcoapp.GlsImport;
+import org.baobab.foodcoapp.io.GlsImport;
 
 import java.text.NumberFormat;
 import java.util.Date;

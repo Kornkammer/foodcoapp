@@ -1,9 +1,12 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.io;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
+
+import org.baobab.foodcoapp.AccountActivity;
+import org.baobab.foodcoapp.ImportActivity;
 
 import java.io.IOException;
 import java.util.ArrayList;

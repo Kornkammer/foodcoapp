@@ -30,8 +30,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.baobab.foodcoapp.Barcode;
-import org.baobab.foodcoapp.Crypt;
+import org.baobab.foodcoapp.util.Barcode;
+import org.baobab.foodcoapp.util.Crypt;
 import org.baobab.foodcoapp.R;
 
 import java.util.Random;

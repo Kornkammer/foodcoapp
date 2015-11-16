@@ -25,6 +25,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.baobab.foodcoapp.util.Barcode;
+import org.baobab.foodcoapp.util.Crypt;
+
 public class LegitimateActivity extends AppCompatActivity {
 
     private MediaPlayer win;
