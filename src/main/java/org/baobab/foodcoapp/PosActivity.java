@@ -173,7 +173,7 @@ public class PosActivity extends AppCompatActivity
                         page.addView(new ProductButton(
                                 PosActivity.this, -2, "EAN", 1, "",
                                 "android.resource://org.baobab.foodcoapp/drawable/scan", button), 16);
-                    } else if (data.getCount() > 0 && !data.isLast()) {
+                    } else if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
                                 PosActivity.this,
                                 data.getLong(0),
@@ -181,7 +181,7 @@ public class PosActivity extends AppCompatActivity
                                 data.getFloat(2),
                                 data.getString(3),
                                 data.getString(4), button), i);
-                        if (!data.isLast()) {
+                        if (!data.isAfterLast()) {
                             data.moveToNext();
                         }
                     } else {
