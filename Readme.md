@@ -1,7 +1,19 @@
-#  FoodCo-App
-for Kornkammer Food Coop
+#  Android FoodCoApp
+point-of-sale checkout for food co-ops / food hubs
 
-## highly experimental!
+```
+< Kornkammer >
+ ------------
+        \   ^__^
+         \  (oo)\_______
+            (__)\       )\/\
+                ||----w |
+                ||     ||
+
+```
+
+Download version 1.0.1 apk [http://bit.ly/1SwqaUs](http://bit.ly/1SwqaUs)
+
 
  
     Copyright (C) 2015 by it's authors. Some rights reserved. See LICENSE
