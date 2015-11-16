@@ -48,7 +48,7 @@ public class Scale implements Runnable {
         Intent intent = activity.getIntent();
         if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(intent.getAction())) {
             UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            Toast.makeText(activity, "ATTACH startet app", Toast.LENGTH_LONG).show();
+//            Toast.makeText(activity, "ATTACH startet app", Toast.LENGTH_LONG).show();
             setDevice(device);
         } else {
             searchForDevice();
@@ -61,17 +61,21 @@ public class Scale implements Runnable {
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         activity.registerReceiver(mUsbReceiver, filter);
-
     }
+
+    public void unregisterUsb() {
+        activity.unregisterReceiver(mUsbReceiver);
+    }
+
     private BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-            //If our device is detached, disconnect
+            // If our device is detached, disconnect
             if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 Toast.makeText(activity, "DETACHED", Toast.LENGTH_LONG).show();
-                Log.i(TAG, "Device Detached");
+                Log.i(TAG, "Scale Detached " + activity.getClass().getSimpleName());
                 ((ScaleListener) activity).onWeight(-1);
                 if (mDevice != null && mDevice.equals(device)) {
                     setDevice(null);
@@ -80,7 +84,7 @@ public class Scale implements Runnable {
             mPermissionIntent = PendingIntent.getBroadcast(activity, 0, new Intent("org.baobab.foodcoapp.USB_PERMISSION"), 0);
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
                 Toast.makeText(activity, "ATTACHED", Toast.LENGTH_LONG).show();
-                Log.i(TAG, "Device Attached");
+                Log.i(TAG, "Scale Attached " + activity.getClass().getSimpleName());
                 mUsbManager.requestPermission(device, mPermissionIntent);
             }
             //If this is our permission request, check result

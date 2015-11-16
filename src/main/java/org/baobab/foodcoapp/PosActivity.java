@@ -119,6 +119,12 @@ public class PosActivity extends AppCompatActivity
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        scale.unregisterUsb();
+    }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     protected void fullscreen() {
         if (Build.VERSION.SDK_INT < 16) {
@@ -273,7 +279,7 @@ public class PosActivity extends AppCompatActivity
         cv.put("account_guid", "lager");
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != -1 && quantity != 0) {
+        if (quantity != -1 && quantity != 0 && unit.equals(getString(R.string.weight))) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);

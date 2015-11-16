@@ -61,6 +61,12 @@ public class PoSimpleActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        scale.unregisterUsb();
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this,
                 Uri.parse("content://org.baobab.foodcoapp/products"),
@@ -171,7 +177,7 @@ public class PoSimpleActivity extends AppCompatActivity
         cv.put("account_guid", "lager");
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != -1 && quantity != 0) {
+        if (quantity != -1 && quantity != 0 && unit.equals(getString(R.string.weight))) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);
