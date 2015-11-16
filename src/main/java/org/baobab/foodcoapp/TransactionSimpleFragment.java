@@ -144,8 +144,8 @@ public class TransactionSimpleFragment extends Fragment
             @Override
             public void onClick(View v) {
                 if (transactionValid()) {
-                    startActivityForResult(new Intent(getActivity(),
-                            LegitimateActivity.class)
+                    startActivityForResult(new Intent(getActivity(), LegitimateActivity.class)
+                            .setData(getActivity().getIntent().getData())
                             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET), 42);
                 }
             }
