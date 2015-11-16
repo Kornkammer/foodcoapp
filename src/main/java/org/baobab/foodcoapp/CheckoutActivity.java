@@ -21,7 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.baobab.foodcoapp.fragments.TransactionSimpleFragment;
+import org.baobab.foodcoapp.fragments.TransactionFragment;
 import org.baobab.foodcoapp.util.Scale;
 import org.baobab.foodcoapp.view.StretchableGrid;
 
@@ -62,7 +62,7 @@ public class CheckoutActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        ((TransactionSimpleFragment) getSupportFragmentManager()
+        ((TransactionFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
         scale.registerForUsb();
     }

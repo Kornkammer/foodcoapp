@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -25,40 +26,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.baobab.foodcoapp.AccountActivity;
+import org.baobab.foodcoapp.BrowseActivity;
+import org.baobab.foodcoapp.CheckoutActivity;
+import org.baobab.foodcoapp.LegitimateActivity;
 import org.baobab.foodcoapp.R;
 import org.baobab.foodcoapp.view.TransactionView;
 
 public class TransactionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
 
-    private TransactionView transaction;
-    private ScrollView scrollView;
-    private Cursor txn;
-    private float sum;
+    TransactionView transaction;
+    ScrollView scrollView;
+    Cursor txn;
+    float sum;
 
     @Override
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         scrollView = (ScrollView) flate.inflate(R.layout.fragment_transaction, null, false);
         transaction = (TransactionView) scrollView.findViewById(R.id.transaction);
-        transaction.setOnTitleClick(new View.OnClickListener() {
-            @Override
-            public void onClick(final View v) {
-                txn.moveToPosition((Integer) v.getTag());
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, new TextDialogFragment(
-                                "Namen ändern", txn.getString(7)) {
-                            @Override
-                            public void onText(String text) {
-                                ContentValues cv = new ContentValues();
-                                cv.put("title", text);
-                                getActivity().getContentResolver()
-                                        .update(getActivity().getIntent().getData().buildUpon()
-                                                .appendEncodedPath("products/" + txn.getLong(0))
-                                                .build(), cv, null, null);
-                            }
-                        }).addToBackStack("text").commit();
-            }
-        });
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
             String text() {
@@ -125,7 +110,7 @@ public class TransactionFragment extends Fragment
                                             .appendEncodedPath("products/" + txn.getLong(0))
                                             .build(), cv, null, null);
                         }
-                    }, "edit").addToBackStack("amount").commitAllowingStateLoss();
+                    }, "amount").addToBackStack("amount").commit();
         }
     }
 
@@ -154,125 +139,131 @@ public class TransactionFragment extends Fragment
                     .getSystemService(Context.INPUT_METHOD_SERVICE))
                     .hideSoftInputFromWindow(getView().getWindowToken(), 0);
         }
-        txn = data;
-        transaction.populate(data);
         scrollView.post(new Runnable() {
             @Override
             public void run() {
                 scrollView.fullScroll(ScrollView.FOCUS_DOWN);
             }
         });
+        txn = data;
+        transaction.populate(data);
+        transaction.headersClickable(false);
         Cursor s = getActivity().getContentResolver().query(
                 getActivity().getIntent().getData().buildUpon()
                         .appendEncodedPath("sum").build(), null, null, null, null);
         s.moveToFirst();
         sum = - s.getFloat(2);
         TextView ok = ((TextView) getActivity().findViewById(R.id.sum));
-        TextView header = ((TextView) getActivity().findViewById(R.id.header));
-        if (sum < 0.01 && sum > -0.01) {
-            header.setText("");
-            header.setBackgroundResource(R.drawable.background_translucent);
-            ok.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_ok, 0, 0, 0);
-            ok.setText("");
-        } else {
-            ok.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
-            ok.setText(String.format("%.2f", sum));
-            if (sum < 0) {
-                header.setText("Wechselgeld");
-                header.setBackgroundResource(R.drawable.background_red);
-            } else {
-                header.setText("zu Bezahlen");
-                header.setTextColor(getResources().getColor(R.color.medium_green));
-                header.setBackgroundResource(R.drawable.background_green);
-            }
-        }
+        ok.setText("Bezahlen " + String.format("%.2f", sum));
         ok.setOnClickListener(this);
+        ok.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (transactionValid()) {
+                    startActivity(new Intent(getActivity(),
+                            LegitimateActivity.class)
+                            .setData(getActivity().getIntent().getData())
+                            .putExtra("SCAN", true)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
+                }
+                return true;
+            }
+        });
     }
 
     @Override
     public void onClick(View v) {
-        if (sum < -0.01) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
-            MediaPlayer.create(getActivity(), R.raw.error_3).start();
-            Toast.makeText(getActivity(), "Wechselgeld " + sum, Toast.LENGTH_SHORT).show();
-        } else if (sum > 0.01) {
-            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(300);
-            MediaPlayer.create(getActivity(), R.raw.error_4).start();
-            Toast.makeText(getActivity(), "Noch " + sum + " offen!", Toast.LENGTH_LONG).show();
-        } else {
-            Cursor t = getActivity().getContentResolver().query(
-                    getActivity().getIntent().getData().buildUpon().appendPath("products").build(), null, null, null, null);
-            String msg = "";
-            if (t.getCount() == 0) return;
-            for (int i = 0; i < t.getCount(); i++) {
-                t.moveToPosition(i);
-                Cursor stocks = getActivity().getContentResolver().query(
-                        Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
-                        null, "title IS '" + t.getString(7) + "'", null, null);
-                int factor = 1;
-                if (t.getString(10).equals("passiva")) {
-                    factor = -1;
-                }
-                if (stocks.getCount() > 0) {
-                    stocks.moveToFirst();
-                    if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
-                        msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(12) + "\n";
-                    }
-                } else if (factor * t.getInt(4) < 0) {
-                    msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(12) + "\n";
-                }
-            }
-            if (msg.length() > 0) {
-                if (PreferenceManager.getDefaultSharedPreferences(getActivity())
-                        .getBoolean("allow_negative_stocks", false)) {
-                    msg = "Wirklich ins Minus buchen?\n\n" + msg;
-                    new AlertDialog.Builder(getActivity())
-                            .setMessage(msg)
-                            .setPositiveButton("Ja, Genau!", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
-                                    MediaPlayer.create(getActivity(), R.raw.yay).start();
-                                    MediaPlayer.create(getActivity(), R.raw.chaching).start();
-                                    saveStatus("final");
-                                    Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                                    ((AccountActivity) getActivity()).resetTransaction();
-                                    load();
-                                }
-                            }).setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    }).show();
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-                    MediaPlayer.create(getActivity(), R.raw.error_1).start();
-                    return;
-                } else {
-                    msg = "Keine Buchung ins Minus erlaubt!\n\n" + msg;
-                    ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-                    MediaPlayer.create(getActivity(), R.raw.error_2).start();
-                }
-            } else {
-                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
-                MediaPlayer.create(getActivity(), R.raw.chaching).start();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        MediaPlayer.create(getActivity(), R.raw.yay).start();
-                    }
-                }, 700);
-                saveStatus("final");
-                Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                ((AccountActivity) getActivity()).resetTransaction();
-                load();
-            }
+        if (transactionValid()) {
+            startActivityForResult(new Intent(getActivity(), LegitimateActivity.class)
+                    .setData(getActivity().getIntent().getData())
+                    .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET), 42);
         }
     }
 
-    private void saveStatus(String status) {
+    boolean transactionValid() {
+        Cursor t = getActivity().getContentResolver().query(
+                getActivity().getIntent().getData().buildUpon().appendPath("products").build(), null, null, null, null);
+        String msg = "";
+        if (t.getCount() == 0) return false;
+        for (int i = 0; i < t.getCount(); i++) {
+            t.moveToPosition(i);
+            Cursor stocks = getActivity().getContentResolver().query(
+                    Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
+                    null, "title IS '" + t.getString(7) + "'", null, null);
+            int factor = 1;
+            if (t.getString(10).equals("passiva")) {
+                factor = -1;
+            }
+            if (stocks.getCount() > 0) {
+                stocks.moveToFirst();
+                if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
+                    msg += " - Nicht genug " + t.getString(12) + " auf " + t.getString(2) + "\n";
+                }
+            } else if (factor * t.getInt(4) < 0) {
+                msg += " - Nicht genug " + t.getString(12) + " auf " + t.getString(2) + "\n";
+            }
+        }
+        if (msg.length() > 0) {
+            if (PreferenceManager.getDefaultSharedPreferences(getActivity())
+                    .getBoolean("allow_negative_stocks", false)) {
+                msg = "Wirklich ins Minus buchen?\n\n" + msg;
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(msg)
+                        .setPositiveButton("Ja, Genau!", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+                                MediaPlayer.create(getActivity(), R.raw.yay).start();
+                                MediaPlayer.create(getActivity(), R.raw.chaching).start();
+                                saveStatus("final", "Einkauf:");
+                                Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
+                                ((AccountActivity) getActivity()).resetTransaction();
+                                load();
+                            }
+                        }).setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).show();
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+                MediaPlayer.create(getActivity(), R.raw.error_1).start();
+                return false;
+            } else {
+                msg = "Keine Buchung ins Minus erlaubt!\n\n" + msg;
+                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+                MediaPlayer.create(getActivity(), R.raw.error_2).start();
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == getActivity().RESULT_OK && requestCode == 42) {
+            MediaPlayer.create(getActivity(), R.raw.chaching).start();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    MediaPlayer.create(getActivity(), R.raw.yay).start();
+                }
+            }, 1000);
+            saveStatus("final", "Einkauf:");
+            Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
+            ((CheckoutActivity) getActivity()).resetTransaction();
+            load();
+            startActivity(new Intent(getActivity(), BrowseActivity.class)
+                    .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                            data.getStringExtra("guid") + "/transactions")));
+        }
+    }
+
+    void saveStatus(String status, String comment) {
         ContentValues cv = new ContentValues();
         cv.put("status", status);
+        cv.put("comment", comment);
         cv.put("stop", System.currentTimeMillis());
         getActivity().getContentResolver().update(
                 getActivity().getIntent().getData(), cv, null, null);
@@ -291,9 +282,7 @@ public class TransactionFragment extends Fragment
         return msg;
     }
 
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     }
-
 }
