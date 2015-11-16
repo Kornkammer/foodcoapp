@@ -15,24 +15,29 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import au.com.bytecode.opencsv.CSVWriter;
 
-public class Export {
+public class BackupExport {
 
     static SimpleDateFormat df = new SimpleDateFormat();
 
-    public static File create(Context ctx, String dest) {
+    public static File create(Context ctx, String id) {
+
         OutputStream os;
         ZipOutputStream zos;
-        File result = file(dest);
+        File result = file(id + ".zip");
         try {
             os = new FileOutputStream(result);
             zos = new ZipOutputStream(new BufferedOutputStream(os));
+            String date = new SimpleDateFormat("yyyy_MM_dd--HH:mm").format(new Date());
 
-            zip(new File(Environment.getDataDirectory(), "//data//org.baobab.foodcoapp//databases//foodcoapp.db"), zos);
+            zip(null, new File(Environment.getDataDirectory(),
+                    "//data//org.baobab.foodcoapp//databases//foodcoapp.db"),
+                    "Knk_" + date + ".BAK", zos);
             transactions(ctx, zos);
             reports(ctx, zos);
 
@@ -58,14 +63,15 @@ public class Export {
 
     static void reports(final Context ctx, ZipOutputStream zos) throws IOException {
         Cursor accounts = ctx.getContentResolver().query(
-                Uri.parse("content://org.baobab.foodcoapp/accounts/passiva/accounts"),
+                Uri.parse("content://org.baobab.foodcoapp/accounts/mitglieder/accounts"),
                 null, null, null, null);
         for (int i = 0; i < accounts.getCount(); i++) {
             accounts.moveToPosition(i);
             Cursor account = ctx.getContentResolver().query(
-                    Uri.parse("content://org.baobab.foodcoapp/transactions"),
-                    null, "accounts.guid IS '" + accounts.getString(2) + "'", null, null);
-            File csv = file(accounts.getString(1) + ".csv");
+                    Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                            accounts.getString(2) + "/transactions"),
+                    null, null, null, null);
+            File csv = file(accounts.getString(1) + "_" + accounts.getString(2) + ".csv");
             exportTransactions(ctx, account, csv);
             zip("Kontoumsätze", csv, zos);
             csv.delete();
@@ -78,7 +84,6 @@ public class Export {
         CSVWriter out;
         try {
             out = new CSVWriter(new FileWriter(file));
-
             while (c.moveToNext()) {
                 out.writeNext(writeTransaction(c));
             }
@@ -88,22 +93,19 @@ public class Export {
         }
     }
 
-    private static String[] writeRow(Cursor c) {
-        int count = c.getColumnCount();
-        String[] row = new String[count];
-        for (int i = 0;i < count; i++) {
-            row[i] = c.getString(i);
-        }
-        return row;
-    }
-
     private static String[] writeTransaction(Cursor c) {
         int count = c.getColumnCount();
         String[] row = new String[count];
         row[0] = df.format(c.getLong(2));
         row[1] = c.getString(3);
         row[2] = c.getString(4);
-        row[3] = "" + c.getFloat(5) * -1;
+        String sign;
+        if (c.getString(9).equals("aktiva")) {
+            sign = c.getInt(8) < 0? "-" : "+";
+        } else {
+            sign = c.getInt(8) > 0? "-" : "+";
+        }
+       row[3] = sign + String.format("%.2f", c.getFloat(6));
         return row;
     }
 
@@ -116,7 +118,11 @@ public class Export {
     }
 
     public static void zip(String dir, File file, ZipOutputStream zos) throws IOException {
-        zos.putNextEntry(new ZipEntry((dir != null? dir + "/" : "") + file.getName()));
+        zip(dir, file, file.getName(), zos);
+    }
+
+    public static void zip(String dir, File file, String name, ZipOutputStream zos) throws IOException {
+        zos.putNextEntry(new ZipEntry((dir != null? dir + "/" : "") + name));
         BufferedInputStream in = new BufferedInputStream(new FileInputStream(file), 2048);
         int count;
         byte buf[] = new byte[2048];

@@ -206,6 +206,8 @@ public class CheckoutActivity extends AppCompatActivity
     public void onBackPressed() {
         if (goToDashboard()) {
             startActivity(new Intent(this, DashboardActivity.class));
+        } else {
+            super.onBackPressed();
         }
     }
 
