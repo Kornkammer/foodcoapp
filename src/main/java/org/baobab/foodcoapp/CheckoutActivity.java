@@ -15,7 +15,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -35,7 +34,7 @@ public class CheckoutActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
-        setContentView(R.layout.activity_possimple);
+        setContentView(layout());
         if (savedInstanceState == null) {
             resetTransaction();
         }
@@ -43,6 +42,10 @@ public class CheckoutActivity extends AppCompatActivity
         findViewById(R.id.scanner).setOnKeyListener(this);
         pager = (ViewPager) findViewById(R.id.pager);
         scale = new Scale(this);
+    }
+
+    protected int layout() {
+        return R.layout.activity_possimple;
     }
 
     public void resetTransaction() {
@@ -54,9 +57,9 @@ public class CheckoutActivity extends AppCompatActivity
     @Override
     public void onStart() {
         super.onStart();
+//        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ((TransactionSimpleFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.transaction)).load();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         scale.registerForUsb();
     }
 
@@ -82,7 +85,6 @@ public class CheckoutActivity extends AppCompatActivity
         } else {
             pages = 1;
         }
-        System.out.println("pages " + pages);
         pager.setOffscreenPageLimit(42);
         pager.setAdapter(new PagerAdapter() {
             @Override
@@ -132,6 +134,15 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+    }
+
+    @Override
+    public void onWeight(int gramms) {
+        if (gramms == -1) {
+            weight = 0;
+            return;
+        }
+        weight = gramms;
     }
 
     @Override
@@ -188,15 +199,6 @@ public class CheckoutActivity extends AppCompatActivity
     }
 
     @Override
-    public void onWeight(int gramms) {
-        if (gramms == -1) {
-            weight = 0;
-            return;
-        }
-        weight = gramms;
-    }
-
-    @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             super.onBackPressed();
@@ -237,5 +239,4 @@ public class CheckoutActivity extends AppCompatActivity
             setOnClickListener(CheckoutActivity.this);
         }
     }
-
 }
