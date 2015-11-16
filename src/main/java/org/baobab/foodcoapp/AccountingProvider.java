@@ -21,7 +21,7 @@ public class AccountingProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context) {
-            super(context, "foodcoapp.db", null, 5);
+            super(context, "foodcoapp.db", null, 1);
         }
 
         @Override
