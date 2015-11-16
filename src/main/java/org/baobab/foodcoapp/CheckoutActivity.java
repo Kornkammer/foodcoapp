@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class PoSimpleActivity extends AppCompatActivity
+public class CheckoutActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, Scale.ScaleListener, View.OnKeyListener {
 
@@ -92,12 +92,12 @@ public class PoSimpleActivity extends AppCompatActivity
 
             @Override
             public Object instantiateItem(ViewGroup container, int position) {
-                StretchableGrid page = new StretchableGrid(PoSimpleActivity.this, 4, 4);
+                StretchableGrid page = new StretchableGrid(CheckoutActivity.this, 4, 4);
                 for (int i = 1; i <= 16; i++) {
                     int button = (int) position * 16 + i;
                     if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
-                                PoSimpleActivity.this,
+                                CheckoutActivity.this,
                                 data.getLong(0),
                                 data.getString(1),
                                 data.getFloat(2),
@@ -108,7 +108,7 @@ public class PoSimpleActivity extends AppCompatActivity
                         }
                     } else {
                         page.addView(new ProductButton(
-                                PoSimpleActivity.this, 0, "", 0, null, null, button), i);
+                                CheckoutActivity.this, 0, "", 0, null, null, button), i);
                     }
                 }
                 ((ViewPager) container).addView(page);
@@ -234,7 +234,7 @@ public class PoSimpleActivity extends AppCompatActivity
             }
             setBackgroundResource(R.drawable.background_product_button);
             setClickable(true);
-            setOnClickListener(PoSimpleActivity.this);
+            setOnClickListener(CheckoutActivity.this);
         }
     }
 

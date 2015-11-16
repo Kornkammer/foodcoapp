@@ -39,7 +39,7 @@ public class DashboardActivity extends AppCompatActivity {
             public void onClick(View v) {
                 startActivity(
                         new Intent(DashboardActivity.this,
-                                PoSimpleActivity.class));
+                                CheckoutActivity.class));
             }
         });
         findViewById(R.id.bilanz).setOnClickListener(new View.OnClickListener() {

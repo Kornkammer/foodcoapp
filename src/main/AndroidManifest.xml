@@ -51,7 +51,7 @@
       </intent-filter>
     </activity>
     <activity
-      android:name="org.baobab.foodcoapp.PoSimpleActivity"
+      android:name=".CheckoutActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/shopping"
       android:launchMode="singleTask"
