@@ -115,13 +115,12 @@ public class DashboardActivity extends AppCompatActivity {
                 String mail = PreferenceManager.getDefaultSharedPreferences(this)
                         .getString("export_email", "");
                 Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
-                String date = new SimpleDateFormat("yyyy_MM_dd--HH:mm").format(new Date());
+                String date = new SimpleDateFormat("yyyy_MM_dd--HH_mm").format(new Date());
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[] {mail});
                 intent.putExtra(Intent.EXTRA_TEXT, "FoodCoApp Backup und Excel Export vom " + date);
                 intent.putExtra(Intent.EXTRA_SUBJECT, "FoodCoApp " + date + " Export");
                 intent.setType("application/zip");
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(
-                        BackupExport.create(this, "foodcoapp_" + date + ".zip")));
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(BackupExport.create(this, date)));
                 Intent chooser = Intent.createChooser(intent, "Daten Backup Ex(el)port");
                 startActivity(chooser);
                 break;

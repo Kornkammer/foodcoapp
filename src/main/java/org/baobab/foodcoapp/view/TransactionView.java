@@ -318,6 +318,12 @@ public class TransactionView extends GridLayout {
                 amount.setNumber(quantity);
             }
         }
+        LayoutParams lp = new LayoutParams();
+        lp.rowSpec = GridLayout.spec(0, 2);
+        lp.setGravity(Gravity.RIGHT);
+        addView(amount, lp);
+        amount.setId(productId);
+        amount.setTag(position);
         if (quantity >= 100) { // more than 100 in stock
             amount.setNumber((int) quantity); // cut off decimals
             if (quantity >= 1000) {
@@ -325,12 +331,6 @@ public class TransactionView extends GridLayout {
                 ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
             }
         }
-        LayoutParams lp = new LayoutParams();
-        lp.rowSpec = GridLayout.spec(0, 2);
-        lp.setGravity(Gravity.RIGHT);
-        addView(amount, lp);
-        amount.setId(productId);
-        amount.setTag(position);
         return amount;
     }
 

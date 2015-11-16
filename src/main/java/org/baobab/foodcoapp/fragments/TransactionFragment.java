@@ -191,16 +191,16 @@ public class TransactionFragment extends Fragment
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
                     null, "title IS '" + t.getString(7) + "'", null, null);
             int factor = 1;
-            if (t.getString(10).equals("passiva")) {
+            if (t.getString(10).equals("passiva") || t.getString(10).equals("mitglieder")) {
                 factor = -1;
             }
             if (stocks.getCount() > 0) {
                 stocks.moveToFirst();
                 if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
-                    msg += " - Nicht genug " + t.getString(12) + " auf " + t.getString(2) + "\n";
+                    msg += " - Nicht genug " + t.getString(12) + " auf " + t.getString(3) + "\n";
                 }
             } else if (factor * t.getInt(4) < 0) {
-                msg += " - Nicht genug " + t.getString(12) + " auf " + t.getString(2) + "\n";
+                msg += " - Nicht genug " + t.getString(12) + " auf " + t.getString(3) + "\n";
             }
         }
         if (msg.length() > 0) {
