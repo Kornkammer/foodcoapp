@@ -108,7 +108,6 @@ public class TransactionView extends GridLayout {
 
     private void addProduct(int position, int transactionId, int productId, String accountGuid,
                             float quantity, String unit, float price, String title, String img) {
-        float total = quantity * price;
         sum -= (quantity * price);
 
         images(accountGuid, productId, quantity, img);
@@ -116,7 +115,7 @@ public class TransactionView extends GridLayout {
         unit(quantity, productId, unit);
 
         title(title, position, transactionId);
-        sum(quantity, productId, position, total);
+        sum(quantity, productId, position, price);
         details(productId, price, unit);
     }
 
