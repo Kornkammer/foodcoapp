@@ -42,7 +42,7 @@ public class AccountEditFragment extends Fragment
     public static final int CONTACT = 1;
     private static final int SCAN = 0;
 
-    static AccountEditFragment newInstance() {
+    public static AccountEditFragment newInstance() {
         AccountEditFragment f = new AccountEditFragment();
         Bundle b = new Bundle();
         b.putString("parent_guid", "mitglieder");
@@ -50,7 +50,7 @@ public class AccountEditFragment extends Fragment
         return f;
     }
 
-    static AccountEditFragment newInstance(Uri uri) {
+    public static AccountEditFragment newInstance(Uri uri) {
         AccountEditFragment f = new AccountEditFragment();
         Bundle b = new Bundle();
         b.putString("uri", uri.toString());

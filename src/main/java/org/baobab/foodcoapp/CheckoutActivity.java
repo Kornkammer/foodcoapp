@@ -27,11 +27,11 @@ import org.baobab.foodcoapp.view.StretchableGrid;
 
 public class CheckoutActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener, Scale.ScaleListener, View.OnKeyListener {
+        View.OnClickListener, Scale.ScaleListener, View.OnKeyListener, View.OnLongClickListener {
 
-    private ViewPager pager;
-    private Scale scale;
-    private int weight;
+    ViewPager pager;
+    Scale scale;
+    int weight;
     float currency = 1;
 
     @Override
@@ -48,7 +48,7 @@ public class CheckoutActivity extends AppCompatActivity
         scale = new Scale(this);
     }
 
-    protected int layout() {
+    int layout() {
         return R.layout.activity_possimple;
     }
 
@@ -172,7 +172,7 @@ public class CheckoutActivity extends AppCompatActivity
         return false;
     }
 
-    private void handleBarcode(String ean) {
+    void handleBarcode(String ean) {
         Cursor p = getContentResolver().query(Uri.parse(
                         "content://org.baobab.foodcoapp/products"),
                 null, "ean IS ?", new String[] { ean }, null);
@@ -187,7 +187,7 @@ public class CheckoutActivity extends AppCompatActivity
         }
     }
 
-    private void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
+    void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
         cv.put("product_id", id);
@@ -204,11 +204,18 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            super.onBackPressed();
-        } else {
+        if (goToDashboard()) {
             startActivity(new Intent(this, DashboardActivity.class));
         }
+    }
+
+    boolean goToDashboard() {
+        return getSupportFragmentManager().getBackStackEntryCount() == 0;
+    }
+
+    @Override
+    public boolean onLongClick(View v) {
+        return false;
     }
 
 
@@ -241,6 +248,7 @@ public class CheckoutActivity extends AppCompatActivity
             setBackgroundResource(R.drawable.background_product_button);
             setClickable(true);
             setOnClickListener(CheckoutActivity.this);
+            setOnLongClickListener(CheckoutActivity.this);
         }
     }
 }

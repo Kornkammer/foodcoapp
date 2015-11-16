@@ -2,7 +2,6 @@ package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,25 +9,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.baobab.foodcoapp.fragments.TransactionFragment;
 import org.baobab.foodcoapp.io.Export;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.util.Scale;
@@ -38,26 +28,19 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class AccountActivity extends AppCompatActivity
-        implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener, View.OnLongClickListener, Scale.ScaleListener, View.OnKeyListener {
+public class AccountActivity extends CheckoutActivity {
 
     public static final String TAG = "FoodCoApp";
-    private ViewPager pager;
     private TextView scaleView;
-    private Scale scale;
-    private int weight;
+
+    int layout() {
+        return R.layout.activity_pos;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_pos);
-        if (savedInstanceState == null) {
-            resetTransaction();
-        }
-        getSupportLoaderManager().initLoader(0, null, this);
-        pager = (ViewPager) findViewById(R.id.pager);
-        findViewById(R.id.scanner).setOnKeyListener(this);
+        getSupportActionBar().show();
         findViewById(R.id.bar).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,41 +76,25 @@ public class AccountActivity extends AppCompatActivity
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET));
             }
         });
-        scale = new Scale(this);
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
                 fullscreen();
             }
         });
-    }
-
-    public void resetTransaction() {
-        Uri uri = getContentResolver().insert(Uri.parse(
-                "content://org.baobab.foodcoapp/transactions"), null);
-        setIntent(getIntent().setData(uri));
     }
 
     @Override
     public void onStart() {
         super.onStart();
         fullscreen();
-        ((TransactionFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.transaction)).load();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        scale.registerForUsb();
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
                 fullscreen();
             }
         });
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        scale.unregisterUsb();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -140,13 +107,6 @@ public class AccountActivity extends AppCompatActivity
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_FULLSCREEN);
         }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                Uri.parse("content://org.baobab.foodcoapp/products"),
-                null, "_id >= 5", null, "UPPER(title)");
     }
 
     @Override
@@ -219,20 +179,16 @@ public class AccountActivity extends AppCompatActivity
 
     @Override
     public void onClick(View v) {
-        if (((ProductButton) v).empty) {
-            return;
-        }
         if (((ProductButton) v).id == -2) {
             Barcode.scan(this, "EAN_8");
             return;
         } else if (((ProductButton) v).id == -1) {
             startActivityForResult(new Intent(this, ProductEditActivity.class), 42);
             return;
+        } else {
+            super.onClick(v);
         }
-        ProductButton b = (ProductButton) v;
-        addProductToTransaction(b.id, b.title, (- (float) weight) / 1000, b.price, b.unit, b.img);
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent d) {
@@ -250,48 +206,17 @@ public class AccountActivity extends AppCompatActivity
         }
     }
 
+    static final DecimalFormat df = new DecimalFormat("0.000");
+
     @Override
-    public boolean onKey(View v, int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_ENTER) {
-            EditText scan = (EditText) findViewById(R.id.scanner);
-            String ean = scan.getText().toString();
-            if (ean.length() > 0) {
-                handleBarcode(ean);
-                scan.setText("");
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void handleBarcode(String ean) {
-        Cursor p = getContentResolver().query(Uri.parse(
-                        "content://org.baobab.foodcoapp/products"),
-                null, "ean IS ?", new String[] { ean }, null);
-        if (p.getCount() > 0) {
-            p.moveToFirst();
-            String title = p.getString(1).replace("AND ", "").replace("Adechser ", "")
-                    .replace("Bioland ", "").replace("Demeter ", "");
-            addProductToTransaction(p.getLong(0), title, -1, p.getFloat(2), p.getString(3), p.getString(4));
-//            Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
+    public void onWeight(int gramms) {
+        super.onWeight(gramms);
+        if (scaleView == null) return;
+        if (gramms < 1000) {
+            scaleView.setText("Waage: " + gramms + "g");
         } else {
-            Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
+            scaleView.setText("Waage: " + df.format(((float) gramms) / 1000) + "kg");
         }
-    }
-
-    private void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
-        ContentValues cv = new ContentValues();
-        cv.put("account_guid", "lager");
-        cv.put("product_id", id);
-        cv.put("title", title);
-        if (quantity != -1 && quantity != 0 && unit.equals(getString(R.string.weight))) {
-            cv.put("quantity", quantity);
-        }
-        cv.put("price", price);
-        cv.put("unit", unit);
-        cv.put("img", img);
-        getContentResolver().insert(getIntent().getData().buildUpon()
-                .appendEncodedPath("products").build(), cv);
     }
 
     @Override
@@ -301,57 +226,6 @@ public class AccountActivity extends AppCompatActivity
                         ((ProductButton) v).id))
                 .putExtra("button", ((ProductButton) v).button));
         return false;
-    }
-
-    static final DecimalFormat df = new DecimalFormat("0.000");
-
-    @Override
-    public void onWeight(int gramms) {
-        if (gramms == -1) {
-            scaleView.setText("");
-            weight = 0;
-            return;
-        }
-        weight = gramms;
-        if (scaleView == null) return;
-        if (gramms < 1000) {
-            scaleView.setText("Waage: " + gramms + "g");
-        } else {
-            scaleView.setText("Waage: " + df.format(((float) gramms) / 1000) + "kg");
-        }
-    }
-
-    class ProductButton extends FrameLayout {
-
-        boolean empty;
-        int button;
-        long id;
-        String title;
-        float price;
-        String unit;
-        String img;
-
-        public ProductButton(Context context, long id, String title, float price, String unit, String img, int button) {
-            super(context);
-            this.id = id;
-            this.button = button;
-            this.title = title;
-            this.price = price;
-            this.unit = unit;
-            this.img = img;
-            View.inflate(getContext(), R.layout.view_product_button, this);
-            ((TextView) findViewById(R.id.title)).setText(title);
-            if (img != null) {
-                ((ImageView) findViewById(R.id.image))
-                        .setImageURI(Uri.parse(img));
-            } else {
-                empty = true;
-            }
-            setBackgroundResource(R.drawable.background_product_button);
-            setClickable(true);
-            setOnClickListener(AccountActivity.this);
-            setOnLongClickListener(AccountActivity.this);
-        }
     }
 
     @Override
@@ -389,5 +263,10 @@ public class AccountActivity extends AppCompatActivity
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    boolean goToDashboard() {
+        return false;
     }
 }

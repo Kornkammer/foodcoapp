@@ -23,11 +23,11 @@ import java.util.Date;
 public class TransactionListFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    static TransactionListFragment newInstance() {
+    public static TransactionListFragment newInstance() {
         return newInstance(null);
     }
 
-    static TransactionListFragment newInstance(Uri uri) {
+    public static TransactionListFragment newInstance(Uri uri) {
         TransactionListFragment f = new TransactionListFragment();
         Bundle b = new Bundle();
         if (uri != null) {
