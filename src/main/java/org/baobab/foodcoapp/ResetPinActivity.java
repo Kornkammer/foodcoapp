@@ -37,7 +37,7 @@ public class ResetPinActivity extends AppCompatActivity {
                                         e.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
                             String name = ((EditText) view).getText().toString();
                             Cursor accounts = getContentResolver().query(Uri.parse(
-                                    "content://org.baobab.foodcoapp/accounts/passiva/accounts"),
+                                    "content://org.baobab.foodcoapp/accounts/mitglieder/accounts"),
                                     null, "name IS '" + name + "'", null, null);
                             if (accounts.getCount() > 0) {
                                 accounts.moveToFirst();
