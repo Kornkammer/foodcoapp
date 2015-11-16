@@ -20,8 +20,8 @@ public class LedgerProvider extends ContentProvider {
 
         static final String TAG = "Provider";
 
-        public DatabaseHelper(Context context) {
-            super(context, "foodcoapp.db", null, 1);
+        public DatabaseHelper(Context context, String db) {
+            super(context, db, null, 1);
         }
 
         @Override
@@ -126,6 +126,7 @@ public class LedgerProvider extends ContentProvider {
     private static final int TRANSACTIONS = 10;
     private static final int ACCOUNT_PRODUCTS = 11;
     private static final int TRANSACTION_PRODUCTS = 12;
+    private static final int LOAD = 0;
 
     public static String AUTHORITY = "org.baobab.foodcoapp";
 
@@ -134,7 +135,7 @@ public class LedgerProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        db = new DatabaseHelper(getContext());
+        db = new DatabaseHelper(getContext(),  "foodcoapp.db");
         router.addURI(AUTHORITY, "accounts/*", ACCOUNT);
         router.addURI(AUTHORITY, "accounts", ACCOUNTS);
         router.addURI(AUTHORITY, "accounts/*/accounts", ACCOUNTS);
@@ -153,6 +154,7 @@ public class LedgerProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCTS);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCTS);
         router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCTS);
+        router.addURI(AUTHORITY, "load/*", LOAD);
         return false;
     }
 
@@ -343,11 +345,14 @@ public class LedgerProvider extends ContentProvider {
     @Override
     public Uri insert(Uri uri, ContentValues values) {
         switch (router.match(uri)) {
+            case LOAD:
+                db = new DatabaseHelper(getContext(), uri.getLastPathSegment());
+                break;
             case PRODUCTS:
                 uri = ContentUris.withAppendedId(uri,
                         db.getWritableDatabase().insert("products", null, values));
                 getContext().getContentResolver().notifyChange(uri, null);
-                break;
+            break;
             case TRANSACTION_PRODUCTS:
                 String quantity = null;
                 if (values.containsKey("unit")) { // not cash
