@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -35,8 +36,10 @@ public class BackupExport {
             zos = new ZipOutputStream(new BufferedOutputStream(os));
             String date = new SimpleDateFormat("yyyy_MM_dd--HH:mm").format(new Date());
 
+            String db = PreferenceManager.getDefaultSharedPreferences(ctx)
+                    .getString("db", "foodcoapp.db");
             zip(null, new File(Environment.getDataDirectory(),
-                    "//data//org.baobab.foodcoapp//databases//foodcoapp.db"),
+                    "//data//org.baobab.foodcoapp//databases//" + db),
                     "Knk_" + date + ".BAK", zos);
             transactions(ctx, zos);
             reports(ctx, zos);

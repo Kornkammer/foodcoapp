@@ -62,17 +62,9 @@ public class TransactionListFragment extends ListFragment
                         v.who.setText(cursor.getString(3));
                         String sign;
                         if (cursor.getString(9).equals("aktiva")) {
-                            if (cursor.getInt(8) < 0) {
-                                sign = "-";
-                            } else {
-                                sign = "+";
-                            }
+                            sign = cursor.getInt(8) < 0? "-" : "+";
                         } else {
-                            if (cursor.getInt(8) < 0) {
-                                sign = "+";
-                            } else {
-                                sign = "-";
-                            }
+                            sign = cursor.getInt(8) > 0? "-" : "+";
                         }
                         if (!cursor.isNull(4)) {
                             v.comment.setText(cursor.getString(4));

@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.UUID;
@@ -135,7 +136,9 @@ public class LedgerProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        db = new DatabaseHelper(getContext(),  "foodcoapp.db");
+        String file = PreferenceManager.getDefaultSharedPreferences(getContext())
+                .getString("db", "foodcoapp.db");
+        db = new DatabaseHelper(getContext(), file);
         router.addURI(AUTHORITY, "accounts/*", ACCOUNT);
         router.addURI(AUTHORITY, "accounts", ACCOUNTS);
         router.addURI(AUTHORITY, "accounts/*/accounts", ACCOUNTS);
@@ -346,6 +349,8 @@ public class LedgerProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         switch (router.match(uri)) {
             case LOAD:
+                PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
+                        .putString("db", uri.getLastPathSegment()).commit();
                 db = new DatabaseHelper(getContext(), uri.getLastPathSegment());
                 break;
             case PRODUCTS:

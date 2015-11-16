@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.baobab.foodcoapp.fragments.TransactionListFragment;
+import org.baobab.foodcoapp.io.BackupImport;
 import org.baobab.foodcoapp.io.BnnImport;
 import org.baobab.foodcoapp.io.GlsImport;
 import org.baobab.foodcoapp.io.KnkImport;
@@ -62,6 +63,11 @@ public class ImportActivity extends AppCompatActivity {
                 @Override
                 protected Integer doInBackground(String... args) {
                     try {
+                        System.out.println(getIntent().getDataString());
+                        importer = new BackupImport().load(ImportActivity.this, getIntent().getData());
+                        if (!importer.getMsg().equals("No Backup file!")) {
+                            return 1;
+                        }
                         InputStream is = getContentResolver().openInputStream(getIntent().getData());
                         CSVReader csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), ';');
 
@@ -81,15 +87,14 @@ public class ImportActivity extends AppCompatActivity {
                                 err = "No idea how to import this file (line length " + line.length + ")";
                                 return 0;
                             }
-
                         }
                         return importer.read(csv);
                     } catch (Exception e) {
                         Log.e(TAG, "Error " + e);
                         err = "Error " + e;
                         e.printStackTrace();
-                        return 0;
                     }
+                    return 0;
                 }
 
                 @Override
@@ -108,6 +113,7 @@ public class ImportActivity extends AppCompatActivity {
                         return;
                     }
                     if (importer.getMsg() != null && !importer.getMsg().equals("")) {
+                        ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
                         ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
                         showMsg(importer.getMsg());
                     }
@@ -180,7 +186,16 @@ public class ImportActivity extends AppCompatActivity {
 
     private void showMsg(String msg) {
         new AlertDialog.Builder(ImportActivity.this)
-                .setMessage(msg + "\n").show();
+                .setMessage(msg + "\n")
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (importer instanceof BackupImport || importer instanceof BnnImport) {
+                            startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
+                            finish();
+                        }
+                    }
+                }).show();
     }
 
     @Override
