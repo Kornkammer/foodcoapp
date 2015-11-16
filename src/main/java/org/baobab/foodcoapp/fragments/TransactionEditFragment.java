@@ -47,7 +47,7 @@ public class TransactionEditFragment extends TransactionFragment {
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         super.onLoadFinished(loader, data);
-        transaction.headersClickable(false);
+        transaction.headersClickable(true);
         TextView ok = ((TextView) getActivity().findViewById(R.id.sum));
         TextView header = ((TextView) getActivity().findViewById(R.id.header));
         if (sum < 0.01 && sum > -0.01) {
