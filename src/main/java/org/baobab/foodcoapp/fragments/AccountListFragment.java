@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
@@ -20,6 +20,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.baobab.foodcoapp.BalanceActivity;
+import org.baobab.foodcoapp.R;
+import org.baobab.foodcoapp.TransactionView;
+import org.baobab.foodcoapp.TransactionsActivity;
 
 
 public class AccountListFragment extends Fragment
@@ -263,7 +268,7 @@ public class AccountListFragment extends Fragment
                                                 .addToBackStack("add")
                                                 .commit();
                                     } else {
-                                        ((AccountActivity) getActivity()).editAccount(
+                                        ((BalanceActivity) getActivity()).editAccount(
                                                 Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid));
                                     }
                                     break;

@@ -12,7 +12,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class BnnImport implements ImportActivity.Importer {
 
-    static final String TAG = PosActivity.TAG;
+    static final String TAG = AccountActivity.TAG;
     ArrayList<ContentValues> values;
     String msg = "";
     Context ctx;

@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.fragments;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -13,8 +13,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
+
+import org.baobab.foodcoapp.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

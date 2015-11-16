@@ -7,7 +7,7 @@
   android:orientation="horizontal"
   android:background="@color/medium_blue"
   android:id="@+id/frame"
-  tools:context="org.baobab.foodcoapp.PosActivity" >
+  tools:context="org.baobab.foodcoapp.AccountActivity" >
 
   <LinearLayout
     android:minWidth="@dimen/minwidth"
@@ -18,7 +18,7 @@
 
     <fragment
       android:id="@+id/transaction"
-      class="org.baobab.foodcoapp.TransactionSimpleFragment"
+      class="org.baobab.foodcoapp.fragments.TransactionSimpleFragment"
       android:layout_width="wrap_content"
       android:layout_height="0dp"
       android:layout_weight="1" />

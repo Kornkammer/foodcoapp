@@ -5,7 +5,6 @@ import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -42,7 +41,7 @@ public class ResetPinActivity extends AppCompatActivity {
                             if (accounts.getCount() > 0) {
                                 accounts.moveToFirst();
                                 startActivity(new Intent(ResetPinActivity.this,
-                                        AccountActivity.class).setData(Uri.parse(
+                                        BalanceActivity.class).setData(Uri.parse(
                                         "content://org.baobab.foodcoapp/accounts/"
                                                 + accounts.getString(2))));
                                 finish();

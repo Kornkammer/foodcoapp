@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.baobab.foodcoapp.fragments.TransactionSimpleFragment;
+
 public class CheckoutActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, Scale.ScaleListener, View.OnKeyListener {

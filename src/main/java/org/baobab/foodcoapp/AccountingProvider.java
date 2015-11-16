@@ -532,12 +532,12 @@ public class AccountingProvider extends ContentProvider {
                         alreadyExisting++;
                     }
                 }
-                Log.d(PosActivity.TAG, "already existing txns: " + alreadyExisting);
-                Log.d(PosActivity.TAG, "invalid non-zero-sum: " + invalidNotZeroSum);
+                Log.d(AccountActivity.TAG, "already existing txns: " + alreadyExisting);
+                Log.d(AccountActivity.TAG, "invalid non-zero-sum: " + invalidNotZeroSum);
                 if (invalidNotZeroSum == 0) {
                     db.getWritableDatabase().setTransactionSuccessful();
                 } else {
-                    Log.e(PosActivity.TAG, "roll back! should never happen! ");
+                    Log.e(AccountActivity.TAG, "roll back! should never happen! ");
                     result = 0;
                 }
                 db.getWritableDatabase().endTransaction();

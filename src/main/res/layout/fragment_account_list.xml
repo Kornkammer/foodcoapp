@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="@dimen/small"
-    tools:context="org.baobab.foodcoapp.AccountListFragment">
+    tools:context="org.baobab.foodcoapp.fragments.AccountListFragment">
 
     <ExpandableListView
         android:id="@android:id/list"

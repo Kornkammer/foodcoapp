@@ -4,17 +4,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import au.com.bytecode.opencsv.CSVReader;
 
 public class KnkImport implements ImportActivity.Importer {
 
-    static final String TAG = PosActivity.TAG;
+    static final String TAG = AccountActivity.TAG;
     String msg = "";
     Context ctx;
     int count = 0;

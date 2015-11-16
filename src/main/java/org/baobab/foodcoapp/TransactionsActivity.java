@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
+import org.baobab.foodcoapp.fragments.TransactionListFragment;
+
 
 public class TransactionsActivity extends AppCompatActivity {
 

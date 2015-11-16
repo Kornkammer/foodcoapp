@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.fragments;
 
 
 import android.app.Activity;
@@ -29,6 +29,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.baobab.foodcoapp.Barcode;
+import org.baobab.foodcoapp.Crypt;
+import org.baobab.foodcoapp.R;
 
 import java.util.Random;
 

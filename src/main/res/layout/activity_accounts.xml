@@ -5,14 +5,14 @@
     android:layout_height="match_parent"
     android:background="@drawable/scale"
     android:orientation="horizontal"
-    tools:context="org.baobab.foodcoapp.AccountActivity" >
+    tools:context="org.baobab.foodcoapp.BalanceActivity" >
 
     <fragment
         android:id="@+id/active"
         android:layout_weight="1"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        class="org.baobab.foodcoapp.AccountListFragment" />
+        class="org.baobab.foodcoapp.fragments.AccountListFragment" />
 
     <fragment
         android:id="@+id/passive"
@@ -20,5 +20,5 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/small"
-        class="org.baobab.foodcoapp.AccountListFragment" />
+        class="org.baobab.foodcoapp.fragments.AccountListFragment" />
 </LinearLayout>

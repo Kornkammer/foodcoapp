@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.fragments;
 
 
 import android.content.Context;
@@ -14,6 +14,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.baobab.foodcoapp.R;
 
 public abstract class TextDialogFragment extends DialogFragment {
 

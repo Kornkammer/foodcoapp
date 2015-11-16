@@ -1,4 +1,4 @@
-package org.baobab.foodcoapp;
+package org.baobab.foodcoapp.fragments;
 
 import android.app.AlertDialog;
 import android.content.ContentValues;
@@ -23,6 +23,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.baobab.foodcoapp.AccountActivity;
+import org.baobab.foodcoapp.R;
+import org.baobab.foodcoapp.TransactionView;
 
 public class TransactionFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener {
@@ -232,7 +236,7 @@ public class TransactionFragment extends Fragment
                                     MediaPlayer.create(getActivity(), R.raw.chaching).start();
                                     saveStatus("final");
                                     Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                                    ((PosActivity) getActivity()).resetTransaction();
+                                    ((AccountActivity) getActivity()).resetTransaction();
                                     load();
                                 }
                             }).setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
@@ -260,7 +264,7 @@ public class TransactionFragment extends Fragment
                 }, 700);
                 saveStatus("final");
                 Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                ((PosActivity) getActivity()).resetTransaction();
+                ((AccountActivity) getActivity()).resetTransaction();
                 load();
             }
         }

@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import org.baobab.foodcoapp.fragments.TransactionListFragment;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,7 +30,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class ImportActivity extends AppCompatActivity {
 
-    static final String TAG = PosActivity.TAG;
+    static final String TAG = AccountActivity.TAG;
     Importer importer = null;
     String err = null;
 
@@ -109,8 +111,8 @@ public class ImportActivity extends AppCompatActivity {
                     if (importer.getSession() != null) {
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container, TransactionListFragment.newInstance(
-                                                importer.getSession().buildUpon().appendPath(
-                                                        "transactions").build())).commit();
+                                        importer.getSession().buildUpon().appendPath(
+                                                "transactions").build())).commit();
                         displayImportButton(readCount);
                     }
                 }
@@ -148,7 +150,7 @@ public class ImportActivity extends AppCompatActivity {
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    startActivity(new Intent(ImportActivity.this, AccountActivity.class));
+                                    startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
                                     finish();
                                 }
                             },  700);
@@ -160,7 +162,7 @@ public class ImportActivity extends AppCompatActivity {
                                     .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            startActivity(new Intent(ImportActivity.this, AccountActivity.class));
+                                            startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
                                             finish();
                                         }
                                     })
