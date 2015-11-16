@@ -90,7 +90,7 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == LEGITIMATE) {
-            startActivity(new Intent(this, TransactionsActivity.class)
+            startActivity(new Intent(this, BrowseActivity.class)
                 .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                         data.getStringExtra("guid") + "/transactions")));
         }

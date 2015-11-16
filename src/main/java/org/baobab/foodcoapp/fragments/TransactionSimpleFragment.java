@@ -28,7 +28,7 @@ import org.baobab.foodcoapp.CheckoutActivity;
 import org.baobab.foodcoapp.LegitimateActivity;
 import org.baobab.foodcoapp.R;
 import org.baobab.foodcoapp.view.TransactionView;
-import org.baobab.foodcoapp.TransactionsActivity;
+import org.baobab.foodcoapp.BrowseActivity;
 
 public class TransactionSimpleFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -243,7 +243,7 @@ public class TransactionSimpleFragment extends Fragment
             Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
             ((CheckoutActivity) getActivity()).resetTransaction();
             load();
-            startActivity(new Intent(getActivity(), TransactionsActivity.class)
+            startActivity(new Intent(getActivity(), BrowseActivity.class)
                     .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                             data.getStringExtra("guid") + "/transactions")));
         }

@@ -9,7 +9,7 @@ import android.view.MenuItem;
 import org.baobab.foodcoapp.fragments.TransactionListFragment;
 
 
-public class TransactionsActivity extends AppCompatActivity {
+public class BrowseActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

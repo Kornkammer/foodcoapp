@@ -365,7 +365,7 @@ public class AccountActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.transactions:
-                startActivity(new Intent(this, TransactionsActivity.class));
+                startActivity(new Intent(this, BrowseActivity.class));
                 break;
             case R.id.settings:
                 startActivity(new Intent(this, SettingsActivity.class));

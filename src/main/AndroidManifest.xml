@@ -93,7 +93,7 @@
       android:icon="@drawable/book"
       android:clearTaskOnLaunch="true"
       android:screenOrientation="portrait"
-      android:name="org.baobab.foodcoapp.TransactionsActivity" >
+      android:name=".BrowseActivity" >
     </activity>
     <activity
       android:label="Import"
@@ -110,7 +110,7 @@
     </activity>
 
     <provider
-      android:name="org.baobab.foodcoapp.AccountingProvider"
+      android:name=".LedgerProvider"
       android:authorities="org.baobab.foodcoapp" />
 
     <activity

@@ -5,7 +5,7 @@
   <application >
 
     <provider
-      android:name="org.baobab.foodcoapp.AccountingProvider"
+      android:name="org.baobab.foodcoapp.LedgerProvider"
       android:authorities="org.baobab.foodcoapp.test" />
 
   </application>

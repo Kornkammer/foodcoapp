@@ -14,7 +14,7 @@ import android.util.Log;
 
 import java.util.UUID;
 
-public class AccountingProvider extends ContentProvider {
+public class LedgerProvider extends ContentProvider {
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 

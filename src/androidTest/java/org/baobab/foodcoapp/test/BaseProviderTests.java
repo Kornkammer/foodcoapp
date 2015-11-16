@@ -6,17 +6,17 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.test.ProviderTestCase2;
 
-import org.baobab.foodcoapp.AccountingProvider;
+import org.baobab.foodcoapp.LedgerProvider;
 
 
-public class BaseProviderTests extends ProviderTestCase2<AccountingProvider> {
+public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
 
     static {
-        AccountingProvider.AUTHORITY = "org.baobab.foodcoapp.test";
+        LedgerProvider.AUTHORITY = "org.baobab.foodcoapp.test";
     }
 
     public BaseProviderTests() {
-        super(AccountingProvider.class, "org.baobab.foodcoapp.test");
+        super(LedgerProvider.class, "org.baobab.foodcoapp.test");
     }
 
     @NonNull

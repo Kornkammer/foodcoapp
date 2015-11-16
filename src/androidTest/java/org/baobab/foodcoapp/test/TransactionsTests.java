@@ -3,10 +3,6 @@ package org.baobab.foodcoapp.test;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.test.ProviderTestCase2;
-
-import org.baobab.foodcoapp.AccountingProvider;
 
 
 public class TransactionsTests extends BaseProviderTests {

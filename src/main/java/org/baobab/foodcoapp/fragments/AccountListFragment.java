@@ -24,7 +24,7 @@ import android.widget.Toast;
 import org.baobab.foodcoapp.BalanceActivity;
 import org.baobab.foodcoapp.R;
 import org.baobab.foodcoapp.view.TransactionView;
-import org.baobab.foodcoapp.TransactionsActivity;
+import org.baobab.foodcoapp.BrowseActivity;
 
 
 public class AccountListFragment extends Fragment
@@ -196,7 +196,7 @@ public class AccountListFragment extends Fragment
                                 public void onClick(DialogInterface dialog, int which) {
                                     switch (which) {
                                         case 0:
-                                            startActivity(new Intent(getActivity(), TransactionsActivity.class)
+                                            startActivity(new Intent(getActivity(), BrowseActivity.class)
                                                     .setData(Uri.parse("content://org.baobab.foodcoapp/transactions/" + v.getId())));
                                             break;
                                         case 1:
@@ -257,7 +257,7 @@ public class AccountListFragment extends Fragment
                         public void onClick(DialogInterface dialog, int which) {
                             switch (which) {
                                 case 0:
-                                    startActivity(new Intent(getActivity(), TransactionsActivity.class)
+                                    startActivity(new Intent(getActivity(), BrowseActivity.class)
                                             .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                                                     guid + "/transactions")));
                                     break;

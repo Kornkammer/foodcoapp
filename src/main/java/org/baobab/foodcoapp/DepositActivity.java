@@ -105,7 +105,7 @@ public class DepositActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(DepositActivity.this, TransactionsActivity.class)
+                startActivity(new Intent(DepositActivity.this, BrowseActivity.class)
                         .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                                 guid + "/transactions")));
                 finish();
