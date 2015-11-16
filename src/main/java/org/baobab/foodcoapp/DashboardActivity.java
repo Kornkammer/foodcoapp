@@ -65,7 +65,9 @@ public class DashboardActivity extends AppCompatActivity {
                 } else if (event.getAction() == 1) {
                     multitouch.remove(v.getId());
                 }
-                if (multitouch.size() == 4) {
+                if (multitouch.size() == 2 && multitouch.contains(R.id.bilanz) && multitouch.contains(R.id.shop)) {
+                    startActivity(new Intent(DashboardActivity.this, PosActivity.class));
+                } else if (multitouch.size() == 3) {
                     Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
                     for (ResolveInfo a : getPackageManager().queryIntentActivities(i, 0)) {
                         if (!a.activityInfo.packageName.contains("baobab")) {
