@@ -39,7 +39,7 @@ public class Scale implements Runnable {
     private int mWeightLimit;
 
     public interface ScaleListener {
-        public void onWeight(int gramms);
+        public void onWeight(float kilos);
     }
 
     public Scale(AppCompatActivity activity) {
@@ -181,7 +181,7 @@ public class Scale implements Runnable {
             mHandler.sendMessage(Message.obtain(mHandler, MSG_DATA, buffer));
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(230);
             } catch (InterruptedException e) {
                 Log.w(TAG, "Read Interrupted");
             }
@@ -212,10 +212,10 @@ public class Scale implements Runnable {
 
                     switch (units) {
                         case UNITS_GRAM:
-                            callback.get().onWeight(weight);
+                            callback.get().onWeight(((float) weight) / 1000);
                             break;
                         case UNITS_OUNCE:
-                            callback.get().onWeight(Math.round(weight * GRAMMS_PER_OUNZE / 10));
+                            callback.get().onWeight(((float) Math.round(weight * GRAMMS_PER_OUNZE / 10)) / 1000);
                             break;
                     }
                     break;
