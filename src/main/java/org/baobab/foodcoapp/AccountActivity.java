@@ -22,6 +22,7 @@ import android.widget.TextView;
 import org.baobab.foodcoapp.io.BackupExport;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.view.StretchableGrid;
+import org.baobab.foodcoapp.view.TransactionView;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -30,7 +31,6 @@ import java.util.Date;
 public class AccountActivity extends CheckoutActivity {
 
     public static final String TAG = "FoodCoApp";
-    private TextView scaleView;
 
     int layout() {
         return R.layout.activity_pos;
@@ -94,6 +94,7 @@ public class AccountActivity extends CheckoutActivity {
                 fullscreen();
             }
         });
+        transactionView.addable(true);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
@@ -129,14 +130,10 @@ public class AccountActivity extends CheckoutActivity {
                 StretchableGrid page = new StretchableGrid(AccountActivity.this, 4, 4);
                 for (int i = 1; i <= 16; i++) {
                     int button = (int) position * 16 + i;
-                    if (button == 13) {
-                        page.addView(new ProductButton(
-                                AccountActivity.this, -1, "EAN", 1, "",
-                                "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add", button), 13);
-                    } else if (button == 16) {
+                    if (button == 16) {
                         page.addView(new ProductButton(
                                 AccountActivity.this, -2, "EAN", 1, "",
-                                "android.resource://org.baobab.foodcoapp/drawable/scan", button), 16);
+                                "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add", button), 13);
                     } else if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
                                 AccountActivity.this,
@@ -153,7 +150,7 @@ public class AccountActivity extends CheckoutActivity {
                                 AccountActivity.this, 0, "", 0, null, null, button), i);
                     }
                 }
-                ((ViewPager) container).addView(page);
+                container.addView(page);
                 return page;
 
             }
@@ -181,9 +178,6 @@ public class AccountActivity extends CheckoutActivity {
         if (((ProductButton) v).id == -2) {
             Barcode.scan(this, "EAN_8");
             return;
-        } else if (((ProductButton) v).id == -1) {
-            startActivityForResult(new Intent(this, ProductEditActivity.class), 42);
-            return;
         } else {
             super.onClick(v);
         }
@@ -198,9 +192,6 @@ public class AccountActivity extends CheckoutActivity {
                     String ean = d.getStringExtra("SCAN_RESULT");
                     handleBarcode(ean);
                     break;
-                case 42:
-                    addProductToTransaction(d.getLongExtra("id", 0), d.getStringExtra("title"), -1,
-                            d.getFloatExtra("price", 1.0f), d.getStringExtra("unit"), d.getStringExtra("img"));
             }
         }
     }
@@ -208,29 +199,17 @@ public class AccountActivity extends CheckoutActivity {
     static final DecimalFormat df = new DecimalFormat("0.000");
 
     @Override
-    public void onWeight(int gramms) {
-        super.onWeight(gramms);
-        if (scaleView == null) return;
-        if (gramms < 1000) {
-            scaleView.setText("Waage: " + gramms + "g");
-        } else {
-            scaleView.setText("Waage: " + df.format(((float) gramms) / 1000) + "kg");
-        }
-    }
-
-    @Override
     public boolean onLongClick(View v) {
         startActivity(new Intent(Intent.ACTION_EDIT,
-                Uri.parse("content://org.baobab.foodcoapp/products/" +
-                        ((ProductButton) v).id))
+                Uri.parse("content://org.baobab.foodcoapp/products" +
+                        (((ProductButton) v).empty ? "" : "/" + ((ProductButton) v).id)))
                 .putExtra("button", ((ProductButton) v).button));
-        return false;
+        return true;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.pos, menu);
-        scaleView = (TextView) menu.findItem(R.id.scale).getActionView().findViewById(R.id.weight);
         return super.onCreateOptionsMenu(menu);
     }
 

@@ -5,14 +5,6 @@
   xmlns:android="http://schemas.android.com/apk/res/android">
 
   <item
-    android:id="@+id/scale"
-    app:showAsAction="always"
-    android:showAsAction="always"
-    android:title="@string/weight"
-    app:actionLayout="@layout/scale"
-    android:actionLayout="@layout/scale" />
-
-  <item
     android:id="@+id/transactions"
     android:title="@string/transactions"
     android:icon="@drawable/ic_menu_moreoverflow"
