@@ -136,8 +136,13 @@ public class LedgerProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        String file = PreferenceManager.getDefaultSharedPreferences(getContext())
-                .getString("db", "foodcoapp.db");
+        String file;
+        try {
+            file = PreferenceManager.getDefaultSharedPreferences(getContext())
+                    .getString("db", "foodcoapp.db");
+        } catch (Exception e) {
+            file = "foodcoapp.db";
+        }
         db = new DatabaseHelper(getContext(), file);
         router.addURI(AUTHORITY, "accounts/*", ACCOUNT);
         router.addURI(AUTHORITY, "accounts", ACCOUNTS);
