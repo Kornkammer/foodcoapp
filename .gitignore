@@ -9,3 +9,4 @@ release.properties
 kornkammer.keystore
 /.idea/workspace.xml
 .DS_Store
+src/main/java/org/baobab/foodcoapp/util/Salt.java

@@ -24,7 +24,7 @@ public class Crypt {
     }
 
     public static String hash(String data, Context ctx) {
-        return hash(data.toCharArray(), salt(ctx));
+        return hash(data.toCharArray(), Salt.SALT);
     }
 
     public static String hash(char[] pin, byte[] salt) {
@@ -61,7 +61,6 @@ public class Crypt {
                     Base64.toBase64String((Crypt.salt())))
                     .commit();
         }
-        // reuse as hash is the only identifier to legitimate
         return Base64.decode(prefs.getString("salt", null));
     }
 
