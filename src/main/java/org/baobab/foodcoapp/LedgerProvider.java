@@ -170,9 +170,10 @@ public class LedgerProvider extends ContentProvider {
                         projection, selection, selectionArgs, null, null, sortOrder, null);
                 break;
             case PRODUCT:
-                result = db.getReadableDatabase().query("products", projection,
-                        "_id = ?", new String[] {uri.getLastPathSegment()},
-                        null, null, null);
+                result = db.getReadableDatabase().query("products", new String[] {
+                          "_id", "-1", "''", "_id AS product_id", "0",
+                                "price", "unit", "title", "img" }, "_id = ?",
+                        new String[] {uri.getLastPathSegment()}, null, null, null);
                 break;
             case TRANSACTION_PRODUCTS:
                 result = db.getReadableDatabase().rawQuery(
@@ -181,6 +182,8 @@ public class LedgerProvider extends ContentProvider {
                                 "SELECT _id, parent_guid, guid, name, max(_id) FROM accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid " +
                         " WHERE transaction_id = ?" +
+                                (uri.getPathSegments().size() > 3?
+                                " AND transaction_products._id = " + uri.getLastPathSegment() : "") +
                         " GROUP BY accounts.guid, title, price" +
                         " ORDER BY accounts._id, transaction_products.title",
                         new String[] { uri.getPathSegments().get(1) });
@@ -319,6 +322,8 @@ public class LedgerProvider extends ContentProvider {
     public String getType(Uri uri) {
         switch (router.match(uri)) {
             case PRODUCT:
+            case PRODUCTS:
+            case TRANSACTION_PRODUCTS:
                 return AUTHORITY + "/products";
             case ACCOUNT:
                 return AUTHORITY + "/accounts";

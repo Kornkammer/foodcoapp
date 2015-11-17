@@ -37,7 +37,6 @@ public class ProductEditActivity extends AppCompatActivity
 
     private static final int REQUEST_IMAGE_CAPTURE = 42;
     private static final String TAG = "POS";
-    private static long ID = 123456789;
     private ImageButton image;
     private EditText title;
     private EditText price;
@@ -73,9 +72,11 @@ public class ProductEditActivity extends AppCompatActivity
                 }
             }
         });
-        if (getIntent().getData() != null) {
-            setTitle("Edit product " + getIntent().getData().getLastPathSegment());
+        if (!getIntent().getDataString().endsWith("products")) {
             getSupportLoaderManager().initLoader(0, null, this);
+        } else {
+            getSupportActionBar().setTitle("New Product");
+            unit.setText(R.string.piece);
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (getResources().getConfiguration().hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
@@ -147,29 +148,21 @@ public class ProductEditActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        if (data.getCount() == 0) {
-            ContentValues cv = new ContentValues();
-            cv.put("button", getIntent().getIntExtra("button", 0));
-            Uri uri = getContentResolver().insert(Uri.parse(
-                    "content://org.baobab.foodcoapp/products"), cv);
-            setIntent(getIntent().setData(uri));
-            getSupportLoaderManager().restartLoader(0, null, this);
-            return;
-        }
         if (data.moveToFirst()) {
-            if (!data.isNull(1)) {
-                title.setText(data.getString(1));
+            setTitle("Edit product " + data.getString(7));
+            if (!data.isNull(7)) {
+                title.setText(data.getString(7));
             }
-            if (data.getFloat(2) != 0.0f) {
-                price.setText(String.format("%.2f", data.getFloat(2)));
+            if (data.getFloat(5) != 0.0f) {
+                price.setText(String.format("%.2f", data.getFloat(5)));
             }
-            if (!data.isNull(4)) {
-                img = Uri.parse(data.getString(4));
+            if (!data.isNull(8)) {
+                img = Uri.parse(data.getString(8));
                 image.setImageURI(img);
             }
-            if (!data.isNull(3) && data.getString(3).equals(getString(R.string.weight))) {
+            if (!data.isNull(6) && data.getString(6).equals(getString(R.string.weight))) {
                 unit.setText(R.string.weight);
-            } else if (!data.isNull(3) && data.getString(3).equals(getString(R.string.volume))) {
+            } else if (!data.isNull(6) && data.getString(6).equals(getString(R.string.volume))) {
                 unit.setText(R.string.volume);
             } else {
                 unit.setText(R.string.piece);
@@ -186,14 +179,6 @@ public class ProductEditActivity extends AppCompatActivity
             Toast.makeText(this, "no price", Toast.LENGTH_LONG).show();
             return;
         }
-        if (getIntent().getData() == null) {
-            oneOfProduct();
-            return;
-        }
-        if (img == null) {
-            Toast.makeText(this, "no image", Toast.LENGTH_LONG).show();
-            return;
-        }
         try {
             float p = Float.parseFloat(price.getText().toString().replace(",", "."));
             if (p > 1000) {
@@ -202,28 +187,27 @@ public class ProductEditActivity extends AppCompatActivity
             }
             ContentValues cv = new ContentValues();
             cv.put("title", title.getText().toString());
-            cv.put("img", img.toString());
+            if (img != null) {
+                cv.put("img", img.toString());
+            }
             cv.put("price", p);
             cv.put("unit", unit.getText().toString());
-            getContentResolver().update(getIntent().getData(), cv, null, null);
+            if (getIntent().hasExtra("button")) {
+                cv.put("button", getIntent().getIntExtra("button", 0));
+            }
+            if (getIntent().hasExtra("account_guid")) {
+                cv.put("account_guid", getIntent().getStringExtra("account_guid"));
+                cv.put("product_id", 3);
+            }
+            if (getIntent().getDataString().endsWith("products")) {
+                getContentResolver().insert(getIntent().getData(), cv);
+            } else {
+                getContentResolver().update(getIntent().getData(), cv, null, null);
+            }
             finish();
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
-    }
-
-    private void oneOfProduct() {
-        getIntent().putExtra("id", ++ID);
-        getIntent().putExtra("title", title.getText().toString());
-        getIntent().putExtra("price", Float.valueOf(price.getText().toString()).floatValue());
-        getIntent().putExtra("unit", unit.getText().toString());
-        if (img != null) {
-            getIntent().putExtra("img", img.toString());
-        } else {
-            getIntent().putExtra("img", "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add");
-        }
-        setResult(RESULT_OK, getIntent());
-        finish();
     }
 
     @Override
