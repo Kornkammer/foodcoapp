@@ -45,16 +45,12 @@ public class KnkImport implements ImportActivity.Importer {
                 readLine(line);
             }
         }
-        ContentValues cv = new ContentValues();
-        cv.put("status", "final");
-        int result = ctx.getContentResolver().update(session, cv, null, null);
-        msg += "Imported " + result + " transactions" + "\n (out of " + count +")\n";
-        return result;
+        return count;
     }
 
     @Override
     public Uri getSession() {
-        return null;
+        return session;
     }
 
     @Override

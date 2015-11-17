@@ -135,7 +135,6 @@ public class ImportActivity extends AppCompatActivity {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MediaPlayer.create(ImportActivity.this, R.raw.chaching).start();
                 final ProgressDialog dialog = new ProgressDialog(ImportActivity.this);
                 dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
                 dialog.setMessage("Importing. Please wait...");
@@ -155,6 +154,8 @@ public class ImportActivity extends AppCompatActivity {
                     protected void onPostExecute(Integer stored) {
                         dialog.dismiss();
                         if (stored == readCount) {
+                            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+                            MediaPlayer.create(ImportActivity.this, R.raw.chaching).start();
                             new Handler().postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
@@ -163,7 +164,8 @@ public class ImportActivity extends AppCompatActivity {
                                 }
                             },  700);
                         } else {
-                            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
+                            ((Vibrator) getSystemService(Context.VIBRATOR_SERVICE)).vibrate(300);
+                            MediaPlayer.create(ImportActivity.this, R.raw.error_2).start();
                             new AlertDialog.Builder(ImportActivity.this)
                                     .setMessage(stored + " Transaktionen importiert\n" +
                                             " (von " + readCount + ")" + "\n")
@@ -175,7 +177,6 @@ public class ImportActivity extends AppCompatActivity {
                                         }
                                     })
                                     .show();
-                            MediaPlayer.create(ImportActivity.this, R.raw.error_2).start();
                         }
                     }
                 }.execute();
