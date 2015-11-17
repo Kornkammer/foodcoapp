@@ -22,8 +22,9 @@ import java.util.HashSet;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    public static final int LEGITIMATE = 55;
     final HashSet<Integer> multitouch = new HashSet<>();
+    public static final int LEGITIMATE = 55;
+    private boolean multiTouchEvent;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class DashboardActivity extends AppCompatActivity {
         findViewById(R.id.deposit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (multiTouchEvent) return;
                 startActivity(new Intent(DashboardActivity.this, DepositActivity.class));
             }
         });
@@ -39,6 +41,7 @@ public class DashboardActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
+                if (multiTouchEvent) return;
                 startActivity(
                         new Intent(DashboardActivity.this,
                                 CheckoutActivity.class));
@@ -47,12 +50,14 @@ public class DashboardActivity extends AppCompatActivity {
         findViewById(R.id.bilanz).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (multiTouchEvent) return;
                 startActivity(new Intent(DashboardActivity.this, BalanceActivity.class));
             }
         });
         findViewById(R.id.kontoauszug).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (multiTouchEvent) return;
                 startActivityForResult(
                         new Intent(DashboardActivity.this,
                                 LegitimateActivity.class),
@@ -69,16 +74,18 @@ public class DashboardActivity extends AppCompatActivity {
                 }
                 if (multitouch.size() == 2 && multitouch.contains(R.id.bilanz) && multitouch.contains(R.id.shop)) {
                     startActivity(new Intent(DashboardActivity.this, AccountActivity.class));
+                    multiTouchEvent = true;
                 } else if (multitouch.size() == 3) {
                     Intent i = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
                     for (ResolveInfo a : getPackageManager().queryIntentActivities(i, 0)) {
                         if (!a.activityInfo.packageName.contains("baobab")) {
                             startActivity(new Intent()
                                     .setClassName(a.activityInfo.packageName, a.activityInfo.name));
+                            multiTouchEvent = true;
                         }
                     }
                 }
-                return false;
+                return multiTouchEvent;
             }
         };
         findViewById(R.id.deposit).setOnTouchListener(touch);
@@ -88,18 +95,20 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        fullscreen();
+        multitouch.clear();
+        multiTouchEvent = false;
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == LEGITIMATE) {
             startActivity(new Intent(this, BrowseActivity.class)
                 .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                         data.getStringExtra("guid") + "/transactions")));
         }
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        fullscreen();
     }
 
     @Override
@@ -126,12 +135,6 @@ public class DashboardActivity extends AppCompatActivity {
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        multitouch.clear();
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
