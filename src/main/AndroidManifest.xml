@@ -39,7 +39,7 @@
       android:name=".AccountActivity"
       android:configChanges="orientation|keyboardHidden|screenSize"
       android:label="@string/app_name"
-      android:icon="@drawable/ic_launcher"
+      android:icon="@drawable/ic_korn"
       android:taskAffinity="org.baobab.foodcoapp.pos"
       android:launchMode="singleTask"
       android:theme="@style/FullscreenTheme"

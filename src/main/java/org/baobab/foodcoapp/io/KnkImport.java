@@ -137,7 +137,7 @@ public class KnkImport implements ImportActivity.Importer {
             if (line.length == 5) {
                 cv.put("unit", line[4]);
             }
-            cv.put("img", "android.resource://org.baobab.foodcoapp/drawable/ic_launcher");
+            cv.put("img", "android.resource://org.baobab.foodcoapp/drawable/ic_korn");
             Uri uri = ctx.getContentResolver().insert(Uri.parse(
                     "content://org.baobab.foodcoapp/products"), cv);
             return uri;

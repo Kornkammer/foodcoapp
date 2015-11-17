@@ -256,7 +256,7 @@ public class TransactionView extends GridLayout {
                         img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/cash");
                         break;
                     case 2:
-                        img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_launcher");
+                        img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_korn");
                         break;
                     case 3:
                         img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_menu_moreoverflow");

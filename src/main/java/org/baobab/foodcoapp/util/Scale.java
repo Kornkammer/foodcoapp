@@ -171,10 +171,10 @@ public class Scale implements Runnable {
     public void run() {
         byte[] buffer = new byte[6];
         while (mRunning) {
-            int requestType = 0xA1; // 1010 0001b
-            int request = 0x01; //HID GET_REPORT
-            int value = 0x0103; //Input report, ID = 3
-            int index = 0; //Interface 0
+//            int requestType = 0xA1; // 1010 0001b
+//            int request = 0x01; //HID GET_REPORT
+//            int value = 0x0103; //Input report, ID = 3
+//            int index = 0; //Interface 0
             int length = 6;
             mConnection.bulkTransfer(mEndpointIntr, buffer, length, 2000);
 //            mConnection.controlTransfer(requestType, request, value, index, buffer, length, 2000);
