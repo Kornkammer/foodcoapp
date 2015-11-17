@@ -17,12 +17,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.TextView;
 
 import org.baobab.foodcoapp.io.BackupExport;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.view.StretchableGrid;
-import org.baobab.foodcoapp.view.TransactionView;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;

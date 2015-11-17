@@ -43,7 +43,7 @@ public class TransactionFragment extends Fragment
     @Override
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         scrollView = (ScrollView) flate.inflate(R.layout.fragment_transaction, null, false);
-        transaction = (TransactionView) scrollView.findViewById(R.id.transaction);
+        transaction = (TransactionView) scrollView.findViewById(R.id.transaction_view);
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
             String text() {
@@ -115,7 +115,9 @@ public class TransactionFragment extends Fragment
     }
 
     public void load() {
-        getActivity().getSupportLoaderManager().restartLoader(1, null, this);
+        if (getActivity() != null) {
+            getActivity().getSupportLoaderManager().initLoader(1, null, this);
+        }
     }
 
     @Override

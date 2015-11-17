@@ -24,14 +24,17 @@ import android.widget.Toast;
 import org.baobab.foodcoapp.fragments.TransactionFragment;
 import org.baobab.foodcoapp.util.Scale;
 import org.baobab.foodcoapp.view.StretchableGrid;
+import org.baobab.foodcoapp.view.TransactionView;
 
 public class CheckoutActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         View.OnClickListener, Scale.ScaleListener, View.OnKeyListener, View.OnLongClickListener {
 
+    TransactionFragment transactionFragment;
+    TransactionView transactionView;
     ViewPager pager;
     Scale scale;
-    int weight;
+    float weight = -1;
     float currency = 1;
 
     @Override
@@ -62,8 +65,10 @@ public class CheckoutActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        ((TransactionFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.transaction)).load();
+        transactionFragment = (TransactionFragment)
+                getSupportFragmentManager().findFragmentById(R.id.transaction);
+        transactionFragment.load();
+        transactionView = (TransactionView) findViewById(R.id.transaction_view);
         scale.registerForUsb();
     }
 
@@ -141,12 +146,12 @@ public class CheckoutActivity extends AppCompatActivity
     }
 
     @Override
-    public void onWeight(int gramms) {
-        if (gramms == -1) {
-            weight = 0;
-            return;
+    public void onWeight(float kilos) {
+        if (weight != kilos) {
+            transactionView.setWeight(kilos);
+            transactionFragment.load();
+            weight = kilos;
         }
-        weight = gramms;
     }
 
     @Override
@@ -155,7 +160,7 @@ public class CheckoutActivity extends AppCompatActivity
             return;
         }
         ProductButton b = (ProductButton) v;
-        addProductToTransaction(b.id, b.title, (-(float) weight) / 1000, b.price, b.unit, b.img);
+        addProductToTransaction(b.id, b.title, -weight, b.price, b.unit, b.img);
     }
 
     @Override
@@ -180,7 +185,7 @@ public class CheckoutActivity extends AppCompatActivity
             p.moveToFirst();
             String title = p.getString(1).replace("AND ", "").replace("Adechser ", "")
                     .replace("Bioland ", "").replace("Demeter ", "");
-            addProductToTransaction(p.getLong(0), title, -1, p.getFloat(2), p.getString(3), p.getString(4));
+            addProductToTransaction(p.getLong(0), title, 1, p.getFloat(2), p.getString(3), p.getString(4));
 //            Toast.makeText(this, "Found " + p.getString(1) + " " + p.getFloat(2), Toast.LENGTH_LONG).show();
         } else {
             Toast.makeText(this, "Product NOT found! \n" + ean, Toast.LENGTH_LONG).show();
@@ -192,7 +197,7 @@ public class CheckoutActivity extends AppCompatActivity
         cv.put("account_guid", "lager");
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != -1 && quantity != 0 && unit.equals(getString(R.string.weight))) {
+        if (quantity != 1 && unit.equals(getString(R.string.weight))) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);
@@ -244,7 +249,8 @@ public class CheckoutActivity extends AppCompatActivity
             if (img != null) {
                 ((ImageView) findViewById(R.id.image))
                         .setImageURI(Uri.parse(img));
-            } else {
+            }
+            if (id == 0) {
                 empty = true;
             }
             setBackgroundResource(R.drawable.background_product_button);

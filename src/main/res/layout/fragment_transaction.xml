@@ -11,7 +11,7 @@
     android:layout_height="match_parent" >
 
     <org.baobab.foodcoapp.view.TransactionView
-      android:id="@+id/transaction"
+      android:id="@+id/transaction_view"
       android:layout_height="match_parent"
       android:layout_width="wrap_content" />
 

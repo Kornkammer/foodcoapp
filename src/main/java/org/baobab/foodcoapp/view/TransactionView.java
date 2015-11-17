@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.widget.GridLayout;
@@ -25,8 +24,6 @@ import android.widget.TextView;
 import org.baobab.foodcoapp.R;
 
 
-// yes, this IS a mess :/
-
 public class TransactionView extends GridLayout {
 
     private OnClickListener onAmountClick;
@@ -34,8 +31,9 @@ public class TransactionView extends GridLayout {
     private OnClickListener onSumClick;
     private TextView header;
     private String account;
-    private double sum;
+    private float weight = -1;
     private boolean positive;
+    private boolean addProduct;
     private boolean showImages = true;
     private boolean showHeaders = true;
     private boolean headersClickable = true;
@@ -79,11 +77,18 @@ public class TransactionView extends GridLayout {
         columnWidth = width;
     }
 
+    public void addable(boolean add) {
+        addProduct = add;
+    }
+
+    public void setWeight(float quantity) {
+        weight = quantity;
+    }
+
     public void populate(Cursor data) {
         removeAllViews();
         data.moveToPosition(-1);
         account = "";
-        sum = 0.0;
         while (data.moveToNext()) {
             String accountGuid = data.getString(2);
             float quantity = data.getFloat(4);
@@ -101,19 +106,16 @@ public class TransactionView extends GridLayout {
                 title = data.getString(7);
             }
             addProduct(data.getPosition(), data.getInt(1), data.getInt(3), accountGuid,
-                    quantity, data.getString(6), data.getFloat(5), title,  data.getString(8));
+                    quantity, data.getString(6), data.getFloat(5), title, data.getString(8));
         }
-//        addProduct(-1, -1, 3, "lager", 42.235f, "Kilo", 0, "", "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add");
+        addProduct(-1, -1, 4, "lager", weight, "Kilo", 0, null, null);
     }
 
     private void addProduct(int position, int transactionId, int productId, String accountGuid,
-                            float quantity, String unit, float price, String title, String img) {
-        sum -= (quantity * price);
-
+                         float quantity, String unit, float price, String title, String img) {
         images(accountGuid, productId, quantity, img);
         amount(quantity, productId, position);
         unit(quantity, productId, unit);
-
         title(title, position, transactionId);
         sum(quantity, productId, position, price);
         details(productId, price, unit);
@@ -180,7 +182,7 @@ public class TransactionView extends GridLayout {
         }
         ViewGroup.LayoutParams p = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT );
+                ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.bottomMargin = - getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         f.addView(header, p);
         addView(f, lp);
@@ -240,8 +242,10 @@ public class TransactionView extends GridLayout {
 
     private void images(final String accountGuid, final int productId, float quantity, String path) {
         LinearLayout images = new LinearLayout(getContext());
+        images.setBackgroundResource(R.drawable.background_translucent);
+        images.setOrientation(LinearLayout.HORIZONTAL);
         if (showImages || productId < 3) {
-            Uri img;
+            Uri img = null;
             int imgWidth = getContext().getResources().getDimensionPixelSize(R.dimen.img_width);
             if (path != null) {
                 img = Uri.parse(path);
@@ -254,50 +258,52 @@ public class TransactionView extends GridLayout {
                     case 2:
                         img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_launcher");
                         break;
-                    default:
+                    case 3:
                         img = Uri.parse("android.resource://org.baobab.foodcoapp/drawable/ic_menu_moreoverflow");
+                        break;
                 }
             }
-            images.setOrientation(LinearLayout.HORIZONTAL);
-            int numberOfImages = account.equals("lager")? (int) Math.abs(quantity) : 1;
-            if (numberOfImages > 23) {
-                numberOfImages = 23;
-            }
-            if (numberOfImages < 1) {
-                numberOfImages = 1;
-            }
-            for (int i = 0; i < numberOfImages; i++) {
-                ImageView image = new ImageView(getContext());
-                image.setImageURI(img);
-                image.setPadding(2, 2, 2, 2);
-                image.setScaleType(ImageView.ScaleType.FIT_XY);
-                int width = imgWidth;
-                int height = getContext().getResources().getDimensionPixelSize(R.dimen.img_height);
-                double factor = (2.0 - (1.0 / numberOfImages)) / numberOfImages;
-                images.addView(image, new LinearLayout.LayoutParams((int) (width * factor ), height));
-            }
-            if (onAmountClick != null) {
-                images.setClickable(true);
-                images.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getContext().getContentResolver().delete(
-                                ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                        .appendEncodedPath("accounts/" + accountGuid +
-                                                "/products/" + productId).build(), null, null);
-                    }
-                });
-                images.setOnLongClickListener(new OnLongClickListener() {
+            if (img != null) {
+                int numberOfImages = account.equals("lager")? (int) Math.abs(quantity) : 1;
+                if (numberOfImages > 23) {
+                    numberOfImages = 23;
+                }
+                if (numberOfImages < 1) {
+                    numberOfImages = 1;
+                }
+                for (int i = 0; i < numberOfImages; i++) {
+                    ImageView image = new ImageView(getContext());
+                    image.setImageURI(img);
+                    image.setPadding(2, 2, 2, 2);
+                    image.setScaleType(ImageView.ScaleType.FIT_XY);
+                    int width = imgWidth;
+                    int height = getContext().getResources().getDimensionPixelSize(R.dimen.img_height);
+                    double factor = (2.0 - (1.0 / numberOfImages)) / numberOfImages;
+                    images.addView(image, new LinearLayout.LayoutParams((int) (width * factor ), height));
+                }
+                if (onAmountClick != null) {
+                    images.setClickable(true);
+                    images.setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            getContext().getContentResolver().delete(
+                                    ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                            .appendEncodedPath("accounts/" + accountGuid +
+                                                    "/products/" + productId).build(), null, null);
+                        }
+                    });
+                    images.setOnLongClickListener(new OnLongClickListener() {
 
-                    @Override
-                    public boolean onLongClick(View v) {
-                        getContext().getContentResolver().delete(
-                                ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                        .appendEncodedPath("accounts/" + accountGuid +
-                                                "/products/" + productId).build(), "all", null);
-                        return false;
-                    }
-                });
+                        @Override
+                        public boolean onLongClick(View v) {
+                            getContext().getContentResolver().delete(
+                                    ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                            .appendEncodedPath("accounts/" + accountGuid +
+                                                    "/products/" + productId).build(), "all", null);
+                            return false;
+                        }
+                    });
+                }
             }
         }
         LayoutParams lp = new LayoutParams();
@@ -307,11 +313,13 @@ public class TransactionView extends GridLayout {
     }
 
 
-    private DecimalView amount(float quantity, int productId, int position) {
-        DecimalView amount = new DecimalView(getContext(), onAmountClick);
-        if (productId < 3) {
+    private void amount(float quantity, int productId, int position) {
+        final DecimalView amount = new DecimalView(getContext(), onAmountClick);
+        if (productId < 3 || (productId == 4 && weight == -1)) {
             amount.setVisibility(INVISIBLE);
         } else {
+            amount.setId(productId);
+            amount.setTag(position);
             if (Math.abs(quantity) < 1.0) {
                 amount.setNumber(quantity * 1000);
             } else {
@@ -322,8 +330,6 @@ public class TransactionView extends GridLayout {
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.setGravity(Gravity.RIGHT);
         addView(amount, lp);
-        amount.setId(productId);
-        amount.setTag(position);
         if (quantity >= 100) { // more than 100 in stock
             amount.setNumber((int) quantity); // cut off decimals
             if (quantity >= 1000) {
@@ -331,13 +337,12 @@ public class TransactionView extends GridLayout {
                 ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
             }
         }
-        return amount;
     }
 
     private void unit(float quantity, int productId, String unit) {
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
-        if (productId < 3) {
+        if (productId < 3 || (productId == 4 && weight == -1)) {
             x.setVisibility(GONE);
         } else if (unit != null && unit.equals(getContext().getString(R.string.weight))) {
             if (Math.abs(quantity) < 1) {
@@ -365,7 +370,12 @@ public class TransactionView extends GridLayout {
     private void title(String name, int position, int transactionId) {
         LayoutParams lp;TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-        title.setText(name);
+        if (name != null) {
+            title.setText(name);
+        } else if (addProduct) {
+            title.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, R.drawable.ic_menu_add);
+
+        }
         title.setTypeface(null, Typeface.BOLD);
         title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
