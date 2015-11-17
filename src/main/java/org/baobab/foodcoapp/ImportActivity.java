@@ -63,7 +63,6 @@ public class ImportActivity extends AppCompatActivity {
                 @Override
                 protected Integer doInBackground(String... args) {
                     try {
-                        System.out.println(getIntent().getDataString());
                         importer = new BackupImport().load(ImportActivity.this, getIntent().getData());
                         if (!importer.getMsg().equals("No Backup file!")) {
                             return 1;

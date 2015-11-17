@@ -75,7 +75,7 @@ public class ProductEditActivity extends AppCompatActivity
         if (!getIntent().getDataString().endsWith("products")) {
             getSupportLoaderManager().initLoader(0, null, this);
         } else {
-            getSupportActionBar().setTitle("New Product");
+            setTitle(getString(R.string.neues) + " " + getString(R.string.product));
             unit.setText(R.string.piece);
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -149,7 +149,7 @@ public class ProductEditActivity extends AppCompatActivity
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (data.moveToFirst()) {
-            setTitle("Edit product " + data.getString(7));
+            setTitle(getString(R.string.edit) + " " + getString(R.string.product) + " " + data.getString(7));
             if (!data.isNull(7)) {
                 title.setText(data.getString(7));
             }

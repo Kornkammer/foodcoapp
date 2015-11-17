@@ -39,11 +39,17 @@ public class TransactionFragment extends Fragment
     ScrollView scrollView;
     Cursor txn;
     float sum;
+    boolean editable;
 
     @Override
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         scrollView = (ScrollView) flate.inflate(R.layout.fragment_transaction, null, false);
         transaction = (TransactionView) scrollView.findViewById(R.id.transaction_view);
+        setEditable();
+        return scrollView;
+    }
+
+    public void setEditable() {
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
             String text() {
@@ -84,7 +90,14 @@ public class TransactionFragment extends Fragment
                 }
             }
         });
-        return scrollView;
+        editable = true;
+    }
+
+    public void setUneditable() {
+        transaction.setOnAmountClick(null);
+        transaction.setOnTitleClick(null);
+        transaction.setOnSumClick(null);
+        editable = false;
     }
 
     abstract class NumberEditListener implements View.OnClickListener {
@@ -117,6 +130,12 @@ public class TransactionFragment extends Fragment
     public void load() {
         if (getActivity() != null) {
             getActivity().getSupportLoaderManager().initLoader(1, null, this);
+        }
+    }
+
+    public void reload() {
+        if (getActivity() != null) {
+            getActivity().getSupportLoaderManager().restartLoader(1, null, this);
         }
     }
 
@@ -255,7 +274,7 @@ public class TransactionFragment extends Fragment
             saveStatus("final", "Einkauf:");
             Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
             ((CheckoutActivity) getActivity()).resetTransaction();
-            load();
+            reload();
             startActivity(new Intent(getActivity(), BrowseActivity.class)
                     .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                             data.getStringExtra("guid") + "/transactions")));
@@ -275,7 +294,6 @@ public class TransactionFragment extends Fragment
         Cursor empty_stocks = getActivity().getContentResolver().query(
                 Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/products"),
                 null, "stock < 0", null, null);
-        System.out.println("empty " + empty_stocks.getCount());
         String msg = "";
         for (int i = 0; i < empty_stocks.getCount(); i++) {
             empty_stocks.moveToPosition(i);

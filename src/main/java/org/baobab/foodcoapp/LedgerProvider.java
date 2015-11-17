@@ -327,6 +327,9 @@ public class LedgerProvider extends ContentProvider {
                 return AUTHORITY + "/products";
             case ACCOUNT:
                 return AUTHORITY + "/accounts";
+            case TRANSACTION:
+            case TRANSACTIONS:
+                return AUTHORITY + "/transactions";
         }
         return null;
     }

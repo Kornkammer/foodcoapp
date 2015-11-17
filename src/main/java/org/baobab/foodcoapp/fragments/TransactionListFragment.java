@@ -1,6 +1,7 @@
 package org.baobab.foodcoapp.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,12 +10,17 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.R;
 
 import java.text.SimpleDateFormat;
@@ -74,8 +80,7 @@ public class TransactionListFragment extends ListFragment
                         v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
                         v.collapse();
                     }
-                }
-        );
+                });
         getLoaderManager().initLoader(0, null, this);
         return view;
     }
@@ -98,7 +103,7 @@ public class TransactionListFragment extends ListFragment
 
     }
 
-    private class TransactionView extends LinearLayout implements View.OnClickListener {
+    private class TransactionView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
         long id;
         final TextView date;
         final TextView time;
@@ -117,6 +122,7 @@ public class TransactionListFragment extends ListFragment
             sum = (TextView) findViewById(R.id.sum);
             comment = (TextView) findViewById(R.id.comment);
             findViewById(R.id.container).setOnClickListener(this);
+            findViewById(R.id.container).setOnLongClickListener(this);
         }
 
         public void expand() {
@@ -159,6 +165,12 @@ public class TransactionListFragment extends ListFragment
             }
         }
 
+        @Override
+        public boolean onLongClick(View v) {
+            startActivity(new Intent(Intent.ACTION_EDIT, Uri.parse(
+                    "content://org.baobab.foodcoapp/transactions/" + id)));
+            return true;
+        }
     }
 
 }

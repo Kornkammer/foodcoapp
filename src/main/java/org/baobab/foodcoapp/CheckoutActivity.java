@@ -35,6 +35,7 @@ public class CheckoutActivity extends AppCompatActivity
     ViewPager pager;
     Scale scale;
     float weight = -1;
+    boolean editable;
     float currency = 1;
 
     @Override
@@ -43,12 +44,26 @@ public class CheckoutActivity extends AppCompatActivity
         getSupportActionBar().hide();
         setContentView(layout());
         if (savedInstanceState == null) {
-            resetTransaction();
+            onNewIntent(getIntent());
         }
-        getSupportLoaderManager().initLoader(0, null, this);
+        getSupportLoaderManager().initLoader(23, null, this);
         findViewById(R.id.scanner).setOnKeyListener(this);
         pager = (ViewPager) findViewById(R.id.pager);
         scale = new Scale(this);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getData() == null) {
+            resetTransaction();
+            getSupportActionBar().setTitle(getString(R.string.neues) +
+                    " " + getString(R.string.transaction) + " " +
+                    getIntent().getData().getLastPathSegment());
+        } else {
+            setIntent(intent);
+            getSupportLoaderManager().restartLoader(42, null, this);
+        }
     }
 
     int layout() {
@@ -67,7 +82,7 @@ public class CheckoutActivity extends AppCompatActivity
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         transactionFragment = (TransactionFragment)
                 getSupportFragmentManager().findFragmentById(R.id.transaction);
-        transactionFragment.load();
+        transactionFragment.reload();
         transactionView = (TransactionView) findViewById(R.id.transaction_view);
         scale.registerForUsb();
     }
@@ -80,13 +95,20 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(this,
-                Uri.parse("content://org.baobab.foodcoapp/products"),
-                null, "_id > 5", null, "UPPER(title)");
+        switch (id) {
+            case 42:
+                return new CursorLoader(this, getIntent().getData(), null, null, null, null);
+            case 23:
+                return new CursorLoader(this,
+                        Uri.parse("content://org.baobab.foodcoapp/products"),
+                        null, "_id > 5", null, "UPPER(title)");
+        }
+        return null;
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
+        editable = true;
         final int pages;
         if (data.getCount() > 0) {
             pages = (data.getCount() + 1) / 16 + 1;
@@ -193,6 +215,7 @@ public class CheckoutActivity extends AppCompatActivity
     }
 
     void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
+        if (!editable) return;
         ContentValues cv = new ContentValues();
         cv.put("account_guid", "lager");
         cv.put("product_id", id);

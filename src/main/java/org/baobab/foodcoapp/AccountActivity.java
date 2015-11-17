@@ -109,6 +109,24 @@ public class AccountActivity extends CheckoutActivity {
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
+        if (loader.getId() == 42) {
+            data.moveToFirst();
+            if (data.getString(10).equals("final")) {
+                getSupportActionBar().setTitle(getString(R.string.view) +
+                        " " + getString(R.string.transaction) + " " +
+                        getIntent().getData().getLastPathSegment() + " (final)");
+                transactionFragment.setUneditable();
+                editable = false;
+            } else {
+                getSupportActionBar().setTitle(getString(R.string.edit) +
+                        " " + getString(R.string.transaction) + " " +
+                        getIntent().getData().getLastPathSegment() + "(draft)");
+                transactionFragment.setEditable();
+                editable = true;
+            }
+            return;
+        }
+        editable = true;
         final int pages;
         if (data.getCount() > 0) {
             pages = (data.getCount() + 3) / 16 + 1;

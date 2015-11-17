@@ -21,8 +21,8 @@ import org.baobab.foodcoapp.R;
 public class TransactionEditFragment extends TransactionFragment {
 
     @Override
-    public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
-        View view = super.onCreateView(flate, p, state);
+    public void setEditable() {
+        super.setEditable();
         transaction.setOnTitleClick(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -37,13 +37,12 @@ public class TransactionEditFragment extends TransactionFragment {
                 startActivity(new Intent(getActivity(), ProductEditActivity.class)
                         .setData(getActivity().getIntent().getData().buildUpon()
                                 .appendEncodedPath("products" + id).build())
-                                .putExtra("account_guid", accountGuid));
+                        .putExtra("account_guid", accountGuid));
             }
         });
-        return view;
     }
 
-    @Override
+        @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         super.onLoadFinished(loader, data);
         transaction.headersClickable(true);
@@ -70,6 +69,10 @@ public class TransactionEditFragment extends TransactionFragment {
 
     @Override
     public void onClick(View v) {
+        if (!editable) {
+            Toast.makeText(getActivity(), "Unveränderbare Geschichte!", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (sum < -0.01) {
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(200);
             MediaPlayer.create(getActivity(), R.raw.error_3).start();
@@ -91,7 +94,7 @@ public class TransactionEditFragment extends TransactionFragment {
                 saveStatus("final", "PowerBuchung:");
                 Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
                 ((AccountActivity) getActivity()).resetTransaction();
-                load();
+                reload();
             }
         }
     }

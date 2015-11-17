@@ -84,7 +84,6 @@ public class KnkImport implements ImportActivity.Importer {
 
     private Uri storeTransaction(Uri session, long time, String comment) {
         ContentValues t = new ContentValues();
-        System.out.println(System.currentTimeMillis());
         t.put("start", System.currentTimeMillis());
         t.put("stop", time);
         t.put("status", "draft");

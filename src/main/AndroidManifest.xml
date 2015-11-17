@@ -49,6 +49,11 @@
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.EDIT" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:mimeType="org.baobab.foodcoapp/transactions" />
+      </intent-filter>
     </activity>
     <activity
       android:name=".CheckoutActivity"
