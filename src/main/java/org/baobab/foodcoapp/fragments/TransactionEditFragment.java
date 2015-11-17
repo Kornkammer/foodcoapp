@@ -1,7 +1,7 @@
 package org.baobab.foodcoapp.fragments;
 
-import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.baobab.foodcoapp.AccountActivity;
+import org.baobab.foodcoapp.ProductEditActivity;
 import org.baobab.foodcoapp.R;
 
 public class TransactionEditFragment extends TransactionFragment {
@@ -25,20 +26,18 @@ public class TransactionEditFragment extends TransactionFragment {
         transaction.setOnTitleClick(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-                txn.moveToPosition((Integer) v.getTag());
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, new TextDialogFragment(
-                                "Namen ändern", txn.getString(7)) {
-                            @Override
-                            public void onText(String text) {
-                                ContentValues cv = new ContentValues();
-                                cv.put("title", text);
-                                getActivity().getContentResolver()
-                                        .update(getActivity().getIntent().getData().buildUpon()
-                                                .appendEncodedPath("products/" + txn.getLong(0))
-                                                .build(), cv, null, null);
-                            }
-                        }).addToBackStack("text").commit();
+                int position = (Integer) v.getTag();
+                String accountGuid = "lager";
+                String id = "";
+                if (position > -1) {
+                    txn.moveToPosition((Integer) v.getTag());
+                    id = "/" + txn.getInt(0);
+                    accountGuid =  txn.getString(2);
+                }
+                startActivity(new Intent(getActivity(), ProductEditActivity.class)
+                        .setData(getActivity().getIntent().getData().buildUpon()
+                                .appendEncodedPath("products" + id).build())
+                                .putExtra("account_guid", accountGuid));
             }
         });
         return view;
