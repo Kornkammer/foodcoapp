@@ -177,10 +177,10 @@ public class AccountActivity extends CheckoutActivity {
                 StretchableGrid page = new StretchableGrid(AccountActivity.this, 4, 4);
                 for (int i = 1; i <= 16; i++) {
                     int button = (int) position * 16 + i;
-                    if (button == 16) {
+                    if (button == 13) {
                         page.addView(new ProductButton(
-                                AccountActivity.this, -2, "EAN", 1, "",
-                                "android.resource://org.baobab.foodcoapp/drawable/ic_menu_add", button), 13);
+                                AccountActivity.this, -2, "SCAN", 1, "",
+                                "android.resource://org.baobab.foodcoapp/drawable/scan", button), 13);
                     } else if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
                                 AccountActivity.this,
