@@ -68,6 +68,7 @@ public class CheckoutActivity extends AppCompatActivity
         Uri uri = getContentResolver().insert(Uri.parse(
                 "content://org.baobab.foodcoapp/transactions"), null);
         setIntent(getIntent().setData(uri));
+        editable = true;
     }
 
     @Override
@@ -210,9 +211,12 @@ public class CheckoutActivity extends AppCompatActivity
     }
 
     void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img) {
+        addProductToTransaction(id, title, quantity, price, unit, img, "lager");
+    }
+    void addProductToTransaction(long id, String title, float quantity, float price, String unit, String img, String account) {
         if (!editable) return;
         ContentValues cv = new ContentValues();
-        cv.put("account_guid", "lager");
+        cv.put("account_guid", account);
         cv.put("product_id", id);
         cv.put("title", title);
         if (quantity != 1 && unit.equals(getString(R.string.weight))) {

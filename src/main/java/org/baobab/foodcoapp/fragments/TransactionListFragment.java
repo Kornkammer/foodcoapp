@@ -29,6 +29,8 @@ import java.util.Date;
 public class TransactionListFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
+    private boolean showSum = true;
+
     public static TransactionListFragment newInstance() {
         return newInstance(null);
     }
@@ -54,33 +56,38 @@ public class TransactionListFragment extends ListFragment
 
         setListAdapter(new CursorAdapter(getActivity(), null, true) {
 
-                    @Override
-                    public View newView(Context context, Cursor cursor, ViewGroup parent) {
-                        return new TransactionView(getActivity());
-                    }
+            @Override
+            public View newView(Context context, Cursor cursor, ViewGroup parent) {
+                return new TransactionView(getActivity());
+            }
 
-                    @Override
-                    public void bindView(View view, Context context, Cursor cursor) {
-                        TransactionView v = (TransactionView) view;
-                        v.id = cursor.getLong(0);
-                        v.date.setText(df.format(new Date(cursor.getLong(2))));
-                        v.time.setText(tf.format(new Date(cursor.getLong(2))));
-                        v.who.setText(cursor.getString(3));
-                        String sign;
-                        if (cursor.getString(9).equals("aktiva")) {
-                            sign = cursor.getInt(8) < 0? "-" : "+";
-                        } else {
-                            sign = cursor.getInt(8) > 0? "-" : "+";
-                        }
-                        if (!cursor.isNull(4)) {
-                            v.comment.setText(cursor.getString(4));
-                        } else {
-                            v.comment.setText("");
-                        }
-                        v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
-                        v.collapse();
-                    }
-                });
+            @Override
+            public void bindView(View view, Context context, Cursor cursor) {
+                TransactionView v = (TransactionView) view;
+                v.id = cursor.getLong(0);
+                v.date.setText(df.format(new Date(cursor.getLong(2))));
+                v.time.setText(tf.format(new Date(cursor.getLong(2))));
+                v.who.setText(cursor.getString(3));
+                String sign;
+                if (cursor.getString(9).equals("aktiva")) {
+                    sign = cursor.getInt(8) < 0 ? "-" : "+";
+                } else {
+                    sign = cursor.getInt(8) > 0 ? "-" : "+";
+                }
+                if (!cursor.isNull(4)) {
+                    v.comment.setText(cursor.getString(4));
+                } else {
+                    v.comment.setText("");
+                }
+                if (showSum) {
+                    v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
+                }
+                v.collapse();
+            }
+        });
+        if (((Uri) getArguments().getParcelable("uri")).getQueryParameter("title") != null) {
+            showSum = false;
+        }
         getLoaderManager().initLoader(0, null, this);
         return view;
     }

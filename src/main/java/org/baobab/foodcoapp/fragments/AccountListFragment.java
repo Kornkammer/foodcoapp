@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.BalanceActivity;
 import org.baobab.foodcoapp.R;
 import org.baobab.foodcoapp.view.TransactionView;
@@ -178,7 +179,7 @@ public class AccountListFragment extends Fragment
                 return;
             }
             TransactionView transaction = new TransactionView(getActivity());
-            Cursor c = getActivity().getContentResolver().query(
+            final Cursor products = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
                     null, null, null, null);
             transaction.setColumnWidth(R.dimen.column_medium);
@@ -189,6 +190,11 @@ public class AccountListFragment extends Fragment
 
                 @Override
                 public void onClick(final View v) {
+                    products.moveToPosition((Integer) v.getTag());
+                    final String account = products.getString(2);
+                    final String title = products.getString(7);
+                    final float amount = products.getFloat(4);
+                    final float price = products.getFloat(5);
                     String[] menu = new String[]{"Kontoumsätze", "Umbuchen"};
                     new AlertDialog.Builder(getActivity())
                             .setItems(menu, new DialogInterface.OnClickListener() {
@@ -197,17 +203,21 @@ public class AccountListFragment extends Fragment
                                     switch (which) {
                                         case 0:
                                             startActivity(new Intent(getActivity(), BrowseActivity.class)
-                                                    .setData(Uri.parse("content://org.baobab.foodcoapp/transactions/" + v.getId())));
+                                                    .setData(Uri.parse("content://org.baobab.foodcoapp/transactions")
+                                                    .buildUpon().appendQueryParameter("title", title)
+                                                            .appendQueryParameter("price", String.valueOf(price)).build()));
                                             break;
                                         case 1:
-                                            Toast.makeText(getActivity(), "Ja des wiad spannend!", Toast.LENGTH_LONG).show();
+                                            startActivity(new Intent(getActivity(), AccountActivity.class)
+                                                   .putExtra("title", title).putExtra("account", account)
+                                                   .putExtra("amount", amount).putExtra("price", price));
                                             break;
                                     }
                                 }
                             }).show();
                 }
             });
-            transaction.populate(c);
+            transaction.populate(products);
             LayoutParams lp = new LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT);

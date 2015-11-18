@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import org.baobab.foodcoapp.io.BackupExport;
 import org.baobab.foodcoapp.io.KnkExport;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.view.StretchableGrid;
@@ -83,10 +82,19 @@ public class AccountActivity extends CheckoutActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent.getData() == null) {
-            resetTransaction();
-            getSupportActionBar().setTitle(getString(R.string.neues) +
-                    " " + getString(R.string.transaction) + " " +
-                    getIntent().getData().getLastPathSegment());
+            if (getIntent().getData() == null) {
+                resetTransaction();
+                getSupportActionBar().setTitle(getString(R.string.neues) +
+                        " " + getString(R.string.transaction) + " " +
+                        getIntent().getData().getLastPathSegment());
+            }
+            if (intent.hasExtra("account")) {
+                addProductToTransaction(3,
+                        intent.getStringExtra("title"),
+                        intent.getFloatExtra("amount", 0) * -1,
+                        intent.getFloatExtra("price", 0),
+                        "", "", intent.getStringExtra("account"));
+            }
         } else {
             setIntent(intent);
             getSupportLoaderManager().restartLoader(42, null, this);
