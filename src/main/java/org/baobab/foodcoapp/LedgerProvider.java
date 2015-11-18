@@ -99,7 +99,6 @@ public class LedgerProvider extends ContentProvider {
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (130, 'passiva', 'spenden','Spenden');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (140, 'passiva', 'mitglieder','Mitglieder');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (150, 'passiva', 'verbindlichkeiten','Verbindlichkeiten');");
-
             Log.d(TAG, "created DB");
         }
 
@@ -290,7 +289,7 @@ public class LedgerProvider extends ContentProvider {
                     selection = "session_id = " + uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT transactions._id AS _id, session._id, transactions.stop, accounts.name, transactions.comment, " +
+                        "SELECT transactions._id AS _id, session._id, transactions.start, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
@@ -589,10 +588,10 @@ public class LedgerProvider extends ContentProvider {
         return -0.01 < sum.getFloat(2) && sum.getFloat(2) < 0.01;
     }
 
-    private boolean exists(String id, String stop, String comment) {
+    private boolean exists(String id, String start, String comment) {
         Cursor c = db.getReadableDatabase().query("transactions", null,
-                "status IS 'final' AND stop = ? AND comment IS ?",
-                new String[] { stop, comment }, null, null, null);
+                "status IS 'final' AND start = ? AND comment IS ?",
+                new String[] { start, comment }, null, null, null);
         return c.getCount() > 0;
     }
 }

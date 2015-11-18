@@ -87,7 +87,7 @@ public class GlsImport implements ImportActivity.Importer {
                         String title = "Bank " + account.name;
                         Iterator<Long> iter = findOpenTransactions("forderungen", "title IS '" + title + "'");
                         while (iter.hasNext()) {
-                            Cursor txn = query("forderungen", "transactions._id =" + iter.next());
+                                Cursor txn = query("forderungen", "transactions._id =" + iter.next());
                             txn.moveToFirst();
                             float sum = txn.getFloat(8) * txn.getFloat(11);
                             if (amount + sum >= 0) { // quantity negative after groupBy from users perspective
@@ -288,6 +288,7 @@ public class GlsImport implements ImportActivity.Importer {
     private Uri storeTransaction(long time, String comment) {
         ContentValues t = new ContentValues();
         t.put("session_id", uri.getLastPathSegment());
+        t.put("start", time);
         t.put("stop", time);
         t.put("status", "draft");
         t.put("comment", comment);

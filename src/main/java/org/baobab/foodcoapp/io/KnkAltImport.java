@@ -80,8 +80,8 @@ public class KnkAltImport implements ImportActivity.Importer {
 
     private Uri storeTransaction(Uri session, long time, String comment) {
         ContentValues t = new ContentValues();
-        t.put("start", System.currentTimeMillis());
-        t.put("stop", time);
+        t.put("stop", System.currentTimeMillis());
+        t.put("start", time);
         t.put("status", "draft");
         t.put("comment", comment);
         t.put("session_id", session.getLastPathSegment());
