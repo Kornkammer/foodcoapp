@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -71,7 +72,7 @@ public class GlsImport implements ImportActivity.Importer {
         try {
             lineMsges = "";
             long time = date.parse(line[1]).getTime();
-            float amount = NumberFormat.getInstance().parse(line[19]).floatValue();
+            float amount = NumberFormat.getInstance(Locale.GERMAN).parse(line[19]).floatValue();
 //            Log.d(PosActivity.TAG, "reading line: " + line[5] + line[6] + line[7] + line[8] + " (amount=" + amount + ")");
             if (amount > 0) {
                 String vwz = line[5] + line[6] + line[7] + line[8];
