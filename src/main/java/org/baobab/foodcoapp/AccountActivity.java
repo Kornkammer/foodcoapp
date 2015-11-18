@@ -24,8 +24,6 @@ import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.view.StretchableGrid;
 
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class AccountActivity extends CheckoutActivity {
 
@@ -128,6 +126,8 @@ public class AccountActivity extends CheckoutActivity {
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         if (loader.getId() == 42) {
             data.moveToFirst();
+            time = data.getLong(2);
+            comment = data.getString(4);
             if (data.getString(10).equals("final")) {
                 getSupportActionBar().setTitle(getString(R.string.view) +
                         " " + getString(R.string.transaction) + " " +

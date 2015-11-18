@@ -266,6 +266,32 @@ public class TransactionFragment extends Fragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == getActivity().RESULT_OK && requestCode == 42) {
+            if (saveStatus("final", "Einkauf:")) {
+                startActivity(new Intent(getActivity(), BrowseActivity.class)
+                        .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                data.getStringExtra("guid") + "/transactions")));
+            }
+        }
+    }
+
+    boolean saveStatus(String status, String comment) {
+        ContentValues cv = new ContentValues();
+        cv.put("status", status);
+        if (((CheckoutActivity) getActivity()).comment != null &&
+                !((CheckoutActivity) getActivity()).comment.equals("")) {
+            cv.put("comment", ((CheckoutActivity) getActivity()).comment);
+        } else {
+            cv.put("comment", comment);
+        }
+        if (((CheckoutActivity) getActivity()).time != 0) {
+            cv.put("stop", ((CheckoutActivity) getActivity()).time);
+        } else {
+            cv.put("stop", System.currentTimeMillis());
+        }
+        int result = getActivity().getContentResolver().update(
+                getActivity().getIntent().getData(), cv, null, null);
+        if (result > 0) {
+            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
             MediaPlayer.create(getActivity(), R.raw.chaching).start();
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -273,23 +299,14 @@ public class TransactionFragment extends Fragment
                     MediaPlayer.create(getActivity(), R.raw.yay).start();
                 }
             }, 1000);
-            saveStatus("final", "Einkauf:");
             Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-            ((CheckoutActivity) getActivity()).resetTransaction();
+            ((AccountActivity) getActivity()).resetTransaction();
             reload();
-            startActivity(new Intent(getActivity(), BrowseActivity.class)
-                    .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
-                            data.getStringExtra("guid") + "/transactions")));
+            return true;
+        } else {
+            Toast.makeText(getActivity(), "Transaktion gibts schon!", Toast.LENGTH_LONG).show();
         }
-    }
-
-    void saveStatus(String status, String comment) {
-        ContentValues cv = new ContentValues();
-        cv.put("status", status);
-        cv.put("comment", comment);
-        cv.put("stop", System.currentTimeMillis());
-        getActivity().getContentResolver().update(
-                getActivity().getIntent().getData(), cv, null, null);
+        return false;
     }
 
     private String emptyStocks(String account) {

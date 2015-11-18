@@ -36,6 +36,8 @@ public class CheckoutActivity extends AppCompatActivity
     Scale scale;
     float weight = -1;
     boolean editable;
+    public long time;
+    public String comment;
     float currency = 1;
 
     @Override

@@ -83,18 +83,7 @@ public class TransactionEditFragment extends TransactionFragment {
             Toast.makeText(getActivity(), "Noch " + sum + " offen!", Toast.LENGTH_LONG).show();
         } else {
             if (transactionValid()) {
-                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
-                MediaPlayer.create(getActivity(), R.raw.chaching).start();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        MediaPlayer.create(getActivity(), R.raw.yay).start();
-                    }
-                }, 700);
                 saveStatus("final", "PowerBuchung:");
-                Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                ((AccountActivity) getActivity()).resetTransaction();
-                reload();
             }
         }
     }
