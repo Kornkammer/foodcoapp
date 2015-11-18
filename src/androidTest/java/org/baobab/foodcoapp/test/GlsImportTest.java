@@ -148,13 +148,13 @@ public class GlsImportTest extends BaseProviderTests {
         insertTransaction("0815", "forderungen", 20, "Bank Andere"); // offen
         insertTransaction("0815", "forderungen", 20, "andere Forderung");
         assertBegleichtForderung("Einzahlung - Susi", 20);
-        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 20,00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 20.00"));
         insertTransaction("0815", "forderungen", 50, "Bank Susi"); // offen
         assertBegleichtForderung("Einzahlung - Susi", 50);
-        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 50,00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 50.00"));
         insertTransaction("0815", "forderungen", 50, "Bank Susi"); // offen
         assertBegleichtForderung("Einzahlung - Susi", 50);
-        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 50,00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> 50.00"));
     }
 
     public void testForderungBegleichenMitRestguthaben() {
@@ -212,9 +212,9 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("forderungen", "Forderungen", "Bar Susi", -1.0f, 30, items);
         items.moveToNext();
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Barkasse", -1.0f, 10, items);
-        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Albert -> 20,00"));
-        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Susi -> 10,00"));
-        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Susi -> 30,00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Albert -> 20.00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Susi -> 10.00"));
+        assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Susi -> 30.00"));
         read(gls().vwz1("Barkasse").amount(100)); // neue überweisung kommt an
         items = assertTransaction("Barkasse", 4); // begleicht die zwei weiteren
         assertTransactionItem("bank", "Bank", "Cash", 100, 1.0f, items);
@@ -249,7 +249,7 @@ public class GlsImportTest extends BaseProviderTests {
         assertTransactionItem("bank", "Bank", "Cash", -300, 1, items);
         items.moveToNext();
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Auszahlung", 1.0f, 300, items);
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Auszahlung -> 300,00"));
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Auszahlung -> 300.00"));
     }
 
     public void testKontofuehrungsgebuehren() {
@@ -303,17 +303,17 @@ public class GlsImportTest extends BaseProviderTests {
         insertTransaction("verbindlichkeiten", "lager", 23.42f, "RefNr 123"); // offen
         read(gls().vwz5("RefNr 123").vwz6("blabla").amount(-23.42));
         assertBookingTxn("Verbindlichkeiten", "RefNr 123", 23.42f, "blabla");
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23,42"));
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23.42"));
 
         insertTransaction("verbindlichkeiten", "lager", 23.42f, "RefNr 123"); // offen
         read(gls().vwz5("RefNr 123").vwz7("blabla").amount(-23.42));
         assertBookingTxn("Verbindlichkeiten", "RefNr 123", 23.42f, "blabla");
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23,42"));
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23.42"));
 
         insertTransaction("verbindlichkeiten", "lager", 23.42f, "RefNr 123"); // offen
         read(gls().vwz5("blabla").vwz7("RefNr 123").amount(-23.42));
         assertBookingTxn("Verbindlichkeiten", "RefNr 123", 23.42f, "blabla");
-        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23,42"));
+        assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: " + "RefNr 123" + " -> 23.42"));
     }
 
     public void testIdempotency() { // selber Tag mit selbem VWZ geht nicht
