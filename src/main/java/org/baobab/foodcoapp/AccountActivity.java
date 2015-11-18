@@ -115,13 +115,19 @@ public class AccountActivity extends CheckoutActivity {
             if (data.getString(10).equals("final")) {
                 getSupportActionBar().setTitle(getString(R.string.view) +
                         " " + getString(R.string.transaction) + " " +
-                        getIntent().getData().getLastPathSegment() + " (final)");
+                        getIntent().getData().getLastPathSegment() + "   (final)");
                 transactionFragment.setUneditable();
                 editable = false;
             } else {
-                getSupportActionBar().setTitle(getString(R.string.edit) +
-                        " " + getString(R.string.transaction) + " " +
-                        getIntent().getData().getLastPathSegment() + "(draft)");
+                if (getIntent().hasExtra("import")) {
+                    getSupportActionBar().setTitle(getString(R.string.importe) +
+                            " " + getString(R.string.transaction) + " " +
+                            getIntent().getData().getLastPathSegment() + "   (draft)");
+                } else {
+                    getSupportActionBar().setTitle(getString(R.string.edit) +
+                            " " + getString(R.string.transaction) + " " +
+                            getIntent().getData().getLastPathSegment() + "   (draft)");
+                }
                 transactionFragment.setEditable();
                 editable = true;
             }

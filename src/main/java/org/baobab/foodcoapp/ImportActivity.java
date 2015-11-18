@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -120,11 +121,21 @@ public class ImportActivity extends AppCompatActivity {
                         showMsg(importer.getMsg());
                     }
                     if (importer.getSession() != null) {
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, TransactionListFragment.newInstance(
-                                        importer.getSession().buildUpon().appendPath(
-                                                "transactions").build())).commit();
-                        displayImportButton(readCount);
+                        if (readCount == 1) {
+                            Cursor s = getContentResolver().query(importer.getSession()
+                                    .buildUpon().appendEncodedPath("transactions").build(),
+                                    null, null, null, null);
+                            s.moveToFirst();
+                            startActivity(new Intent(Intent.ACTION_EDIT, Uri.parse(
+                                    "content://org.baobab.foodcoapp/transactions/" +
+                                            s.getLong(0))).putExtra("import", true));
+                        } else {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, TransactionListFragment.newInstance(
+                                            importer.getSession().buildUpon().appendPath(
+                                                    "transactions").build())).commit();
+                            displayImportButton(readCount);
+                        }
                     }
                 }
             }.execute();
