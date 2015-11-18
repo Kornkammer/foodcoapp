@@ -10,6 +10,7 @@ import org.baobab.foodcoapp.io.GlsImport;
 
 import java.text.NumberFormat;
 import java.util.Date;
+import java.util.Locale;
 
 
 public class GlsImportTest extends BaseProviderTests {
@@ -540,7 +541,7 @@ public class GlsImportTest extends BaseProviderTests {
         }
 
         public Gls amount(double amount) {
-            line[19] = NumberFormat.getInstance().format(amount);
+            line[19] = NumberFormat.getInstance(Locale.GERMANY).format(amount);
             return this;
         }
     }
