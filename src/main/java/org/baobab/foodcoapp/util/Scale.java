@@ -65,6 +65,7 @@ public class Scale implements Runnable {
 
     public void unregisterUsb() {
         activity.unregisterReceiver(mUsbReceiver);
+        setDevice(null);
     }
 
     private BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {

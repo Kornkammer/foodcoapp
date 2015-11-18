@@ -49,7 +49,6 @@ public class CheckoutActivity extends AppCompatActivity
         getSupportLoaderManager().initLoader(23, null, this);
         findViewById(R.id.scanner).setOnKeyListener(this);
         pager = (ViewPager) findViewById(R.id.pager);
-        scale = new Scale(this);
     }
 
     @Override
@@ -77,6 +76,7 @@ public class CheckoutActivity extends AppCompatActivity
                 getSupportFragmentManager().findFragmentById(R.id.transaction);
         transactionFragment.reload();
         transactionView = (TransactionView) findViewById(R.id.transaction_view);
+        scale = new Scale(this);
         scale.registerForUsb();
     }
 
