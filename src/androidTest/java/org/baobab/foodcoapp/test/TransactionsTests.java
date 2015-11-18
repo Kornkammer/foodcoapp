@@ -39,6 +39,23 @@ public class TransactionsTests extends BaseProviderTests {
         assertTrue("involved accounts", transactions.getString(5).contains("lager"));
     }
 
+    public void testQueryTransaction() {
+        createDummyAccount("dummy");
+        insertTransaction("dummy", "forderungen", 25, "foo");
+        insertTransaction("dummy", "forderungen", 25, "bar");
+        insertTransaction("dummy", "forderungen", 42.23f, "foo");
+        insertTransaction("dummy", "forderungen", 25, "foo bar");
+        query("transactions?price=42.23", 1);
+        query("transactions?price=25", 3);
+        query("transactions?title=baz", 0);
+        query("transactions?title=bar", 1);
+        query("transactions?title=foo", 2);
+        query("transactions?title=foo%20bar", 1);
+        query("transactions?title=foo&price=10", 0);
+        Cursor t = query("transactions?title=foo&price=25", 1);
+        assertEquals("sum", 25.0f, t.getFloat(6));
+    }
+
     public void testFinalizeTransaction() {
         createDummyAccount("dummy");
         Uri txn = insertTransaction(5, "draft", "lager", "kasse", 20f);

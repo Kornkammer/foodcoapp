@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class LedgerProvider extends ContentProvider {
@@ -287,6 +289,18 @@ public class LedgerProvider extends ContentProvider {
             case TRANSACTIONS:
                 if (uri.getPathSegments().get(0).equals("sessions")) {
                     selection = "session_id = " + uri.getPathSegments().get(1);
+                } else if (selection == null) {
+                    selection = "transactions.status IS NOT 'draft'";
+                    List<String> args = new ArrayList<>();
+                    if (uri.getQueryParameter("title") != null) {
+                        selection += " AND title IS ?";
+                        args.add(uri.getQueryParameter("title"));
+                    }
+                    if (uri.getQueryParameter("price") != null) {
+                        selection += " AND price IS ?";
+                        args.add(uri.getQueryParameter("price"));
+                    }
+                    selectionArgs = args.toArray(new String[args.size()]);
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, session._id, transactions.start, accounts.name, transactions.comment, " +
@@ -301,13 +315,13 @@ public class LedgerProvider extends ContentProvider {
                         " LEFT JOIN (" +
                                 "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
                         ") AS accounts ON transaction_products.account_guid = accounts.guid" +
-                        (selection != null? " WHERE " + selection : " WHERE transactions.status IS NOT 'draft'") +
+                        " WHERE " + selection +
                         " GROUP BY transactions._id" +
                         " HAVING balance != 0" +
                         (uri.getPathSegments().get(0).equals("accounts") ?
                                 " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
                         " ORDER BY transactions._id",
-                        null);
+                        selectionArgs);
                 break;
         }
         result.setNotificationUri(getContext().getContentResolver(), uri);
