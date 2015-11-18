@@ -497,7 +497,7 @@ public class LedgerProvider extends ContentProvider {
                         null, selection, selectionArgs, null, null, null);
                 if (c.getCount() == 0) return -1;
                 c.moveToFirst();
-                if (completeDelete || (-1 < c.getFloat(4) && c.getFloat(4) < 1)) {
+                if (completeDelete || (-1 <= c.getFloat(4) && c.getFloat(4) <= 1)) {
                     db.getWritableDatabase().delete(
                             "transaction_products", selection, selectionArgs);
                 } else {
