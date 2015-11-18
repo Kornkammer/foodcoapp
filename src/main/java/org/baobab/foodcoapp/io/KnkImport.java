@@ -120,7 +120,7 @@ public class KnkImport implements ImportActivity.Importer {
         Cursor p = ctx.getContentResolver().query(Uri.parse(
                         "content://org.baobab.foodcoapp/products"),
                 null, "title IS ? AND price = ?", new String[] {
-                        line[3], Float.toString(price) }, null);
+                        line[3], String.valueOf(price) }, null);
         if (p.getCount() == 0) {
             Cursor s = ctx.getContentResolver().query(Uri.parse(
                             "content://org.baobab.foodcoapp/products"),

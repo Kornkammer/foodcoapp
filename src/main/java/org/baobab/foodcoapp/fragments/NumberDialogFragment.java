@@ -52,7 +52,7 @@ public abstract class NumberDialogFragment extends DialogFragment {
             number.setText(String.format("%.3f", Math.abs(value)));
         }
         number.setInputType(inputType);
-        number.setKeyListener(DigitsKeyListener.getInstance("0123456789.,"));
+        number.setKeyListener(DigitsKeyListener.getInstance("-0123456789.,"));
         number.selectAll();
         number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
