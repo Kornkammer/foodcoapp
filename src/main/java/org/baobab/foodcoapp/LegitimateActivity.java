@@ -70,6 +70,7 @@ public class LegitimateActivity extends AppCompatActivity {
                             String hash = Crypt.hash(((EditText) view)
                                     .getText().toString(), LegitimateActivity.this);
                             legitimate(hash);
+                            return true;
                         }
                         return false;
                     }
@@ -97,6 +98,7 @@ public class LegitimateActivity extends AppCompatActivity {
     }
 
     private boolean legitimate(String pin) {
+        if (pin.equals("")) return false;
         final Cursor auth = getContentResolver().query(Uri.parse(
                         "content://org.baobab.foodcoapp/legitimate?pin=" + pin),
                 null, null, null, null);

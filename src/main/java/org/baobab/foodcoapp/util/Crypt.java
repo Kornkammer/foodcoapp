@@ -24,6 +24,7 @@ public class Crypt {
     }
 
     public static String hash(String data, Context ctx) {
+        if (data == null || data.equals("")) return "";
         return hash(data.toCharArray(), Salt.SALT);
     }
 
