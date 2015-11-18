@@ -54,15 +54,8 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        if (intent.getData() == null) {
+        if (getIntent().getData() == null) {
             resetTransaction();
-            getSupportActionBar().setTitle(getString(R.string.neues) +
-                    " " + getString(R.string.transaction) + " " +
-                    getIntent().getData().getLastPathSegment());
-        } else {
-            setIntent(intent);
-            getSupportLoaderManager().restartLoader(42, null, this);
         }
     }
 
@@ -144,7 +137,7 @@ public class CheckoutActivity extends AppCompatActivity
                                 CheckoutActivity.this, 0, "", 0, null, null, button), i);
                     }
                 }
-                ((ViewPager) container).addView(page);
+                container.addView(page);
                 return page;
 
             }

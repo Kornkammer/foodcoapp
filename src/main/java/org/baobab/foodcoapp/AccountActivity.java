@@ -83,6 +83,22 @@ public class AccountActivity extends CheckoutActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent.getData() == null) {
+            resetTransaction();
+            getSupportActionBar().setTitle(getString(R.string.neues) +
+                    " " + getString(R.string.transaction) + " " +
+                    getIntent().getData().getLastPathSegment());
+        } else {
+            setIntent(intent);
+            getSupportLoaderManager().restartLoader(42, null, this);
+        }
+        if (transactionFragment != null) {
+            transactionFragment.reload();
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         fullscreen();
