@@ -22,6 +22,7 @@ import org.baobab.foodcoapp.fragments.TransactionListFragment;
 import org.baobab.foodcoapp.io.BackupImport;
 import org.baobab.foodcoapp.io.BnnImport;
 import org.baobab.foodcoapp.io.GlsImport;
+import org.baobab.foodcoapp.io.KnkAltImport;
 import org.baobab.foodcoapp.io.KnkImport;
 
 import java.io.BufferedReader;
@@ -71,7 +72,9 @@ public class ImportActivity extends AppCompatActivity {
                         CSVReader csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), ';');
 
                         String[] line = csv.readNext();
-                        if (line.length == 12) {
+                        if (line.length == 5) {
+                            importer = new KnkImport(ImportActivity.this);
+                        } else if (line.length == 12) {
                             importer = new BnnImport(ImportActivity.this);
                         } else if (line.length == 22) {
                             importer = new GlsImport(ImportActivity.this);
@@ -80,7 +83,7 @@ public class ImportActivity extends AppCompatActivity {
                             csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), '\t');
                             String[] l = csv.readNext();
                             if (l.length == 5) {
-                                importer = new KnkImport(ImportActivity.this);
+                                importer = new KnkAltImport(ImportActivity.this);
                             } else {
                                 Log.d(TAG, "No idea how to import this file (line length " + line.length + ")");
                                 err = "No idea how to import this file (line length " + line.length + ")";
