@@ -124,6 +124,8 @@ public class TransactionView extends GridLayout {
 
     private void showHeaders(Cursor data, float quantity) {
         header = new TextView(getContext());
+        header.setPadding(12, -2, 0, 0);
+        header.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         LayoutParams lp = new LayoutParams();
         lp.columnSpec = GridLayout.spec(0, 6);
         lp.setGravity(Gravity.FILL_HORIZONTAL);
@@ -244,6 +246,7 @@ public class TransactionView extends GridLayout {
         LinearLayout images = new LinearLayout(getContext());
         images.setBackgroundResource(R.drawable.background_translucent);
         images.setOrientation(LinearLayout.HORIZONTAL);
+        LayoutParams lp = new LayoutParams();
         if (showImages || productId < 3) {
             Uri img = null;
             int imgWidth = getContext().getResources().getDimensionPixelSize(R.dimen.img_width);
@@ -306,7 +309,6 @@ public class TransactionView extends GridLayout {
                 }
             }
         }
-        LayoutParams lp = new LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         addView(images, lp);
@@ -316,6 +318,7 @@ public class TransactionView extends GridLayout {
     private void amount(float quantity, int productId, int position) {
         final DecimalView amount = new DecimalView(getContext(), onAmountClick);
         if (productId < 3 || (productId == 4 && weight == -1)) {
+            amount.setNumber(1);
             amount.setVisibility(INVISIBLE);
         } else {
             amount.setId(productId);
@@ -343,7 +346,7 @@ public class TransactionView extends GridLayout {
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         if (productId < 3 || (productId == 4 && weight == -1)) {
-            x.setVisibility(GONE);
+            x.setVisibility(INVISIBLE);
         } else if (unit != null && unit.equals(getContext().getString(R.string.weight))) {
             if (Math.abs(quantity) < 1) {
                 x.setText("g ");
@@ -368,19 +371,19 @@ public class TransactionView extends GridLayout {
     }
 
     private void title(String name, int position, int transactionId) {
-        LayoutParams lp;TextView title = new TextView(getContext());
+        TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
+        title.setTypeface(null, Typeface.BOLD);
+        title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
+        title.setTextColor(getResources().getColor(R.color.xlight_blue));
+        title.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        title.setMaxLines(1);
         if (name != null) {
             title.setText(name);
         } else if (addProduct) {
             title.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, R.drawable.ic_menu_add);
-
+            title.setPadding(0, 0, 0, 0);
         }
-        title.setTypeface(null, Typeface.BOLD);
-        title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
-        title.setTextColor(getResources().getColor(R.color.xlight_blue));
-        title.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        title.setMaxLines(1);
         FrameLayout f = new FrameLayout(getContext());
         f.addView(title);
         if (onTitleClick != null) {
@@ -391,7 +394,7 @@ public class TransactionView extends GridLayout {
             f.setOnClickListener(onTitleClick);
         }
         f.setBackgroundResource(R.drawable.background_translucent);
-        lp = new LayoutParams();
+        LayoutParams lp = new LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2, 3);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.width = getContext().getResources().getDimensionPixelSize(columnWidth);
