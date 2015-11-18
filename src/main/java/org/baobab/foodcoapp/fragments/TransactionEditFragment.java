@@ -37,7 +37,7 @@ public class TransactionEditFragment extends TransactionFragment {
                 startActivity(new Intent(getActivity(), ProductEditActivity.class)
                         .setData(getActivity().getIntent().getData().buildUpon()
                                 .appendEncodedPath("products" + id).build())
-                        .putExtra("account_guid", accountGuid));
+                        .putExtra("account_guid", accountGuid).putExtra("price", sum));
             }
         });
     }

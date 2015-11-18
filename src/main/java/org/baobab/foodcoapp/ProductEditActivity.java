@@ -77,6 +77,7 @@ public class ProductEditActivity extends AppCompatActivity
         } else {
             setTitle(getString(R.string.neues) + " " + getString(R.string.product));
             unit.setText(R.string.piece);
+            price.setText(String.format("%.2f", Math.abs(getIntent().getFloatExtra("price", 0))));
         }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (getResources().getConfiguration().hardKeyboardHidden == Configuration.HARDKEYBOARDHIDDEN_NO) {
@@ -181,7 +182,7 @@ public class ProductEditActivity extends AppCompatActivity
         }
         try {
             float p = Float.parseFloat(price.getText().toString().replace(",", "."));
-            if (p > 1000) {
+            if (p > 10000) {
                 Toast.makeText(this, "Preis ist zu hoch!", Toast.LENGTH_LONG).show();
                 return;
             }
@@ -190,14 +191,26 @@ public class ProductEditActivity extends AppCompatActivity
             if (img != null) {
                 cv.put("img", img.toString());
             }
+            if (getIntent().hasExtra("account_guid")) {
+                cv.put("account_guid", getIntent().getStringExtra("account_guid"));
+                cv.put("product_id", 3);
+            }
+            if (Math.abs(getIntent().getFloatExtra("price", 0)) == p) {
+                if (getIntent().getFloatExtra("price", 0) > 0) {
+                    cv.put("account_guid", "kosten");
+                    cv.put("quantity", 1);
+                } else {
+                    cv.put("account_guid", "spenden");
+                }
+            } else {
+                if (getIntent().getFloatExtra("price", 0) < 0) {
+                    cv.put("quantity", 1);
+                }
+            }
             cv.put("price", p);
             cv.put("unit", unit.getText().toString());
             if (getIntent().hasExtra("button")) {
                 cv.put("button", getIntent().getIntExtra("button", 0));
-            }
-            if (getIntent().hasExtra("account_guid")) {
-                cv.put("account_guid", getIntent().getStringExtra("account_guid"));
-                cv.put("product_id", 3);
             }
             if (getIntent().getDataString().endsWith("products")) {
                 getContentResolver().insert(getIntent().getData(), cv);
