@@ -90,10 +90,12 @@ public class TransactionFragment extends Fragment
                 }
             }
         });
+        transaction.headersClickable(true);
         editable = true;
     }
 
     public void setUneditable() {
+        transaction.headersClickable(false);
         transaction.setOnAmountClick(null);
         transaction.setOnTitleClick(null);
         transaction.setOnSumClick(null);
