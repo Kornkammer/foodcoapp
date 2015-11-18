@@ -85,9 +85,8 @@ public class LedgerProvider extends ContentProvider {
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (title) VALUES ('');");
             db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (1, 'Baola', 1.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/baola');");
-            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (2, 'Kaffee', 3.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
-            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (3, 'Keks', 0.5, 'Stück', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
-            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (7, 'Reis', 1.3, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/rice');");
+            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (2, 'Kaffee', 3.5, 'Liter', 'android.resource://org.baobab.foodcoapp/drawable/coffee');");
+            db.execSQL("INSERT INTO products (button, title, price, unit, img) VALUES (3, 'Keks', 0.42, 'Kilo', 'android.resource://org.baobab.foodcoapp/drawable/cookie');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (1, '', 'aktiva','Aktiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (2, '', 'passiva','Passiva');");
             db.execSQL("INSERT INTO accounts (_id, parent_guid, guid, name) VALUES (10, 'aktiva', 'inventar','Inventar');");
