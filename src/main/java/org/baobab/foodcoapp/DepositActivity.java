@@ -77,6 +77,10 @@ public class DepositActivity extends AppCompatActivity {
     }
 
     private void store(final String guid, float amount, String title) {
+        if (amount > 1000) {
+            Toast.makeText(this, "So viel gibts ja gar nicht!", Toast.LENGTH_LONG).show();
+            return;
+        }
         Toast.makeText(this, "Guthaben aufgeladen \n" + amount, Toast.LENGTH_LONG).show();
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
         MediaPlayer.create(this, R.raw.chaching).start();
