@@ -61,6 +61,7 @@
       android:label="@string/shopping"
       android:launchMode="singleTask"
       android:theme="@style/FullscreenTheme"
+      android:taskAffinity="org.baobab.foodcoapp.simple"
       android:windowSoftInputMode="adjustPan|stateAlwaysHidden"
       android:screenOrientation="landscape" >
       <intent-filter>
@@ -68,6 +69,19 @@
       </intent-filter>
       <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                  android:resource="@xml/device_filter" />
+    </activity>
+    <activity
+      android:name=".BalanceActivity"
+      android:icon="@drawable/book"
+      android:screenOrientation="landscape"
+      android:theme="@style/FullscreenTheme"
+      android:windowSoftInputMode="adjustResize"
+      android:label="@string/balance" >
+      <intent-filter>
+        <action android:name="android.intent.action.EDIT" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <data android:mimeType="org.baobab.foodcoapp/accounts" />
+      </intent-filter>
     </activity>
     <activity
       android:name="org.baobab.foodcoapp.ProductEditActivity"
@@ -113,24 +127,6 @@
         <data android:scheme="content" android:mimeType="text/csv" android:pathPattern="/.*\\.csv" />
       </intent-filter>
     </activity>
-
-    <provider
-      android:name=".LedgerProvider"
-      android:authorities="org.baobab.foodcoapp" />
-
-    <activity
-      android:name=".BalanceActivity"
-      android:icon="@drawable/book"
-      android:screenOrientation="landscape"
-      android:theme="@style/FullscreenTheme"
-      android:windowSoftInputMode="adjustResize"
-      android:label="@string/balance" >
-      <intent-filter>
-        <action android:name="android.intent.action.EDIT" />
-        <category android:name="android.intent.category.DEFAULT" />
-        <data android:mimeType="org.baobab.foodcoapp/accounts" />
-      </intent-filter>
-    </activity>
     <activity
       android:name="org.baobab.foodcoapp.SettingsActivity"
       android:theme="@android:style/Theme.Black" >
@@ -142,6 +138,9 @@
       android:launchMode="singleInstance"
       android:excludeFromRecents="true"
       android:finishOnTaskLaunch="true" />
+    <provider
+      android:name=".LedgerProvider"
+      android:authorities="org.baobab.foodcoapp" />
   </application>
 
 </manifest>
