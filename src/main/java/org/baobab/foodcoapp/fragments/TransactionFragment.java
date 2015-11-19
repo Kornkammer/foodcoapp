@@ -70,6 +70,15 @@ public class TransactionFragment extends Fragment
             float quantity(float number) {
                 return number;
             }
+
+            @Override
+            String chars() {
+                if (!txn.isNull(6) && txn.getString(6).equals(getString(R.string.piece))) {
+                    return "-0123456789";
+                } else {
+                    return "-0123456789.,";
+                }
+            }
         });
         transaction.setOnSumClick(new NumberEditListener() {
             @Override
@@ -89,6 +98,11 @@ public class TransactionFragment extends Fragment
                 } else {
                     return number / txn.getFloat(5);
                 }
+            }
+
+            @Override
+            String chars() {
+                return "-0123456789.,";
             }
         });
         transaction.headersClickable(true);
@@ -111,12 +125,14 @@ public class TransactionFragment extends Fragment
 
         abstract float quantity(float number);
 
+        abstract String chars();
+
         @Override
         public void onClick(final View v) {
             txn.moveToPosition((Integer) v.getTag());
             getFragmentManager().beginTransaction()
                     .replace(R.id.container, new NumberDialogFragment(
-                            text(), txn.getFloat(4), inputType()) {
+                            text(), txn.getFloat(4), inputType(), chars()) {
                         @Override
                         public void onNumber(float number) {
                             ContentValues cv = new ContentValues();

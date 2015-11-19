@@ -24,11 +24,13 @@ public abstract class NumberDialogFragment extends DialogFragment {
     private final String msg;
     private final float value;
     private final int inputType;
+    private final String chars;
 
-    public NumberDialogFragment(String msg, float value, int inputType) {
+    public NumberDialogFragment(String msg, float value, int inputType, String chars) {
         this.msg = msg;
         this.value = value;
         this.inputType = inputType;
+        this.chars = chars;
     }
 
     @Override
@@ -52,7 +54,7 @@ public abstract class NumberDialogFragment extends DialogFragment {
             number.setText(String.format("%.3f", Math.abs(value)));
         }
         number.setInputType(inputType);
-        number.setKeyListener(DigitsKeyListener.getInstance("-0123456789.,"));
+        number.setKeyListener(DigitsKeyListener.getInstance(chars));
         number.selectAll();
         number.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
