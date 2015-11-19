@@ -124,7 +124,11 @@
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="file" android:mimeType="*/*" android:pathPattern="/.*\\.csv" />
+        <data android:scheme="file" android:mimeType="*/*" android:pathPattern="/.*\\.bnn" />
+        <data android:scheme="file" android:mimeType="*/*" android:pathPattern="/.*\\.knk" />
         <data android:scheme="content" android:mimeType="text/csv" android:pathPattern="/.*\\.csv" />
+        <data android:scheme="content" android:mimeType="text/csv" android:pathPattern="/.*\\.bnn" />
+        <data android:scheme="content" android:mimeType="text/csv" android:pathPattern="/.*\\.knk" />
       </intent-filter>
     </activity>
     <activity
