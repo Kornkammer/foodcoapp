@@ -17,6 +17,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,10 +144,15 @@ public class TransactionFragment extends Fragment
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return new CursorLoader(getActivity(),
-                getActivity().getIntent().getData()
-                        .buildUpon().appendPath("products").build(),
-                null, null, null, null);
+        if (getActivity() != null && getActivity().getIntent().getData() != null) {
+            return new CursorLoader(getActivity(),
+                    getActivity().getIntent().getData()
+                            .buildUpon().appendPath("products").build(),
+                    null, null, null, null);
+        } else {
+            Log.e(AccountActivity.TAG, "how is this possible?");
+            return null;
+        }
     }
 
     @Override

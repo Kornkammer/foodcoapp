@@ -77,10 +77,15 @@ public class CheckoutActivity extends AppCompatActivity
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         transactionFragment = (TransactionFragment)
                 getSupportFragmentManager().findFragmentById(R.id.transaction);
-        transactionFragment.reload();
         transactionView = (TransactionView) findViewById(R.id.transaction_view);
         scale = new Scale(this);
         scale.registerForUsb();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        transactionFragment.reload();
     }
 
     @Override
