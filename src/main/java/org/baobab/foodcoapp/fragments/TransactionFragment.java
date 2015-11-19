@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -214,6 +215,7 @@ public class TransactionFragment extends Fragment
                 return true;
             }
         });
+        ((EditText) getActivity().findViewById(R.id.scanner)).requestFocus();
     }
 
     @Override

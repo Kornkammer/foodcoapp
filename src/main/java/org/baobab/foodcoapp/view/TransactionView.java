@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayout;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -16,6 +17,7 @@ import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -109,6 +111,14 @@ public class TransactionView extends GridLayout {
                     quantity, data.getString(6), data.getFloat(5), title, data.getString(8));
         }
         addProduct(-1, -1, 4, "lager", weight, "Kilo", 0, null, null);
+
+        post(new Runnable() {
+            @Override
+            public void run() {
+                ((EditText) ((AppCompatActivity) getContext()).findViewById(R.id.scanner)).requestFocus();
+            }
+        });
+
     }
 
     private void addProduct(int position, int transactionId, int productId, String accountGuid,
