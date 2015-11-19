@@ -324,7 +324,7 @@ public class TransactionFragment extends Fragment
                 }
             }, 1000);
             Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-            ((AccountActivity) getActivity()).resetTransaction();
+            ((CheckoutActivity) getActivity()).resetTransaction();
             reload();
             return true;
         } else {
