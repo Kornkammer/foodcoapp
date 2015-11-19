@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.baobab.foodcoapp.fragments.TransactionFragment;
+import org.baobab.foodcoapp.util.Nfc;
 import org.baobab.foodcoapp.util.Scale;
 import org.baobab.foodcoapp.view.StretchableGrid;
 import org.baobab.foodcoapp.view.TransactionView;
@@ -55,6 +57,11 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     protected void onNewIntent(Intent intent) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+            String msg = Nfc.readTag(intent);
+            Toast.makeText(this, "TAG " + msg, Toast.LENGTH_LONG).show();
+            handleBarcode(msg.split(": ")[1]);
+        }
         if (getIntent().getData() == null) {
             resetTransaction();
         }
@@ -86,6 +93,14 @@ public class CheckoutActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         transactionFragment.reload();
+        Nfc.resume(this, NfcAdapter.ACTION_NDEF_DISCOVERED,
+                "application/vnd.kornkammer.products");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Nfc.pause(this);
     }
 
     @Override
@@ -194,8 +209,10 @@ public class CheckoutActivity extends AppCompatActivity
             if (ean.length() > 0) {
                 handleBarcode(ean);
                 scan.setText("");
+                scan.requestFocus();
                 return true;
             }
+            scan.requestFocus();
         }
         return false;
     }

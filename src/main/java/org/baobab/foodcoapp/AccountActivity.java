@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -20,6 +21,7 @@ import android.view.WindowManager;
 
 import org.baobab.foodcoapp.io.KnkExport;
 import org.baobab.foodcoapp.util.Barcode;
+import org.baobab.foodcoapp.util.Nfc;
 import org.baobab.foodcoapp.view.StretchableGrid;
 
 import java.text.DecimalFormat;
@@ -81,6 +83,10 @@ public class AccountActivity extends CheckoutActivity {
 
     @Override
     protected void onNewIntent(Intent intent) {
+        if (NfcAdapter.ACTION_NDEF_DISCOVERED.equals(intent.getAction())) {
+            String msg = Nfc.readTag(intent);
+            handleBarcode(msg.split(": ")[1]);
+        }
         if (intent.getData() == null) {
             if (getIntent().getData() == null) {
                 resetTransaction();

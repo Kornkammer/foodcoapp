@@ -2,15 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.baobab.foodcoapp" >
 
-  <uses-feature
-    android:name="android.hardware.camera"
-    android:required="true" />
 
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.READ_CONTACTS" />
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-feature android:name="android.hardware.usb.host" />
+  <uses-permission android:name="android.permission.NFC"/>
+  <uses-feature android:name="android.hardware.camera" />
 
   <application
     android:allowBackup="true"
@@ -64,6 +63,7 @@
       android:taskAffinity="org.baobab.foodcoapp.simple"
       android:windowSoftInputMode="adjustPan|stateAlwaysHidden"
       android:screenOrientation="landscape" >
+
       <intent-filter>
         <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
       </intent-filter>
@@ -86,6 +86,7 @@
     <activity
       android:name="org.baobab.foodcoapp.ProductEditActivity"
       android:windowSoftInputMode="stateAlwaysVisible"
+      android:launchMode="singleTop"
       android:screenOrientation="landscape" >
       <intent-filter>
         <action android:name="android.intent.action.EDIT" />

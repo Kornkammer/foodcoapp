@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -29,6 +30,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.baobab.foodcoapp.util.Nfc;
+
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -41,6 +44,7 @@ public class ProductEditActivity extends AppCompatActivity
     private EditText title;
     private EditText price;
     private TextView unit;
+    private String ean;
     private Uri img;
 
     @Override
@@ -101,6 +105,25 @@ public class ProductEditActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        Nfc.resume(this, NfcAdapter.ACTION_TAG_DISCOVERED);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
+            if (ean == null) {
+                ean = String.valueOf(System.currentTimeMillis()).substring(5);
+            }
+            if (Nfc.writeTag(intent, title.getText().toString() + ": " + ean)) {
+                Toast.makeText(this, "ASSIGNED EAN: " + ean, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getSupportActionBar().setDisplayOptions(
                 ActionBar.DISPLAY_SHOW_CUSTOM,
@@ -143,6 +166,12 @@ public class ProductEditActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        Nfc.pause(this);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return new CursorLoader(this, getIntent().getData(), null, null, null, null);
     }
@@ -167,6 +196,9 @@ public class ProductEditActivity extends AppCompatActivity
                 unit.setText(R.string.volume);
             } else {
                 unit.setText(R.string.piece);
+            }
+            if (!data.isNull(9)) {
+                ean = data.getString(9);
             }
         }
     }
@@ -194,6 +226,10 @@ public class ProductEditActivity extends AppCompatActivity
             if (getIntent().hasExtra("account_guid")) {
                 cv.put("account_guid", getIntent().getStringExtra("account_guid"));
                 cv.put("product_id", 3);
+            } else {
+                if (ean != null) {
+                    cv.put("ean", ean);
+                }
             }
             if (Math.abs(getIntent().getFloatExtra("price", 0)) == p) {
                 if (getIntent().getFloatExtra("price", 0) > 0) {

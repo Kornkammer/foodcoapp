@@ -61,4 +61,5 @@ dependencies {
     compile 'net.sf.opencsv:opencsv:2.3'
     compile 'com.madgag.spongycastle:prov:1.51.0.0'
     compile 'ch.acra:acra:4.7.0-RC.2'
+    compile 'com.google.code.ndef-tools-for-android:ndeftools:1.2.4'
 }
