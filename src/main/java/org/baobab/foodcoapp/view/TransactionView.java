@@ -115,7 +115,11 @@ public class TransactionView extends GridLayout {
         post(new Runnable() {
             @Override
             public void run() {
-                ((EditText) ((AppCompatActivity) getContext()).findViewById(R.id.scanner)).requestFocus();
+                View scan = ((AppCompatActivity) getContext()).findViewById(R.id.scanner);
+                if (scan != null) {
+                    scan.requestFocus();
+                }
+
             }
         });
 

@@ -215,7 +215,6 @@ public class TransactionFragment extends Fragment
                 return true;
             }
         });
-        ((EditText) getActivity().findViewById(R.id.scanner)).requestFocus();
     }
 
     @Override
