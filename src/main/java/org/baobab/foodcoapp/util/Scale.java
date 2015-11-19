@@ -84,16 +84,24 @@ public class Scale implements Runnable {
             }
             mPermissionIntent = PendingIntent.getBroadcast(activity, 0, new Intent("org.baobab.foodcoapp.USB_PERMISSION"), 0);
             if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                Toast.makeText(activity, "ATTACHED", Toast.LENGTH_LONG).show();
-                Log.i(TAG, "Scale Attached " + activity.getClass().getSimpleName());
-                mUsbManager.requestPermission(device, mPermissionIntent);
+                UsbDevice d = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                Toast.makeText(activity, "ATTACHED " + d.getProductId(), Toast.LENGTH_LONG).show();
+                if (device.getVendorId() == VID &&
+                        (device.getProductId() == M5 || device.getProductId() == M10)) {
+                    Log.i(TAG, "Scale Attached " + activity.getClass().getSimpleName());
+                    mUsbManager.requestPermission(device, mPermissionIntent);
+                }
             }
             //If this is our permission request, check result
             if (USB_PERMISSION.equals(action)) {
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)
                         && device != null) {
-                    //Connect to the device
-                    setDevice(device);
+                    if (device.getVendorId() == VID &&
+                            (device.getProductId() == M5 || device.getProductId() == M10)) {
+                        setDevice(device);
+                    } else {
+                        Toast.makeText(activity, "not a scale", Toast.LENGTH_LONG).show();
+                    }
                 } else {
                     Toast.makeText(activity, "permission denied", Toast.LENGTH_LONG).show();
                     Log.d(TAG, "permission denied for device " + device);
@@ -107,6 +115,7 @@ public class Scale implements Runnable {
         HashMap<String, UsbDevice> devices = mUsbManager.getDeviceList();
         UsbDevice selected = null;
         for (UsbDevice device : devices.values()) {
+            System.out.println(device.getVendorId() + " : " + device.getProductId());
             if (device.getVendorId() == VID &&
                     (device.getProductId() == M5 || device.getProductId() == M10)) {
                 selected = device;
