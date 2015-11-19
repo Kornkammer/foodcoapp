@@ -234,7 +234,7 @@ public class AccountListFragment extends Fragment
                 if (guid.equals("mitglieder")) {
                     list.collapseGroup(pos);
                 } else {
-                    if (getChildCount() > 0) {
+                    if (getChildCount() > 1) {
                         removeViewAt(1);
                     }
                 }

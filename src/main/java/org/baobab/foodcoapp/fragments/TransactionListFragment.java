@@ -159,7 +159,9 @@ public class TransactionListFragment extends ListFragment
 
         public void collapse() {
             if (expanded) {
-                removeViewAt(1);
+                if (getChildCount() > 1) {
+                    removeViewAt(1);
+                }
             }
             expanded = false;
         }
