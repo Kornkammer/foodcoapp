@@ -85,7 +85,7 @@
     </activity>
     <activity
       android:name="org.baobab.foodcoapp.ProductEditActivity"
-      android:windowSoftInputMode="stateAlwaysVisible"
+      android:windowSoftInputMode="stateAlwaysVisible|adjustResize"
       android:launchMode="singleTop"
       android:screenOrientation="landscape" >
       <intent-filter>

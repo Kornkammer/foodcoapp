@@ -59,4 +59,19 @@
     android:background="@drawable/background_translucent"
     android:layout_alignBaseline="@id/price"
     android:layout_toRightOf="@id/pro" />
+
+  <EditText
+    android:id="@+id/ean"
+    android:textStyle="bold"
+    android:textColor="#777"
+    android:singleLine="true"
+    android:selectAllOnFocus="true"
+    android:hint="product code"
+    android:width="@dimen/column_medium"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:textSize="@dimen/font_size_medium"
+    android:inputType="textNoSuggestions|number"
+    android:layout_alignParentBottom="true"
+    android:imeOptions="flagNoExtractUi" />
 </RelativeLayout>

@@ -44,7 +44,7 @@ public class ProductEditActivity extends AppCompatActivity
     private EditText title;
     private EditText price;
     private TextView unit;
-    private String ean;
+    private EditText ean;
     private Uri img;
 
     @Override
@@ -53,6 +53,7 @@ public class ProductEditActivity extends AppCompatActivity
         setContentView(R.layout.activity_product_edit);
         image = (ImageButton) findViewById(R.id.image);
         title = (EditText) findViewById(R.id.title);
+        ean = (EditText) findViewById(R.id.ean);
         price = (EditText) findViewById(R.id.price);
         unit = (TextView) findViewById(R.id.unit);
         image.setOnClickListener(new View.OnClickListener() {
@@ -107,18 +108,20 @@ public class ProductEditActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        Nfc.resume(this, NfcAdapter.ACTION_TAG_DISCOVERED);
+        Nfc.resume(this, NfcAdapter.ACTION_TAG_DISCOVERED, null);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (intent.getAction().equals(NfcAdapter.ACTION_TAG_DISCOVERED)) {
-            if (ean == null) {
-                ean = String.valueOf(System.currentTimeMillis()).substring(5);
+            String code = ean.getText().toString();
+            if (code.equals("")) {
+                code = String.valueOf(System.currentTimeMillis()).substring(5);
+                ean.setText(code);
             }
-            if (Nfc.writeTag(intent, title.getText().toString() + ": " + ean)) {
-                Toast.makeText(this, "ASSIGNED EAN: " + ean, Toast.LENGTH_SHORT).show();
+            if (Nfc.writeTag(intent, title.getText().toString() + ": " + code)) {
+                Toast.makeText(this, "assigned " + code, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -198,7 +201,7 @@ public class ProductEditActivity extends AppCompatActivity
                 unit.setText(R.string.piece);
             }
             if (!data.isNull(9)) {
-                ean = data.getString(9);
+                ean.setText(data.getString(9));
             }
         }
     }
@@ -227,8 +230,8 @@ public class ProductEditActivity extends AppCompatActivity
                 cv.put("account_guid", getIntent().getStringExtra("account_guid"));
                 cv.put("product_id", 3);
             } else {
-                if (ean != null) {
-                    cv.put("ean", ean);
+                if (!ean.getText().toString().equals("")) {
+                    cv.put("ean", ean.getText().toString());
                 }
             }
             if (Math.abs(getIntent().getFloatExtra("price", 0)) == p) {
