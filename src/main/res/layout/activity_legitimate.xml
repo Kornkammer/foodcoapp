@@ -6,14 +6,6 @@
   android:layout_height="match_parent" >
 
 
-  <TextView
-    android:id="@+id/textView"
-    android:textAppearance="?android:attr/textAppearanceMedium"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_centerHorizontal="true"
-    android:text="Baobab" />
-
   <EditText
     android:id="@+id/pin"
     android:layout_width="300dp"
@@ -21,7 +13,6 @@
     android:inputType="numberPassword"
     android:textSize="42sp"
     android:imeOptions="flagNoExtractUi"
-    android:layout_below="@+id/textView"
     android:layout_centerHorizontal="true"
     android:hint="pin" />
 
