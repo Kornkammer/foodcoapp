@@ -34,8 +34,8 @@ public class BrowseActivity extends AppCompatActivity {
                                 getIntent().getData().getPathSegments().get(1) +
                                 "'", null, null);
                 account.moveToFirst();
-                getSupportActionBar().setTitle("Umsätze Konto: " + account.getString(1) +
-                        "  ~  Guthaben: " + String.format("%.2f", - account.getFloat(3)));
+                getSupportActionBar().setTitle("Umsätze: " + account.getString(1) +
+                        "  ~  " + String.format("%.2f", - account.getFloat(3)));
             } else {
                 getSupportActionBar().setTitle("Umsätze " );
             }

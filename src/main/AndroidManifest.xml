@@ -109,10 +109,9 @@
       android:theme="@style/FullscreenTheme" >
     </activity>
     <activity
-      android:label="@string/transactions"
       android:icon="@drawable/book"
-      android:clearTaskOnLaunch="true"
       android:screenOrientation="portrait"
+      android:theme="@style/FullscreenTheme"
       android:name=".BrowseActivity" >
     </activity>
     <activity
