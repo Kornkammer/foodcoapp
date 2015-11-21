@@ -182,7 +182,7 @@ public class AccountListFragment extends Fragment
             final Cursor products = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
                     null, null, null, null);
-            transaction.setColumnWidth(R.dimen.column_medium);
+            transaction.setColumnWidth(R.dimen.column_small);
             transaction.headersClickable(false);
             transaction.showHeaders(false);
             transaction.showImages(false);
