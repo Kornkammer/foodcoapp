@@ -26,21 +26,26 @@ public class Nfc {
 
     public static void resume(Context ctx, String action, String mime) {
         try {
+            NfcAdapter nfc = NfcAdapter.getDefaultAdapter(ctx);
+            if (nfc == null) return;
             IntentFilter f = new IntentFilter(action);
             if (mime != null) {
                 f.addDataType(mime);
             }
             PendingIntent pi = PendingIntent.getActivities(ctx, 1,
                     new Intent[] { new Intent(ctx, ctx.getClass()) }, 0);
-            NfcAdapter.getDefaultAdapter(ctx).enableForegroundDispatch(
-                    (AppCompatActivity) ctx, pi, new IntentFilter[]{ f }, null);
+
+            nfc.enableForegroundDispatch(
+                    (AppCompatActivity) ctx, pi, new IntentFilter[]{f}, null);
         } catch (IntentFilter.MalformedMimeTypeException e) {
             e.printStackTrace();
         }
     };
 
     public static void pause(Context ctx) {
-        NfcAdapter.getDefaultAdapter(ctx).disableForegroundDispatch((AppCompatActivity) ctx);
+        NfcAdapter nfc = NfcAdapter.getDefaultAdapter(ctx);
+        if (nfc == null) return;
+        nfc.disableForegroundDispatch((AppCompatActivity) ctx);
     }
 
     public static boolean writeTag(Intent intent, String msg) {
