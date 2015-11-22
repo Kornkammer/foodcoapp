@@ -14,9 +14,11 @@ public class DecimalView extends LinearLayout {
     private final TextView amount;
     private final TextView decimals;
     private final TextView point;
+    private final int length;
 
-    public DecimalView(Context context, final OnClickListener onClick) {
+    public DecimalView(Context context, int length, final OnClickListener onClick) {
         super(context);
+        this.length = length;
         setOrientation(LinearLayout.HORIZONTAL);
         setBackgroundResource(R.drawable.background_translucent);
 
@@ -33,7 +35,7 @@ public class DecimalView extends LinearLayout {
         point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_xlarge));
         point.setTextColor(getResources().getColor(R.color.xlight_blue));
         point.setPadding(-5, -large, -5, -large);
-        point.setVisibility(GONE);
+        point.setVisibility(INVISIBLE);
         if (Locale.getDefault().equals(Locale.GERMANY)) {
             point.setText(",");
         } else {
@@ -44,7 +46,7 @@ public class DecimalView extends LinearLayout {
         decimals = new TextView(getContext());
         decimals.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
         decimals.setTextColor(getResources().getColor(R.color.xlight_blue));
-        decimals.setPadding(0, -small, 3, -small);
+        decimals.setPadding(0, -small, 3, -small+3);
         addView(decimals);
 
         if (onClick != null) {
@@ -61,14 +63,15 @@ public class DecimalView extends LinearLayout {
     public void setNumber(float number) {
         amount.setText(String.valueOf((int) Math.abs(number)));
         if (number % 1 == 0) {
-            point.setVisibility(GONE);
-            decimals.setVisibility(GONE);
+            decimals.setText("0");
+            point.setVisibility(INVISIBLE);
+            decimals.setVisibility(INVISIBLE);
         } else {
             point.setVisibility(VISIBLE);
             decimals.setVisibility(VISIBLE);
             String dec = String.valueOf(number);
             dec = dec.substring(dec.indexOf(".") + 1);
-            dec = dec.substring(0, Math.min(3, dec.length()));
+            dec = dec.substring(0, Math.min(length, dec.length()));
             dec = dec.replaceAll("0+$", "");
             decimals.setText(dec);
         }

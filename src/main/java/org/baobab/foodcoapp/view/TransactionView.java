@@ -33,6 +33,7 @@ public class TransactionView extends GridLayout {
     private OnClickListener onSumClick;
     private TextView header;
     private String account;
+    private int decimals = 3;
     private float weight = -1;
     private boolean positive;
     private boolean addProduct;
@@ -82,6 +83,11 @@ public class TransactionView extends GridLayout {
     public void addable(boolean add) {
         addProduct = add;
     }
+
+    public void setDecimals(int length) {
+        decimals = length;
+    }
+
 
     public void setWeight(float quantity) {
         weight = quantity;
@@ -330,7 +336,7 @@ public class TransactionView extends GridLayout {
 
 
     private void amount(float quantity, int productId, int position) {
-        final DecimalView amount = new DecimalView(getContext(), onAmountClick);
+        final DecimalView amount = new DecimalView(getContext(), decimals, onAmountClick);
         if (productId < 3 || (productId == 4 && weight == -1)) {
             amount.setNumber(1);
             amount.setVisibility(INVISIBLE);

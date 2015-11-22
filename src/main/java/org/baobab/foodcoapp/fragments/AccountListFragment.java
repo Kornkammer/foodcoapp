@@ -217,6 +217,7 @@ public class AccountListFragment extends Fragment
                             }).show();
                 }
             });
+            transaction.setDecimals(1);
             transaction.populate(products);
             LayoutParams lp = new LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
