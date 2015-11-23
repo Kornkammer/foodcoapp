@@ -397,6 +397,7 @@ public class TransactionView extends GridLayout {
         title.setPadding(0, getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall), 0, 0);
         title.setTextColor(getResources().getColor(R.color.xlight_blue));
         title.setEllipsize(TextUtils.TruncateAt.MIDDLE);
+        title.setSingleLine();
         title.setMaxLines(1);
         if (name != null) {
             title.setText(name);
