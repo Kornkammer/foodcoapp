@@ -111,7 +111,6 @@
     <activity
       android:icon="@drawable/book"
       android:screenOrientation="portrait"
-      android:theme="@style/FullscreenTheme"
       android:name=".BrowseActivity" >
     </activity>
     <activity
