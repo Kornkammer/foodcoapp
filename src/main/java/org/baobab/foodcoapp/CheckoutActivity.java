@@ -241,7 +241,7 @@ public class CheckoutActivity extends AppCompatActivity
         cv.put("account_guid", account);
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != 1 && unit.equals(getString(R.string.weight))) {
+        if (quantity != 1 && quantity != 0 && unit.equals(getString(R.string.weight))) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);
