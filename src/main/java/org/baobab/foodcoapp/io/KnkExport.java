@@ -30,6 +30,9 @@ public class KnkExport {
 
             out.writeNext(new String[] { } );
             Cursor t = ctx.getContentResolver().query(txn, null, null, null, null);
+            if (t.getCount() == 0) {
+                return result;
+            }
             t.moveToFirst();
             out.writeNext(new String[] { "KNK Version 0.1", t.getString(4), df.format(t.getLong(2)) });
 
