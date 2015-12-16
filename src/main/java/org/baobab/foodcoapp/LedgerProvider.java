@@ -190,7 +190,7 @@ public class LedgerProvider extends ContentProvider {
                                 (uri.getPathSegments().size() > 3?
                                 " AND transaction_products._id = " + uri.getLastPathSegment() : "") +
                         " GROUP BY accounts.guid, title, price" +
-                        " ORDER BY accounts._id, transaction_products.title",
+                        " ORDER BY accounts._id, transaction_products.quantity < 0, transaction_products.title",
                         new String[] { uri.getPathSegments().get(1) });
                 break;
             case SUM:
