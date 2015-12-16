@@ -172,13 +172,13 @@ public class LedgerProvider extends ContentProvider {
         switch (router.match(uri)) {
             case PRODUCTS:
                 result = db.getReadableDatabase().query("products",
-                        projection, selection, selectionArgs, null, null, sortOrder, null);
+                        projection, selection, selectionArgs, null, null, sortOrder);
                 break;
             case PRODUCT:
                 result = db.getReadableDatabase().query("products", new String[] {
                           "_id", "-1", "''", "_id AS product_id", "0",
                                 "price", "unit", "title", "img", "ean" }, "_id = ?",
-                        new String[] {uri.getLastPathSegment()}, null, null, null);
+                        new String[] { uri.getLastPathSegment() }, null, null, null);
                 break;
             case TRANSACTION_PRODUCTS:
                 result = db.getReadableDatabase().rawQuery(

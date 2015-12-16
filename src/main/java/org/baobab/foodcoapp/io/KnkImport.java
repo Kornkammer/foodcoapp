@@ -71,12 +71,16 @@ public class KnkImport implements ImportActivity.Importer {
             Log.d(TAG, "+ read: " + line[0] + " :: " + line[3] + ":    " +
                     line[1] + " " + line[2] + " x " + line[4] +
                     "      sum=" + sum);
-            Uri product = null;
+            String product = null;
+            String img = null;
             if (line[0].toLowerCase().equals("lager")) {
-                product = findProduct(line);
+                Cursor p = findProduct(line);
+                if (p != null) {
+                    product = String.valueOf(p.getLong(0));
+                    img = p.getString(4);
+                }
             }
-            storeTransactionItem(txn, line[0].toLowerCase(),
-                    (product!=null? product.getLastPathSegment() : "3"), line);
+            storeTransactionItem(txn, line[0].toLowerCase(), product, img, line);
             return 1;
         } catch (Exception e) {
             Log.e(TAG, "Error reading line " + e.getMessage());
@@ -102,26 +106,31 @@ public class KnkImport implements ImportActivity.Importer {
                 "content://org.baobab.foodcoapp/sessions"), cv);
     }
 
-    private ContentValues storeTransactionItem(Uri txn, String account, String product_id, String[] line) {
+    private ContentValues storeTransactionItem(Uri txn, String account, String product, String img, String[] line) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", account);
-        cv.put("product_id", 3);
+        cv.put("product_id", product != null? product : "3");
         cv.put("title", line[3]);
         cv.put("quantity", Float.valueOf(line[1].replace(",", ".")));
         cv.put("unit", line[2]);
         cv.put("price", Float.valueOf(line[4].replace(",", ".")));
+        if (img != null) cv.put("img", img);
         ctx.getContentResolver().insert(txn.buildUpon()
                 .appendEncodedPath("products").build(), cv);
         return cv;
     }
 
-    private Uri findProduct(String[] line) {
+    private Cursor findProduct(String[] line) {
         float price = Float.valueOf(line[4].replace(",", "."));
         Cursor p = ctx.getContentResolver().query(Uri.parse(
                         "content://org.baobab.foodcoapp/products"),
-                null, "title IS ? AND price = ?", new String[] {
-                        line[3], String.valueOf(price) }, null);
-        if (p.getCount() == 0) {
+                null, "title IS ? AND price > ? AND price < ?", new String[] {
+                        line[3], String.valueOf(price - 0.01), String.valueOf(price + 0.01) }, null);
+        if (p.getCount() > 0) {
+            p.moveToFirst();
+            return p;
+        } else {
+            Log.i(TAG, "create product " + line[3]);
             Cursor s = ctx.getContentResolver().query(Uri.parse(
                             "content://org.baobab.foodcoapp/products"),
                     new String[] { "max(button)" }, null, null, null);
@@ -135,8 +144,11 @@ public class KnkImport implements ImportActivity.Importer {
             cv.put("img", "android.resource://org.baobab.foodcoapp/drawable/ic_korn");
             Uri uri = ctx.getContentResolver().insert(Uri.parse(
                     "content://org.baobab.foodcoapp/products"), cv);
-            return uri;
+            p = ctx.getContentResolver().query(Uri.parse(
+                    "content://org.baobab.foodcoapp/products"),
+                    null, "_id = ?", new String[] { uri.getLastPathSegment() }, null, null);
+            p.moveToFirst();
+            return p;
         }
-        return null;
     }
 }
