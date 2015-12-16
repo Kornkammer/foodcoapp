@@ -289,10 +289,12 @@ public class TransactionFragment extends Fragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == getActivity().RESULT_OK && requestCode == 42) {
-            if (saveStatus("final", "Einkauf:")) {
-                startActivity(new Intent(getActivity(), BrowseActivity.class)
-                        .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
-                                data.getStringExtra("guid") + "/transactions")));
+            if (transactionValid()) {
+                if (saveStatus("final", "Einkauf:")) {
+                    startActivity(new Intent(getActivity(), BrowseActivity.class)
+                            .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                    data.getStringExtra("guid") + "/transactions")));
+                }
             }
         }
     }
