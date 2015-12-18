@@ -485,6 +485,12 @@ public class LedgerProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         switch (router.match(uri)) {
+            case PRODUCT:
+                db.getWritableDatabase().delete("products", "_id = ?",
+                        new String[] { uri.getLastPathSegment() });
+                getContext().getContentResolver().notifyChange(
+                        Uri.parse("content://" + AUTHORITY + "/products" ), null);
+                break;
             case TRANSACTION_PRODUCTS:
                 boolean completeDelete = selection != null;
                 selection = "transaction_id = ? AND account_guid IS ? AND product_id = ?";

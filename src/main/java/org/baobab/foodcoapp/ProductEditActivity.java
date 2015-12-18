@@ -2,8 +2,10 @@ package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.DialogFragment;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -17,7 +19,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.AppCompatDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -202,6 +206,24 @@ public class ProductEditActivity extends AppCompatActivity
             }
             if (!data.isNull(9)) {
                 ean.setText(data.getString(9));
+            }
+            if (!getIntent().hasExtra("account_guid")) {
+                findViewById(R.id.delete).setVisibility(View.VISIBLE);
+                findViewById(R.id.delete).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new AlertDialog.Builder(ProductEditActivity.this)
+                                .setTitle(title.getText().toString() + " löschen?")
+                                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        getContentResolver().delete(getIntent().getData(), null, null);
+                                        finish();
+                                    }
+                                }).setNegativeButton("nö", null)
+                        .show();
+                    }
+                });
             }
         }
     }
