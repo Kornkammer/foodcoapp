@@ -157,8 +157,9 @@ public class LedgerProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         router.addURI(AUTHORITY, "transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
-        router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "sessions/#/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "accounts/*/transactions/*", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCTS);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCTS);
         router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCTS);
@@ -304,7 +305,10 @@ public class LedgerProvider extends ContentProvider {
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, session._id, transactions.start, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
-                                "sum(abs(transaction_products.quantity) * transaction_products.price)/2 AS balance, " +
+                                (uri.getPathSegments().get(0).equals("accounts") ?
+                                "abs(sum(transaction_products.quantity * transaction_products.price * " +
+                                    "(transaction_products.account_guid IS '" + uri.getPathSegments().get(1) + "'))) AS height, "
+                                    : "sum(abs(transaction_products.quantity) * transaction_products.price) / 2 AS height, ") +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
                                 " transactions.status, transaction_products.price, transactions.status" +
                         " FROM transactions" +
@@ -316,7 +320,7 @@ public class LedgerProvider extends ContentProvider {
                         ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " WHERE " + selection +
                         " GROUP BY transactions._id" +
-                        " HAVING balance != 0" +
+                        " HAVING height != 0" +
                         (uri.getPathSegments().get(0).equals("accounts") ?
                                 " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
                         " ORDER BY transactions._id",

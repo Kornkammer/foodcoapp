@@ -94,9 +94,9 @@ public class TransactionProductsTests extends BaseProviderTests {
                 .appendEncodedPath("products").build(), b);
         products = query(transaction
                 .buildUpon().appendPath("products").build(), 5);
-        assertEquals("quantity", -4.0, products.getDouble(4));
-        products.moveToNext();
         assertEquals("quantity", 20.0, products.getDouble(4));
+        products.moveToNext();
+        assertEquals("quantity", -4.0, products.getDouble(4));
     }
 
     public void testAccountsOrder() {
