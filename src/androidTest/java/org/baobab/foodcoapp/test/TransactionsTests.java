@@ -17,18 +17,18 @@ public class TransactionsTests extends BaseProviderTests {
         assertTrue("involved accounts", t.getString(5).contains("kasse"));
     }
 
-    public void testDeposit() { // Bilanzerhöhung
+    public void testDeposit() { // Bilanzverlängerung
         createDummyAccount("dummy");
         insertTransaction("dummy", "kasse");
         Cursor transactions = query("accounts/dummy/transactions", 1);
-        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("sum", -42.0, transactions.getDouble(6));
         assertEquals("who", "dummy", transactions.getString(3));
         assertEquals("Einzahlung", true, transactions.getInt(8) < 0);
         assertEquals("passiva", "passiva", transactions.getString(9));
         assertTrue("involved accounts", transactions.getString(5).contains("kasse"));
     }
 
-    public void testWithdraw() { // Bilanzerniedrigung
+    public void testWithdraw() { // Bilanzverkürzung
         createDummyAccount("dummy");
         insertTransaction("lager", "dummy");
         Cursor transactions = query("accounts/dummy/transactions", 1);
@@ -36,6 +36,37 @@ public class TransactionsTests extends BaseProviderTests {
         assertEquals("sum", 42.0, transactions.getDouble(6));
         assertEquals("Einkaufung", true, transactions.getInt(8) > 0);
         assertEquals("passiva", "passiva", transactions.getString(9));
+        assertTrue("involved accounts", transactions.getString(5).contains("lager"));
+    }
+
+    public void testDebitCredit() { // Bilanzverkürzung
+        createDummyAccount("dummy");
+        insertTransaction("dummy", "lager");
+        insertTransaction("dummy", "lager");
+        insertTransaction("lager", "dummy");
+        query("accounts/dummy/transactions", 3);
+        Cursor transactions = query("accounts/dummy/transactions?credit=true", 2);
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("sum", -42.0, transactions.getDouble(6));
+        transactions.moveToNext();
+        assertEquals("sum", -42.0, transactions.getDouble(6));
+        assertEquals("Aufladung", true, transactions.getInt(8) < 0);
+        assertEquals("passiva", "passiva", transactions.getString(9));
+        transactions = query("accounts/dummy/transactions?debit=true", 1);
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("Einkaufung", true, transactions.getInt(8) > 0);
+        assertEquals("passiva", "passiva", transactions.getString(9));
+        assertTrue("involved accounts", transactions.getString(5).contains("lager"));
+        transactions = query("accounts/lager/transactions?debit=true", 2);
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("Einlagerung", true, transactions.getInt(8) < 0);
+        assertTrue("involved accounts", transactions.getString(5).contains("lager"));
+        transactions = query("accounts/lager/transactions?credit=true", 1);
+        assertEquals("who", "dummy", transactions.getString(3));
+        assertEquals("sum", -42.0, transactions.getDouble(6));
+        assertEquals("Auslagerung", true, transactions.getInt(8) > 0);
         assertTrue("involved accounts", transactions.getString(5).contains("lager"));
     }
 
@@ -89,7 +120,7 @@ public class TransactionsTests extends BaseProviderTests {
         createDummyAccount("dummy");
         insertTransaction("dummy", "forderungen", 42f, "Bar Dumm"); // like deposit
         Cursor transactions = query("accounts/dummy/transactions", 1); // kontoauszug
-        assertEquals("sum", 42.0, transactions.getDouble(6));
+        assertEquals("sum", -42.0, transactions.getDouble(6));
         assertEquals("who", "dummy", transactions.getString(3));
         Cursor products = query("accounts/forderungen/products", "title IS 'Bar Dumm'", 1); // open
         assertEquals("amount", 1f, products.getFloat(4));

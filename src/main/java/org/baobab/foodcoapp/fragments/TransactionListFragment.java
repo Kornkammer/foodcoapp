@@ -80,7 +80,7 @@ public class TransactionListFragment extends ListFragment
                     v.comment.setText("");
                 }
                 if (showSum) {
-                    v.sum.setText(sign + String.format("%.2f", cursor.getFloat(6)));
+                    v.sum.setText(sign + String.format("%.2f", Math.abs(cursor.getFloat(6))));
                 }
                 v.collapse();
             }

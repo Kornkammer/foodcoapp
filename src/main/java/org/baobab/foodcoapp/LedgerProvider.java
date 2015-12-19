@@ -306,8 +306,8 @@ public class LedgerProvider extends ContentProvider {
                         "SELECT transactions._id AS _id, session._id, transactions.start, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 (uri.getPathSegments().get(0).equals("accounts") ?
-                                "abs(sum(transaction_products.quantity * transaction_products.price * " +
-                                    "(transaction_products.account_guid IS '" + uri.getPathSegments().get(1) + "'))) AS height, "
+                                "sum(transaction_products.quantity * transaction_products.price * " +
+                                    "(transaction_products.account_guid IS '" + uri.getPathSegments().get(1) + "')) AS height, "
                                     : "sum(abs(transaction_products.quantity) * transaction_products.price) / 2 AS height, ") +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
                                 " transactions.status, transaction_products.price, transactions.status" +
@@ -321,6 +321,8 @@ public class LedgerProvider extends ContentProvider {
                         " WHERE " + selection +
                         " GROUP BY transactions._id" +
                         " HAVING height != 0" +
+                        (uri.getQueryParameter("debit") != null? " AND height > 0" : "") +
+                        (uri.getQueryParameter("credit") != null? " AND height < 0" : "") +
                         (uri.getPathSegments().get(0).equals("accounts") ?
                                 " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
                         " ORDER BY transactions._id",

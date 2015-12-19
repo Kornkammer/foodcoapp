@@ -256,11 +256,11 @@ public class AccountListFragment extends Fragment
         public boolean onLongClick(View v) {
             String[] menu;
             if (editable && id > 150) {
-                menu = new String[]{"Kontoumsätze", "Editieren"};
+                menu = new String[]{ "Umsätze", "Einzahlungen", "Einkäufe", "Editieren"};
             } else if (guid.equals("mitglieder")) {
-                menu = new String[]{"Kontoumsätze", "Mitglied hinzufügen"};
+                menu = new String[]{ "Umsätze", "Einzahlungen", "Einkäufe", "Mitglied hinzufügen"};
             } else {
-                menu = new String[]{"Kontoumsätze"};
+                menu = new String[]{ "Umsätze", "Zugänge", "Abgänge"};
             }
             new AlertDialog.Builder(getActivity())
                     .setItems(menu, new DialogInterface.OnClickListener() {
@@ -273,6 +273,16 @@ public class AccountListFragment extends Fragment
                                                     guid + "/transactions")));
                                     break;
                                 case 1:
+                                    startActivity(new Intent(getActivity(), BrowseActivity.class)
+                                            .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                                    guid + "/transactions?" + (invert == 1? "debit=true" : "credit=true"))));
+                                    break;
+                                case 2:
+                                    startActivity(new Intent(getActivity(), BrowseActivity.class)
+                                            .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                                    guid + "/transactions?" + (invert == 1? "credit=true" : "debit=true"))));
+                                    break;
+                                case 3:
                                     if (guid.equals("mitglieder")) {
                                         getActivity().getSupportFragmentManager() .beginTransaction()
                                                 .replace(R.id.container, AccountEditFragment.newInstance())
