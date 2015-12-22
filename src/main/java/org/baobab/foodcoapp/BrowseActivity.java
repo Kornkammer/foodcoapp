@@ -28,14 +28,29 @@ public class BrowseActivity extends AppCompatActivity {
                             .newInstance(getIntent().getData()))
                     .commit();
             if (getIntent().getDataString().contains("/accounts")) {
+                String title = " Umsätze:   ";
+                String q = "";
+                if (getIntent().getData().getQueryParameter("credit") != null) {
+                    q = "?credit=true";
+                    title = " Zugänge:  + ";
+                } else if (getIntent().getData().getQueryParameter("debit") != null) {
+                    q = "?debit=true";
+                    title = " Abgänge:  - ";
+                }
                 Cursor account = getContentResolver().query(
-                        Uri.parse("content://org.baobab.foodcoapp/accounts"),
-                        null, "guid IS '" +
-                                getIntent().getData().getPathSegments().get(1) +
+                        Uri.parse("content://org.baobab.foodcoapp/accounts" + q),
+                        null, "guid IS '" + getIntent().getData().getPathSegments().get(1) +
                                 "'", null, null);
                 account.moveToFirst();
-                getSupportActionBar().setTitle("Umsätze: " + account.getString(1) +
-                        "  ~  " + String.format("%.2f", - account.getFloat(3)));
+                if (account.getString(4).equals("aktiva")) {
+                    if (getIntent().getData().getQueryParameter("credit") != null) {
+                        title = " Abgänge:  - ";
+                    } else if (getIntent().getData().getQueryParameter("debit") != null) {
+                        title = " Zugänge:  + ";
+                    }
+                }
+                getSupportActionBar().setTitle(account.getString(1) + title +
+                        String.format("%.2f", Math.abs(account.getFloat(3))));
             } else {
                 getSupportActionBar().setTitle("Umsätze " );
             }

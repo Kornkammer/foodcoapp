@@ -203,41 +203,45 @@ public class LedgerProvider extends ContentProvider {
                     parent_guid = uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, name, guid, sum(balance), parent_guid " +
+                        "SELECT _id, name, guid, sum(height), parent_guid " +
                         "FROM (" +
-                        " SELECT accounts._id AS _id, accounts.name, accounts.guid, max(accounts._id)," +
-                            " sum(txn.quantity * txn.price) AS balance, accounts.parent_guid" +
-                        " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
+                            " SELECT accounts._id AS _id, accounts.name, accounts.guid," +
+                                " height, accounts.parent_guid" +
+                            " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
                                 " FROM accounts GROUP BY guid" +
-                                ") AS accounts" +
-                        " LEFT JOIN (" +
-                                "SELECT * FROM transaction_products" +
-                                " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
+                            ") AS accounts" +
+                            " LEFT JOIN (" +
+                                "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
+                                " FROM transaction_products AS txn" +
+                                " JOIN transactions ON txn.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
-                                ") AS txn ON accounts.guid = txn.account_guid" +
-                                (uri.getPathSegments().size() > 1?
-                                        " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
-                                " GROUP BY accounts.guid" +
-                        " UNION " +
-                        "SELECT accounts._id AS _id, accounts.name, accounts.guid, max(accounts._id)," +
-                            " sum(txn.quantity * txn.price) AS balance, accounts.parent_guid" +
-                        " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
+                                " GROUP BY txn.account_guid, txn.transaction_id" +
+                                (uri.getQueryParameter("debit") != null? " HAVING height > 0" : "") +
+                                (uri.getQueryParameter("credit") != null? " HAVING height < 0" : "") +
+                            ") AS txn_heights ON txn_heights.account_guid = accounts.guid" +
+                            (uri.getPathSegments().size() > 1?
+                            " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
+                        " UNION ALL " +
+                            "SELECT accounts._id AS _id, accounts.name, accounts.guid," +
+                                " height, accounts.parent_guid" +
+                            " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
                                 " FROM accounts GROUP BY guid" +
-                                ") AS accounts" +
-                        " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid" +
+                            ") AS accounts" +
+                            " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid" +
                                 " FROM accounts GROUP BY guid" +
-                                ") AS children ON accounts.guid = children.parent_guid" +
-                        " LEFT JOIN (" +
-                                "SELECT * FROM transaction_products" +
-                                " LEFT OUTER JOIN transactions ON transaction_products.transaction_id = transactions._id" +
+                            ") AS children ON accounts.guid = children.parent_guid" +
+                            " LEFT JOIN (" +
+                                "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
+                                " FROM transaction_products AS txn" +
+                                " JOIN transactions ON txn.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
-                                ") AS txn ON children.guid = txn.account_guid" +
-                                (uri.getPathSegments().size() > 1?
-                                        " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
-                                " GROUP BY accounts.guid" +
+                                " GROUP BY txn.account_guid, txn.transaction_id" +
+                                (uri.getQueryParameter("debit") != null? " HAVING height > 0" : "") +
+                                (uri.getQueryParameter("credit") != null? " HAVING height < 0" : "") +
+                            ") AS txn_heights ON txn_heights.account_guid = children.guid" +
+                            (uri.getPathSegments().size() > 1?
+                            " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
                         ")" +
-                        (uri.getPathSegments().size() > 1?
-                            " WHERE parent_guid IS '" + parent_guid + "'" : "") +
                         " GROUP BY guid" +
                         (selection != null? " HAVING " + selection : "") +
                         (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),

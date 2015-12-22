@@ -67,6 +67,10 @@ public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
         return insertTransaction(7, "final", from_account, to_account, 42.0f, 1.0f, "sth");
     }
 
+    public Uri insertInventurTransaction(String from_account, String to_account) {
+        return insertTransaction(7, "final", from_account, to_account, 42.0f, 1.0f, "sth", "else");
+    }
+
     public Uri insertTransaction(String status, String from_account, String to_account) {
         return insertTransaction(7, status, from_account, to_account, 42.0f, 1.0f, "sth");
     }
@@ -80,6 +84,10 @@ public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
     }
 
     public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, float price, String title) {
+        return insertTransaction(sessionId, status, from_account, to_account, amount, price, title, title);
+    }
+
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, float price, String fromTitle, String toTitle) {
         ContentValues t = new ContentValues();
         t.put("session_id", sessionId);
         t.put("status", status);
@@ -90,13 +98,15 @@ public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
         b.put("account_guid", from_account);
         b.put("product_id", 23);
         b.put("quantity", -amount);
-        b.put("title", title);
+        b.put("title", fromTitle);
         b.put("price", price);
         b.put("unit", "dinge");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         b.put("account_guid", to_account);
+//        b.put("title", title + "_diff");
         b.put("quantity", amount);
+        b.put("title", toTitle);
         b.put("unit", "sachen");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
