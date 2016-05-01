@@ -179,4 +179,12 @@ public class AccountsTests extends BaseProviderTests {
         query("accounts/passiva/accounts", "name IS ?", new String[] {"dummy"}, 1);
     }
 
+    public void testAccountProducts() {
+        createDummyAccount("dummy");
+        insertTransaction("dummy", "lager");
+        Cursor c = query("accounts/lager/products", 1);
+        System.out.println("Hier " + c.getString(7) + ": " + c.getFloat(4));
+        insertTransaction(7, "final", "lager", "dummy",  41.9991f);
+        query("accounts/lager/products", 0);
+    }
 }

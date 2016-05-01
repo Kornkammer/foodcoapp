@@ -266,7 +266,7 @@ public class LedgerProvider extends ContentProvider {
                         " WHERE account_guid IS ? AND (transactions.status IS NOT 'draft'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
                         " GROUP BY title, price" +
-                        " HAVING stock != 0" +
+                        " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
                         (selection != null? " AND " + selection : ""),
                         new String[] { account_guid });
                 break;
