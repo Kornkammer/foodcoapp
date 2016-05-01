@@ -21,23 +21,25 @@ public class KnkExport {
     static final SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd--HH:mm");
 
     public static File create(Context ctx, Uri txn) {
-
         File result = file("txn_" + txn.getLastPathSegment() + ".knk");
+        Cursor t = ctx.getContentResolver().query(txn, null, null, null, null);
+        if (t.getCount() == 0) {
+            return result;
+        }
+        t.moveToFirst();
+        return write(ctx, txn.buildUpon().appendEncodedPath("products").build(),
+                t.getString(4), t.getLong(2), result);
+    }
+
+    public static File write(Context ctx, Uri products, String comment, long time, File result) {
         CSVWriter out;
         try {
             out = new CSVWriter(new FileWriter(result), ';', CSVWriter.NO_QUOTE_CHARACTER);
             out.writeNext(new String[] { "Konto", "Menge", "Einheit", "Titel", "Preis" });
-
             out.writeNext(new String[] { } );
-            Cursor t = ctx.getContentResolver().query(txn, null, null, null, null);
-            if (t.getCount() == 0) {
-                return result;
-            }
-            t.moveToFirst();
-            out.writeNext(new String[] { "KNK Version 0.1", t.getString(4), df.format(t.getLong(2)) });
+            out.writeNext(new String[] { "KNK Version 0.1", comment, df.format(time) });
 
-            Cursor p = ctx.getContentResolver().query(txn.buildUpon()
-                    .appendEncodedPath("products").build(), null, null, null, null);
+            Cursor p = ctx.getContentResolver().query(products, null, null, null, null);
             while (p.moveToNext()) {
                 out.writeNext(new String[] {
                         p.getString(2),

@@ -43,6 +43,7 @@ public class BackupExport {
                     "Knk_" + date + ".BAK", zos);
             transactions(ctx, zos);
             reports(ctx, zos);
+            lager(ctx, zos);
 
             zos.close();
         } catch (FileNotFoundException e) {
@@ -80,7 +81,14 @@ public class BackupExport {
             csv.delete();
             account.close();
         }
+    }
 
+    static void lager(final Context ctx, ZipOutputStream zos) throws IOException {
+        File stock = KnkExport.write(ctx,
+                Uri.parse("content://org.baobab.foodcoapp/accounts/lager/products"),
+                "Inventur", new Date().getTime(), file("lagerbestand.knk"));
+        zip(null, stock, zos);
+        stock.delete();
     }
 
     private static void exportTransactions(final Context ctx, final Cursor c, final File file) {
