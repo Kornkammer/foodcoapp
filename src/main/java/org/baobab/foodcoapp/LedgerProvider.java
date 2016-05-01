@@ -256,7 +256,7 @@ public class LedgerProvider extends ContentProvider {
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transaction_products._id, transaction_id, account_guid," +
-                                " product_id, sum(quantity) AS stock, ROUND(price, 2) AS price, unit, title, img," +
+                                " product_id, sum(quantity) AS stock, ROUND(price, 2) AS price, MAX(unit), title, img," +
                                 " accounts._id, parent_guid, guid, name" +
                         " FROM transaction_products" +
                         " LEFT JOIN (" +
