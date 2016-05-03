@@ -329,7 +329,7 @@ public class LedgerProvider extends ContentProvider {
                         (uri.getQueryParameter("credit") != null? " AND height < 0" : "") +
                         (uri.getPathSegments().get(0).equals("accounts") ?
                                 " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
-                        " ORDER BY transactions._id",
+                        " ORDER BY " + (sortOrder != null? sortOrder : "transactions._id"),
                         selectionArgs);
                 break;
         }
