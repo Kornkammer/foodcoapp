@@ -24,7 +24,7 @@ public class LedgerProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context, String db) {
-            super(context, db, null, 1);
+            super(context, db, null, 2);
         }
 
         @Override
@@ -62,7 +62,10 @@ public class LedgerProvider extends ContentProvider {
                     "transaction_id, account_guid, title, price);");
             db.execSQL("CREATE TABLE accounts (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "parent_guid, " +
+                    "last_modified INTEGER, " +
+                    "created_at INTEGER, " +
+                    "fee INTEGER, " +
+                    "parent_guid TEXT, " +
                     "guid TEXT, " +
                     "name TEXT, " +
                     "skr INTEGER," +
@@ -105,12 +108,16 @@ public class LedgerProvider extends ContentProvider {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldV, int newV) {
-            db.execSQL("DROP TABLE accounts;");
-            db.execSQL("DROP TABLE products;");
-            db.execSQL("DROP TABLE sessions;");
-            db.execSQL("DROP TABLE transactions;");
-            db.execSQL("DROP TABLE transaction_products;");
-            onCreate(db);
+            System.out.println("UPGRADE FROM " + oldV);
+            if (oldV == 1) {
+                db.execSQL("ALTER TABLE accounts" +
+                        " ADD last_modified INTEGER;");
+                db.execSQL("ALTER TABLE accounts" +
+                            " ADD created_at INTEGER;");
+                db.execSQL("ALTER TABLE accounts" +
+                        " ADD fee INTEGER;");
+                System.out.println("DB UPDATED !!!!!!!!!!! ");
+            }
         }
     }
 
@@ -203,11 +210,15 @@ public class LedgerProvider extends ContentProvider {
                     parent_guid = uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, name, guid, sum(height), parent_guid " +
+                        "SELECT _id, name, guid, sum(height), parent_guid," +
+                                " created_at, last_modified, status, fee " +
                         "FROM (" +
                             " SELECT accounts._id AS _id, accounts.name, accounts.guid," +
-                                " height, accounts.parent_guid" +
-                            " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
+                                " height, accounts.parent_guid," +
+                                " accounts.created_at, accounts.last_modified," +
+                                "accounts.status, accounts.fee" +
+                            " FROM (SELECT _id, name, guid, max(_id), parent_guid," +
+                                    " created_at, last_modified, status, fee" +
                                 " FROM accounts GROUP BY guid" +
                             ") AS accounts" +
                             " LEFT JOIN (" +
@@ -215,6 +226,9 @@ public class LedgerProvider extends ContentProvider {
                                 " FROM transaction_products AS txn" +
                                 " JOIN transactions ON txn.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
+                                ((uri.getQueryParameter("after") != null && uri.getQueryParameter("before") != null)?
+                                        " AND transactions.start >= " + uri.getQueryParameter("after") +
+                                        " AND transactions.start < " + uri.getQueryParameter("before") : "") +
                                 " GROUP BY txn.account_guid, txn.transaction_id" +
                                 (uri.getQueryParameter("debit") != null? " HAVING height > 0" : "") +
                                 (uri.getQueryParameter("credit") != null? " HAVING height < 0" : "") +
@@ -223,11 +237,15 @@ public class LedgerProvider extends ContentProvider {
                             " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
                         " UNION ALL " +
                             "SELECT accounts._id AS _id, accounts.name, accounts.guid," +
-                                " height, accounts.parent_guid" +
-                            " FROM (SELECT _id, name, guid, max(_id), parent_guid" +
+                                " height, accounts.parent_guid," +
+                                " accounts.created_at, accounts.last_modified," +
+                                " accounts.status, accounts.fee" +
+                            " FROM (SELECT _id, name, guid, max(_id), parent_guid," +
+                                    " created_at, last_modified, status, fee" +
                                 " FROM accounts GROUP BY guid" +
                             ") AS accounts" +
-                            " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid" +
+                            " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid," +
+                                    " created_at, last_modified, status, fee" +
                                 " FROM accounts GROUP BY guid" +
                             ") AS children ON accounts.guid = children.parent_guid" +
                             " LEFT JOIN (" +
@@ -273,7 +291,7 @@ public class LedgerProvider extends ContentProvider {
             case ACCOUNT:
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT accounts._id AS _id, guid, name, contact, pin, qr, max(accounts._id), " +
-                                "sum(transaction_products.quantity * transaction_products.price), parent_guid " +
+                                "sum(transaction_products.quantity * transaction_products.price), parent_guid, created_at, fee" +
                         " FROM accounts" +
                         " LEFT OUTER JOIN transaction_products ON transaction_products.account_guid = accounts.guid" +
 //                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +

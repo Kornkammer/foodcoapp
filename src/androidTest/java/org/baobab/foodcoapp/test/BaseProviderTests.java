@@ -55,10 +55,17 @@ public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
     }
 
     public Uri createDummyAccount(String name, String guid, String parent) {
+        return createDummyAccount(name, guid, parent, "foo", 1, 2);
+    }
+
+    public Uri createDummyAccount(String name, String guid, String parent, String status, long created, long modified) {
         ContentValues values = new ContentValues();
         values.put("name", name);
         values.put("guid", guid);
         values.put("parent_guid", parent);
+        values.put("status", status);
+        values.put("created_at", created);
+        values.put("last_modified", modified);
         return getMockContentResolver().insert(
                 Uri.parse("content://org.baobab.foodcoapp.test/accounts"), values);
     }

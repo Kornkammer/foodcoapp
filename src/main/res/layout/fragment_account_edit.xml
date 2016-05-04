@@ -43,17 +43,50 @@
         android:nextFocusDown="@id/pin"
         android:hint="name" />
 
-      <EditText
-        android:id="@+id/guid"
-        android:enabled="false"
-        android:textStyle="bold"
-        android:textColor="#777"
-        android:selectAllOnFocus="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/font_size_medium"
-        android:inputType="textNoSuggestions|number"
-        android:imeOptions="flagNoExtractUi" />
+      <LinearLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/guid"
+            android:enabled="false"
+            android:textStyle="bold"
+            android:textColor="@color/medium_green"
+            android:selectAllOnFocus="true"
+            android:layout_width="0dp"
+            android:layout_weight="382"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_size_medium"
+            android:inputType="textNoSuggestions|number"
+            android:imeOptions="flagNoExtractUi"
+            android:hint="@string/member" />
+        <EditText
+            android:id="@+id/fee"
+            android:enabled="false"
+            android:textStyle="bold"
+            android:textColor="@color/medium_green"
+            android:selectAllOnFocus="true"
+            android:layout_width="0dp"
+            android:layout_weight="236"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_size_large"
+            android:inputType="textNoSuggestions|number"
+            android:imeOptions="flagNoExtractUi"
+            android:hint="@string/fee" />
+        <EditText
+            android:id="@+id/created_at"
+            android:enabled="false"
+            android:textStyle="bold"
+            android:textColor="@color/medium_green"
+            android:selectAllOnFocus="true"
+            android:layout_width="0dp"
+            android:layout_weight="382"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/font_size_medium"
+            android:inputType="textNoSuggestions|number"
+            android:imeOptions="flagNoExtractUi" />
+
+      </LinearLayout>
+
     </LinearLayout>
   </LinearLayout>
 

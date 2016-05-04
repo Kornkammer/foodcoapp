@@ -34,6 +34,7 @@ import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.util.Crypt;
 import org.baobab.foodcoapp.R;
 
+import java.text.SimpleDateFormat;
 import java.util.Random;
 
 public class AccountEditFragment extends Fragment
@@ -92,6 +93,10 @@ public class AccountEditFragment extends Fragment
             String guid = generateGUID();
             ((EditText) view.findViewById(R.id.guid)).setText(guid);
             view.findViewById(R.id.guid).setEnabled(true);
+            view.findViewById(R.id.fee).setEnabled(true);
+            ((EditText) view.findViewById(R.id.created_at))
+                    .setText(new SimpleDateFormat("dd/MM/yyyy")
+                            .format(System.currentTimeMillis()));
         }
         getView().findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -219,6 +224,11 @@ public class AccountEditFragment extends Fragment
             case 0:
                 getArguments().putString("guid", data.getString(1));
                 ((EditText) getView().findViewById(R.id.guid)).setText(data.getString(1));
+                getArguments().putLong("created_at", data.getLong(9));
+                ((TextView) getView().findViewById(R.id.created_at))
+                        .setText(new SimpleDateFormat("dd/MM/yyyy").format(data.getLong(9)));
+                ((TextView) getView().findViewById(R.id.fee))
+                        .setText(data.getString(10));
                 getActivity().setTitle("Edit " + data.getString(2));
                 if (!data.isNull(4)) {
                     getArguments().putString("pin", data.getString(4));
@@ -309,6 +319,7 @@ public class AccountEditFragment extends Fragment
         if (getArguments().containsKey("guid")) {
             archivePreviousVersions();
             values.put("guid", getArguments().getString("guid"));
+            values.put("created_at", getArguments().getLong("created_at"));
         } else {
             String guid = ((EditText) getView().findViewById(R.id.guid)).getText().toString();
             if (exists(guid)) {
@@ -318,6 +329,7 @@ public class AccountEditFragment extends Fragment
                 return;
             } else {
                 values.put("guid", guid);
+                values.put("created_at", System.currentTimeMillis());
             }
         }
         if (getArguments().containsKey("parent_guid")) {
@@ -337,6 +349,8 @@ public class AccountEditFragment extends Fragment
             }
             values.put("qr", getArguments().getString("qr"));
         }
+        values.put("fee", ((EditText) getView().findViewById(R.id.fee)).getText().toString());
+        values.put("last_modified", System.currentTimeMillis());
         getActivity().getContentResolver().insert(
                 Uri.parse("content://org.baobab.foodcoapp/accounts"),
                 values);

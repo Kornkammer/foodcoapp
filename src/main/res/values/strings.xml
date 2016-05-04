@@ -41,4 +41,7 @@
   <string name="btn_yes">Selbstverfreilich!</string>
   <string name="btn_no">Achso?? Nö!</string>
 
+  <string name="member">Mitgliedsnummer</string>
+  <string name="fee">Monatsbeitrag</string>
+
 </resources>
