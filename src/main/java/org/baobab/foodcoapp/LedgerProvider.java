@@ -253,6 +253,9 @@ public class LedgerProvider extends ContentProvider {
                                 " FROM transaction_products AS txn" +
                                 " JOIN transactions ON txn.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
+                                ((uri.getQueryParameter("after") != null && uri.getQueryParameter("before") != null)?
+                                        " AND transactions.start >= " + uri.getQueryParameter("after") +
+                                        " AND transactions.start < " + uri.getQueryParameter("before") : "") +
                                 " GROUP BY txn.account_guid, txn.transaction_id" +
                                 (uri.getQueryParameter("debit") != null? " HAVING height > 0" : "") +
                                 (uri.getQueryParameter("credit") != null? " HAVING height < 0" : "") +
@@ -260,8 +263,12 @@ public class LedgerProvider extends ContentProvider {
                             (uri.getPathSegments().size() > 1?
                             " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
                         ")" +
+                        (uri.getQueryParameter("before") != null?
+                                " WHERE created_at < " + uri.getQueryParameter("before") : "") +
                         " GROUP BY guid" +
-                        (selection != null? " HAVING " + selection : "") +
+                        " HAVING " + (selection != null? selection : "status IS NOT 'deleted'") +
+                        (uri.getQueryParameter("after") != null?
+                                " OR last_modified >= " + uri.getQueryParameter("after") : "") +
                         (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),
                         (selectionArgs != null? selectionArgs : null));
                 break;

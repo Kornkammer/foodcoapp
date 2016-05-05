@@ -183,8 +183,90 @@ public class AccountsTests extends BaseProviderTests {
         createDummyAccount("dummy");
         insertTransaction("dummy", "lager");
         Cursor c = query("accounts/lager/products", 1);
-        System.out.println("Hier " + c.getString(7) + ": " + c.getFloat(4));
         insertTransaction(7, "final", "lager", "dummy",  41.9991f);
         query("accounts/lager/products", 0);
+    }
+
+    public void testFindAccountsByTime() {
+        createDummyAccount("members");
+        long year1 = System.currentTimeMillis();
+        createDummyAccount("a", "a", "members", "foo", year1, year1);
+        createDummyAccount("b", "b", "members", "foo", year1, year1);
+        insertTransaction("kasse", "a");
+        insertTransaction("kasse", "b");
+        insertTransaction("b", "kasse");
+        insertTransaction("kasse", "b");
+        Cursor a = query("accounts/members/accounts", 2);
+        assertEquals("balance", 42.0, a.getDouble(3));
+
+        long year2 = System.currentTimeMillis();
+        insertTransaction("kasse", "a");
+        insertTransaction("a", "kasse");
+        insertTransaction("kasse", "a");
+        a = query("accounts/members/accounts", 2);
+        assertEquals("balance", 84.0, a.getDouble(3));
+        createDummyAccount("c", "c", "members", "foo", year2, year2);
+        insertTransaction("kasse", "c");
+        createDummyAccount("a", "a", "members", "deleted", year1, year2);
+        query("accounts/members/accounts", 2);
+
+        long year3 = System.currentTimeMillis();
+        insertTransaction("kasse", "c");
+        insertTransaction("b", "kasse");
+        long year4 = System.currentTimeMillis();
+
+        a = query("accounts/members/accounts?after=" + year1 + "&before=" + year2, 2);
+        assertEquals("balance b", 42.0, a.getDouble(3));
+        a.moveToNext();
+        assertEquals("balance a", 42.0, a.getDouble(3));
+        a = query("accounts/members/accounts?debit=true&after=" + year1 + "&before=" + year2, 2);
+        assertEquals("debit b", 84.0, a.getDouble(3));
+        a.moveToNext();
+        assertEquals("debit a", 42.0, a.getDouble(3));
+        a = query("accounts/members/accounts?credit=true&after=" + year1 + "&before=" + year2, 2);
+        assertEquals("credit b", -42.0, a.getDouble(3));
+        a.moveToNext();
+        assertEquals("credit a", 0.0, a.getDouble(3));
+
+        a = query("accounts/members/accounts?after=" + year2 + "&before=" + year3, 3);
+        assertEquals("balance b", 0.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("balance a", 42.0, a.getDouble(3));
+        a = query("accounts/members/accounts?debit=true&after=" + year2 + "&before=" + year3, 3);
+        assertEquals("debit b", 0.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("debit a", 84.0, a.getDouble(3));
+        a = query("accounts/members/accounts?credit=true&after=" + year2 + "&before=" + year3, 3);
+        assertEquals("credit b", 0.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("credit a", -42.0, a.getDouble(3));
+
+        a = query("accounts/members/accounts?after=" + year3 + "&before=" + year4, 2);
+        assertEquals("balance b", -42.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("balance c", 42.0, a.getDouble(3));
+        a = query("accounts/members/accounts?credit=true&after=" + year3 + "&before=" + year4, 2);
+        assertEquals("credit b", -42.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("credit c", 0.0, a.getDouble(3));
+
+        a = query("accounts/members/accounts?after=" + year1 + "&before=" + year3, 3);
+        a.moveToLast();
+        assertEquals("balance a", 84.0, a.getDouble(3));
+        a = query("accounts/members/accounts?debit=true&after=" + year1 + "&before=" + year3, 3);
+        a.moveToLast();
+        assertEquals("debit a", 126.0, a.getDouble(3));
+
+        a = query("accounts/members/accounts?after=" + year2 + "&before=" + year4, 3);
+        a.moveToNext();
+        assertEquals("balance c", 84.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("balance a", 42.0, a.getDouble(3));
+        a = query("accounts/members/accounts?credit=true&after=" + year2 + "&before=" + year4, 3);
+        assertEquals("credit b", -42.0, a.getDouble(3));
+        a.moveToNext();
+        assertEquals("credit c", 0.0, a.getDouble(3));
+        a.moveToLast();
+        assertEquals("credit a", -42.0, a.getDouble(3));
     }
 }
