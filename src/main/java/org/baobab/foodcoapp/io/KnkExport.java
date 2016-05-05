@@ -43,7 +43,7 @@ public class KnkExport {
             while (p.moveToNext()) {
                 out.writeNext(new String[] {
                         p.getString(2),
-                        String.format("%.2f", p.getFloat(4)),
+                        String.format("%.3f", p.getFloat(4)),
                         p.getString(6),
                         p.getString(7),
                         String.format("%.2f", p.getFloat(5))});
