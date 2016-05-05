@@ -25,6 +25,7 @@ import org.baobab.foodcoapp.io.BnnImport;
 import org.baobab.foodcoapp.io.GlsImport;
 import org.baobab.foodcoapp.io.KnkAltImport;
 import org.baobab.foodcoapp.io.KnkImport;
+import org.baobab.foodcoapp.io.MembersImport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -79,6 +80,8 @@ public class ImportActivity extends AppCompatActivity {
                             importer = new BnnImport(ImportActivity.this);
                         } else if (line.length == 22) {
                             importer = new GlsImport(ImportActivity.this);
+                        } else if (getIntent().getDataString().contains("mitglieder")) {
+                            importer = new MembersImport(ImportActivity.this);
                         } else {
                             is = getContentResolver().openInputStream(getIntent().getData());
                             csv = new CSVReader(new BufferedReader(new InputStreamReader(is, "utf-8")), '\t');
@@ -201,12 +204,21 @@ public class ImportActivity extends AppCompatActivity {
     private void showMsg(String msg) {
         new AlertDialog.Builder(ImportActivity.this)
                 .setMessage(msg + "\n")
-                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ja!", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (importer instanceof BackupImport || importer instanceof BnnImport) {
                             startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
                             finish();
+                        } else if (importer instanceof MembersImport) {
+                            ((MembersImport) importer).update(ImportActivity.this);
+                            new AlertDialog.Builder(ImportActivity.this)
+                                    .setMessage("Done.").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
+                                }
+                            }).show();
                         }
                     }
                 }).show();
