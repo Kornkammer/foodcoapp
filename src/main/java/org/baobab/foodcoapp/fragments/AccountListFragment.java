@@ -120,7 +120,11 @@ public class AccountListFragment extends Fragment
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        if (loader.getId() < 0) {
+            adapter.changeCursor(null);
+        } else {
+            adapter.setChildrenCursor(loader.getId(), null);
+        }
     }
 
     private class AccountView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
@@ -144,6 +148,7 @@ public class AccountListFragment extends Fragment
         }
 
         public void populate(Cursor cursor) {
+            if (cursor.isClosed()) return;
             if (cursor.isNull(3)) {
                 balance.setText("0.00");
             } else {
