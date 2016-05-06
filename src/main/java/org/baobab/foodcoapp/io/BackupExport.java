@@ -26,6 +26,8 @@ import au.com.bytecode.opencsv.CSVWriter;
 public class BackupExport {
 
     public static SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+   public static SimpleDateFormat YEAR = new SimpleDateFormat("yyyy");
+
 
     public static File create(Context ctx, String id) {
 
@@ -57,17 +59,7 @@ public class BackupExport {
 
     static void transactions(final Context ctx, ZipOutputStream zos, int year) throws IOException {
         File tmp = null;
-        SimpleDateFormat d = new SimpleDateFormat("yyyy");
-        String selection = "transactions.status IS NOT 'draft'";
-        if (year > 0) {
-            try {
-                long from = d.parse("" + year).getTime();
-                long to = d.parse("" + (year + 1)).getTime();
-                selection += " AND " + from + " <= transactions.start AND transactions.start < " + to;
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
+        String selection = getTimeWindowSelection(year);
         Cursor all = ctx.getContentResolver().query(
                 Uri.parse("content://org.baobab.foodcoapp/transactions"),
                 null, selection, null, "transactions.start");
@@ -77,12 +69,12 @@ public class BackupExport {
             zip("" + year, tmp, zos);
         } else {
             all.moveToFirst();
-            int first = Integer.parseInt(d.format(all.getLong(2)));
+            int first = Integer.parseInt(YEAR.format(all.getLong(2)));
             all.moveToLast();
-            int last = Integer.parseInt(d.format(all.getLong(2)));
-            System.out.println("first " + first + "  last " + last);
+            int last = Integer.parseInt(YEAR.format(all.getLong(2)));
             for (int y = first; y <= last; y++) {
                 transactions(ctx, zos, y);
+                reports(ctx, zos, y);
             }
             all.moveToPosition(-1);
             tmp = file("all_transactions.csv");
@@ -93,8 +85,32 @@ public class BackupExport {
         all.close();
     }
 
-    static void reports(final Context ctx, ZipOutputStream zos) throws IOException {
-        Cursor accounts = getMembers(ctx, "", null);
+    @NonNull
+    private static String getTimeWindowSelection(int year) {
+        String selection = "transactions.status IS NOT 'draft'";
+        if (year > 0) {
+            try {
+                long from = YEAR.parse("" + year).getTime();
+                long to = YEAR.parse("" + (year + 1)).getTime();
+                selection += " AND " + from + " <= transactions.start AND transactions.start < " + to;
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return selection;
+    }
+
+    static void reports(final Context ctx, ZipOutputStream zos, int year) throws IOException {
+        String timewindow = "";
+        if (year > 0) {
+            try {
+                timewindow = "after=" + YEAR.parse("" + year).getTime() +
+                        "&before=" + YEAR.parse("" + (year + 1)).getTime();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        Cursor accounts = getMembers(ctx, "?" + timewindow, null);
         File tmp = file("mitglieder.csv");
         CSVWriter csv;
         try {
@@ -110,38 +126,57 @@ public class BackupExport {
             while (accounts.moveToNext()) {
                 String guid = accounts.getString(2);
                 String name = accounts.getString(1);
-                report(ctx, zos, guid, name);
+                report(ctx, zos, guid, name, year);
                 Cons einlage = getContribution(ctx, "?credit=true", name, "einlagen");
                 Cons auslage = getContribution(ctx, "?debit=true", name, "einlagen");
                 Cons beitrag = getContribution(ctx, "", name, "beiträge");
                 long joined = accounts.getLong(5);
-                if (joined == 0) joined = 1431900000000l;
                 int fee = accounts.getInt(8);
                 if (fee == 0) fee = 9;
                 int days = (int) ((System.currentTimeMillis() - joined) / 86400000);
-                int soll = Math.round(days * fee * 12f/365f);
-                String balance;
-                if (beitrag.sum > soll) {
-                    balance = "noch " + Math.round((beitrag.sum - soll) / (fee * 12f/365f)) + " Tage gut";
-                } else {
-                    balance = "noch " + Math.round(soll - beitrag.sum) + "€ offen!";
+                float pre = 0;
+                float post = 0;
+                if (year > 0) {
+                    try {
+                        long after = YEAR.parse("" + year).getTime();
+                        long before = YEAR.parse("" + (year + 1)).getTime();
+                        days = (int) (((Math.min(System.currentTimeMillis(), before) - Math.max(after, joined)) / 86400000));
+                        post = Math.max(0, System.currentTimeMillis() - before) / 86400000;
+                        pre = Math.max(0, after - joined) / 86400000;
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
-                Cursor debit = getMembers(ctx, "?debit=true", name);
+                int soll = Math.round(days * fee * 12f/365f);
+                int ist = Math.round(Math.min(soll, Math.max(0, beitrag.sum - (pre * fee * 12f/365))));
+                String balance = " :-)";
+                if (ist != soll) {
+                    if (ist > soll) {
+                        balance = "noch " + Math.round((ist - soll) / (fee * 12f/365)) + " Tage gut";
+                    } else {
+                        balance = "noch " + Math.round(soll - ist) + "€ offen";
+                    }
+                }
+                Cursor debit = getMembers(ctx, "?debit=true" + timewindow, name);
                 debit.moveToFirst();
-                Cursor credit = getMembers(ctx, "?credit=true", name);
+                Cursor credit = getMembers(ctx, "?credit=true" + timewindow, name);
                 credit.moveToFirst();
 
                 csv.writeNext(new String[] { guid, name, df.format(joined),
                         "" + einlage.sum, einlage.dates,
                         "" + fee, "€/Mon an " + days + " Tagen",
-                        "" + soll, "" + Math.round(beitrag.sum), balance, "",
+                        "" + soll, "" + ist, balance, "",
                             String.format("%.2f", (-1 * credit.getFloat(3))),
                             String.format("%.2f", (-1 * debit.getFloat(3))),
                             String.format("%.2f", (-1 * accounts.getFloat(3))),
                         "" + auslage.sum, auslage.dates } );
             }
             csv.close();
-            zip(null, tmp, zos);
+            if (year > 0) {
+                zip("" + year, tmp, zos);
+            } else {
+                zip(null, tmp, zos);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -174,14 +209,18 @@ public class BackupExport {
         return txns;
     }
 
-    private static void report(Context ctx, ZipOutputStream zos, String guid, String name) throws IOException {
+    private static void report(Context ctx, ZipOutputStream zos, String guid, String name, int year) throws IOException {
         Cursor account = ctx.getContentResolver().query(
                 Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                         guid + "/transactions"),
-                null, null, null, null);
+                null, getTimeWindowSelection(year), null, null);
         File csv = file(guid + "_" + name + "_transactions.csv");
         exportTransactions(ctx, account, csv);
-        zip("Mitglieder", csv, zos);
+        if (year > 0) {
+            zip(year + "//Umsatz", csv, zos);
+        } else {
+            zip("Umsatz", csv, zos);
+        }
         csv.delete();
         account.close();
     }
