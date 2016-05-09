@@ -219,15 +219,20 @@ public class LedgerProvider extends ContentProvider {
                                 "accounts.status, accounts.fee" +
                             " FROM (SELECT _id, name, guid, max(_id), parent_guid," +
                                     " created_at, last_modified, status, fee" +
-                                " FROM accounts GROUP BY guid" +
+                                " FROM accounts" +
+                                (uri.getQueryParameter("before") != null?
+                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
+                                            " OR last_modified IS NULL" : "") +
+                                " GROUP BY guid" +
                             ") AS accounts" +
                             " LEFT JOIN (" +
                                 "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
                                 " FROM transaction_products AS txn" +
                                 " JOIN transactions ON txn.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
-                                ((uri.getQueryParameter("after") != null && uri.getQueryParameter("before") != null)?
-                                        " AND transactions.start >= " + uri.getQueryParameter("after") +
+                                ((uri.getQueryParameter("after") != null)?
+                                        " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
+                                ((uri.getQueryParameter("before") != null)?
                                         " AND transactions.start < " + uri.getQueryParameter("before") : "") +
                                 " GROUP BY txn.account_guid, txn.transaction_id" +
                                 (uri.getQueryParameter("debit") != null? " HAVING height > 0" : "") +
@@ -242,19 +247,28 @@ public class LedgerProvider extends ContentProvider {
                                 " accounts.status, accounts.fee" +
                             " FROM (SELECT _id, name, guid, max(_id), parent_guid," +
                                     " created_at, last_modified, status, fee" +
-                                " FROM accounts GROUP BY guid" +
+                                " FROM accounts" +
+                                (uri.getQueryParameter("before") != null?
+                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
+                                                " OR last_modified IS NULL" : "") +
+                                " GROUP BY guid" +
                             ") AS accounts" +
                             " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid," +
                                     " created_at, last_modified, status, fee" +
-                                " FROM accounts GROUP BY guid" +
+                                " FROM accounts" +
+                                (uri.getQueryParameter("before") != null?
+                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
+                                                " OR last_modified IS NULL" : "") +
+                                " GROUP BY guid" +
                             ") AS children ON accounts.guid = children.parent_guid" +
                             " LEFT JOIN (" +
                                 "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
                                 " FROM transaction_products AS txn" +
                                 " JOIN transactions ON txn.transaction_id = transactions._id" +
                                 " WHERE transactions.status IS NOT 'draft'" +
-                                ((uri.getQueryParameter("after") != null && uri.getQueryParameter("before") != null)?
-                                        " AND transactions.start >= " + uri.getQueryParameter("after") +
+                                ((uri.getQueryParameter("after") != null)?
+                                        " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
+                                ((uri.getQueryParameter("before") != null)?
                                         " AND transactions.start < " + uri.getQueryParameter("before") : "") +
                                 " GROUP BY txn.account_guid, txn.transaction_id" +
                                 (uri.getQueryParameter("debit") != null? " HAVING height > 0" : "") +
@@ -268,7 +282,8 @@ public class LedgerProvider extends ContentProvider {
                         " GROUP BY guid" +
                         " HAVING " + (selection != null? selection : "status IS NOT 'deleted'") +
                         (uri.getQueryParameter("after") != null?
-                                " OR last_modified >= " + uri.getQueryParameter("after") : "") +
+                                " OR last_modified >= " + uri.getQueryParameter("after") :
+                                (uri.getQueryParameter("before") != null? " OR last_modified >= 0": "")) +
                         (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),
                         (selectionArgs != null? selectionArgs : null));
                 break;
@@ -345,9 +360,18 @@ public class LedgerProvider extends ContentProvider {
                         " LEFT JOIN accounts AS session ON sessions.account_guid = session.guid" +
                         " JOIN transaction_products ON transaction_products.transaction_id = transactions._id" +
                         " LEFT JOIN (" +
-                                "SELECT _id, guid, name, max(_id), parent_guid from accounts GROUP BY guid" +
+                                "SELECT _id, guid, name, max(_id), parent_guid" +
+                                " FROM accounts" +
+                                (uri.getQueryParameter("before") != null?
+                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
+                                                " OR last_modified IS NULL" : "") +
+                                " GROUP BY guid" +
                         ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " WHERE " + selection +
+                                ((uri.getQueryParameter("after") != null)?
+                                        " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
+                                ((uri.getQueryParameter("before") != null)?
+                                        " AND transactions.start < " + uri.getQueryParameter("before") : "") +
                         " GROUP BY transactions._id" +
                         " HAVING height != 0" +
                         (uri.getQueryParameter("debit") != null? " AND height > 0" : "") +
