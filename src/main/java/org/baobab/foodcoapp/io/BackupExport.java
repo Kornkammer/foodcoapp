@@ -45,8 +45,10 @@ public class BackupExport {
                     "//data//org.baobab.foodcoapp//databases//" + db),
                     "Knk_" + date + ".BAK", zos);
             transactions(ctx, zos, 0);
-            reports(ctx, zos);
-            lager(ctx, zos);
+            reports(ctx, zos, 0);
+            lager(ctx, zos, "lager");
+            lager(ctx, zos, "kosten");
+            lager(ctx, zos, "inventar");
 
             zos.close();
         } catch (FileNotFoundException e) {
@@ -85,7 +87,6 @@ public class BackupExport {
         all.close();
     }
 
-    @NonNull
     private static String getTimeWindowSelection(int year) {
         String selection = "transactions.status IS NOT 'draft'";
         if (year > 0) {
@@ -111,16 +112,22 @@ public class BackupExport {
             }
         }
         Cursor accounts = getMembers(ctx, "?" + timewindow, null);
-        File tmp = file("mitglieder.csv");
+        File tmp;
+        if (year > 0) {
+            tmp = file(year + "_mitglieder.csv");
+        } else {
+            tmp = file("mitglieder.csv");
+        }
         CSVWriter csv;
         try {
             csv = new CSVWriter(new FileWriter(tmp), ';', CSVWriter.NO_QUOTE_CHARACTER);
             csv.writeNext(new String[] {
                     "Nr", "Name", "Beitritt",
                     "Einlage", "",
-                    "Beitrag", "",
-                    "soll", "ist", "",
-                    "Korns", "ein", "aus", "gut",
+                    "Beitrag", "", (year > 0? "Stand 1. Jan" : ""), "" + year, "soll",
+                    "gezahlt", "Stand " + (year == 0 || System.currentTimeMillis() < YEAR.parse("" + (year + 1)).getTime()?
+                           df.format(System.currentTimeMillis()) :  "31. Dez " + year ),
+                    "Korns", (year > 0? "Stand 1. Jan " : ""), "ein", "aus", "gut",
                     "Einlage zurück", "" });
             csv.writeNext(new String[] { } );
             while (accounts.moveToNext()) {
@@ -129,47 +136,59 @@ public class BackupExport {
                 report(ctx, zos, guid, name, year);
                 Cons einlage = getContribution(ctx, "?credit=true", name, "einlagen");
                 Cons auslage = getContribution(ctx, "?debit=true", name, "einlagen");
-                Cons beitrag = getContribution(ctx, "", name, "beiträge");
                 long joined = accounts.getLong(5);
                 int fee = accounts.getInt(8);
                 if (fee == 0) fee = 9;
                 int days = (int) ((System.currentTimeMillis() - joined) / 86400000);
-                float pre = 0;
-                float post = 0;
+                float preDays = 0;
+                float gut = 0;
+                Cons paid = getContribution(ctx, "?" + timewindow, name, "beiträge");
+                Cursor standBegin = null;
+                Cursor standEnd = null;
                 if (year > 0) {
                     try {
                         long after = YEAR.parse("" + year).getTime();
                         long before = YEAR.parse("" + (year + 1)).getTime();
                         days = (int) (((Math.min(System.currentTimeMillis(), before) - Math.max(after, joined)) / 86400000));
-                        post = Math.max(0, System.currentTimeMillis() - before) / 86400000;
-                        pre = Math.max(0, after - joined) / 86400000;
+                        preDays = Math.max(0, after - joined) / 86400000;
+                        Cons prePaid = getContribution(ctx, "?before=" + after, name, "beiträge");
+                        gut = prePaid.sum - preDays * fee * 12f/365;
+                        Cons duePaid = getContribution(ctx, "?before=" + before, name, "beiträge");
+                        standBegin = getMembers(ctx, "?before=" + after, name);
+                        standBegin.moveToFirst();
+                        standEnd = getMembers(ctx, "?before=" + before, name);
+                        standEnd.moveToFirst();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                 }
-                int soll = Math.round(days * fee * 12f/365f);
-                int ist = Math.round(Math.min(soll, Math.max(0, beitrag.sum - (pre * fee * 12f/365))));
-                String balance = " :-)";
-                if (ist != soll) {
-                    if (ist > soll) {
-                        balance = "noch " + Math.round((ist - soll) / (fee * 12f/365)) + " Tage gut";
-                    } else {
-                        balance = "noch " + Math.round(soll - ist) + "€ offen";
-                    }
+                int soll = Math.round(days * fee * 12f/365);
+                float result = gut + paid.sum - soll;
+                String balance;
+                int resultDays = Math.round(result / (fee * 12f/365));
+                if (result < 0) {
+                    balance = "noch (" + (-1 * resultDays) + " Tage) " + Math.round(-1 * result) + "€ offen";
+                } else {
+                    balance = "noch (" + resultDays + " Tage) " + Math.round(result) + "€ gut";
                 }
-                Cursor debit = getMembers(ctx, "?debit=true" + timewindow, name);
+                Cursor debit = getMembers(ctx, "?debit=true&" + timewindow, name);
                 debit.moveToFirst();
-                Cursor credit = getMembers(ctx, "?credit=true" + timewindow, name);
+                Cursor credit = getMembers(ctx, "?credit=true&" + timewindow, name);
                 credit.moveToFirst();
 
+
                 csv.writeNext(new String[] { guid, name, df.format(joined),
-                        "" + einlage.sum, einlage.dates,
-                        "" + fee, "€/Mon an " + days + " Tagen",
-                        "" + soll, "" + ist, balance, "",
+                        "" + einlage.sum, einlage.dates, "" + fee, "€/Monat",
+                        (year > 0 && gut > 0? "" + Math.round(gut) : ""),
+                        days + " Tage", "" + soll, "" + paid.sum, balance, "",
+                        (year > 0 && standBegin.getCount() > 0?
+                            String.format("%.2f", (-1 * standBegin.getFloat(3))) : "0"),
                             String.format("%.2f", (-1 * credit.getFloat(3))),
                             String.format("%.2f", (-1 * debit.getFloat(3))),
-                            String.format("%.2f", (-1 * accounts.getFloat(3))),
-                        "" + auslage.sum, auslage.dates } );
+                        (year > 0 && standBegin.getCount() > 0?
+                            String.format("%.2f", (-1 * standEnd.getFloat(3))) :
+                                String.format("%.2f", (-1 * accounts.getFloat(3)))),
+                        (auslage.sum > 0? "" + auslage.sum: ""), auslage.dates } );
             }
             csv.close();
             if (year > 0) {
@@ -178,6 +197,8 @@ public class BackupExport {
                 zip(null, tmp, zos);
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }
@@ -214,10 +235,10 @@ public class BackupExport {
                 Uri.parse("content://org.baobab.foodcoapp/accounts/" +
                         guid + "/transactions"),
                 null, getTimeWindowSelection(year), null, null);
-        File csv = file(guid + "_" + name + "_transactions.csv");
+        File csv = file(guid + "_" + name + ".csv");
         exportTransactions(ctx, account, csv);
         if (year > 0) {
-            zip(year + "//Umsatz", csv, zos);
+            zip(year + "/" + year + "_Umsatz", csv, zos);
         } else {
             zip("Umsatz", csv, zos);
         }
@@ -225,10 +246,10 @@ public class BackupExport {
         account.close();
     }
 
-    static void lager(final Context ctx, ZipOutputStream zos) throws IOException {
+    static void lager(final Context ctx, ZipOutputStream zos, String account) throws IOException {
         File stock = KnkExport.write(ctx,
-                Uri.parse("content://org.baobab.foodcoapp/accounts/lager/products"),
-                "Inventur", new Date().getTime(), file("lagerbestand.knk"));
+                Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/products"),
+                "(Be)Stand ", new Date().getTime(), file(account + ".knk"));
         zip(null, stock, zos);
         stock.delete();
     }
@@ -251,7 +272,7 @@ public class BackupExport {
         String[] row = new String[count];
         row[0] = df.format(c.getLong(2));
         row[1] = c.getString(3);
-        row[2] = c.getString(4);
+        row[2] = c.getString(4).replace("\n", " | ");
         String sign;
         if (c.getString(9).equals("aktiva")) {
             sign = c.getInt(8) < 0? "-" : "+";
