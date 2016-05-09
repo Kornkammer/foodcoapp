@@ -21,8 +21,8 @@ android {
     defaultConfig {
         minSdkVersion 12
         targetSdkVersion 23
-        versionName "v1.1.11"
-        versionCode 15
+        versionName "v1.1.12"
+        versionCode 17
     }
     signingConfigs {
         release
@@ -47,6 +47,9 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
         exclude '.readme'
+    }
+    lintOptions {
+        abortOnError false
     }
 }
 
