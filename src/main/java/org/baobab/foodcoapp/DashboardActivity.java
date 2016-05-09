@@ -1,9 +1,11 @@
 package org.baobab.foodcoapp;
 
 import android.annotation.TargetApi;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -16,6 +18,7 @@ import android.view.WindowManager;
 
 import org.baobab.foodcoapp.io.BackupExport;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -123,15 +126,33 @@ public class DashboardActivity extends AppCompatActivity {
             case R.id.export:
                 String mail = PreferenceManager.getDefaultSharedPreferences(this)
                         .getString("export_email", "");
-                Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
+                final Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
                 String date = new SimpleDateFormat("yyyy_MM_dd--HH_mm").format(new Date());
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[] {mail});
                 intent.putExtra(Intent.EXTRA_TEXT, "FoodCoApp Backup und Excel Export vom " + date);
                 intent.putExtra(Intent.EXTRA_SUBJECT, "FoodCoApp " + date + " Export");
                 intent.setType("application/zip");
-                intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(BackupExport.create(this, date)));
-                Intent chooser = Intent.createChooser(intent, "Daten Backup Ex(el)port");
-                startActivity(chooser);
+                final ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                dialog.setMessage("Export Backup ZIP - Stand " + date);
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.setIndeterminate(true);
+                dialog.show();
+                new AsyncTask<String, String, File>() {
+
+                    @Override
+                    protected File doInBackground(String... params) {
+                        return BackupExport.create(DashboardActivity.this, params[0]);
+                    }
+
+                    @Override
+                    protected void onPostExecute(File export) {
+                        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(export));
+                        Intent chooser = Intent.createChooser(intent, "Daten Backup Ex(el)port");
+                        startActivity(chooser);
+                        dialog.dismiss();
+                    }
+                }.execute(date);
                 break;
         }
         return super.onOptionsItemSelected(item);
