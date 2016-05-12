@@ -124,6 +124,7 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
+        transactionFragment.setEditable();
         editable = true;
         final int pages;
         if (data.getCount() > 0) {

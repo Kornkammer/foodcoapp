@@ -47,7 +47,6 @@ public class TransactionFragment extends Fragment
     public View onCreateView(LayoutInflater flate, ViewGroup p, Bundle state) {
         scrollView = (ScrollView) flate.inflate(R.layout.fragment_transaction, null, false);
         transaction = (TransactionView) scrollView.findViewById(R.id.transaction_view);
-        setEditable();
         return scrollView;
     }
 

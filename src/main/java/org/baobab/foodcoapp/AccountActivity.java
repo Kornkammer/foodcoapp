@@ -102,6 +102,7 @@ public class AccountActivity extends CheckoutActivity {
                         "", "", intent.getStringExtra("account"));
             }
         } else {
+            editable = false;
             setIntent(intent);
             getSupportLoaderManager().restartLoader(42, null, this);
         }
@@ -163,7 +164,9 @@ public class AccountActivity extends CheckoutActivity {
             }
             return;
         }
-        editable = true;
+        if (editable) {
+            transactionFragment.setEditable();
+        }
         final int pages;
         if (data.getCount() > 0) {
             pages = (data.getCount() + 3) / 16 + 1;
