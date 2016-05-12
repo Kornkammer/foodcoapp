@@ -104,7 +104,7 @@ public class TransactionView extends GridLayout {
                 account = accountGuid;
                 positive = quantity < 0;
                 if (showHeaders) {
-                    showHeaders(data, quantity);
+                    showHeaders(data, quantity, data.getFloat(5));
                 }
             }
             String title;
@@ -142,7 +142,7 @@ public class TransactionView extends GridLayout {
     }
 
 
-    private void showHeaders(Cursor data, float quantity) {
+    private void showHeaders(Cursor data, final float quantity, final float price) {
         header = new TextView(getContext());
         header.setPadding(12, -2, 0, 0);
         header.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
@@ -248,6 +248,25 @@ public class TransactionView extends GridLayout {
                                     accounts.moveToPosition(pos);
                                     ContentValues cv = new ContentValues();
                                     cv.put("account_guid", accounts.getString(2));
+                                    if (accounts.getString(2).equals("bank") ||
+                                            accounts.getString(2).equals("kasse") ||
+                                            accounts.getString(2).equals("spenden")) {
+                                        cv.put("price", 1);
+                                        cv.put("product_id", 1);
+                                        cv.put("title", "Cash");
+                                        cv.put("unit", "");
+                                        cv.put("quantity", quantity * price);
+                                    } else if (accounts.getString(4).equals("mitglieder")) {
+                                        cv.put("price", 1);
+                                        cv.put("unit", "");
+                                        cv.put("product_id", 2);
+                                        cv.put("title", "Korns");
+                                        cv.put("quantity", quantity * price);
+                                    } else {
+                                        cv.put("product_id", 3);
+                                        cv.put("quantity", price);
+                                        cv.put("price", quantity);
+                                    }
                                     getContext().getContentResolver()
                                             .update(((FragmentActivity) getContext())
                                                     .getIntent().getData().buildUpon()

@@ -226,17 +226,28 @@ public class TransactionFragment extends Fragment
     }
 
     boolean transactionValid() {
-        Cursor t = getActivity().getContentResolver().query(
-                getActivity().getIntent().getData().buildUpon().appendPath("products").build(), null, null, null, null);
         String msg = "";
+        Cursor t = txn;
+        t.moveToPosition(-1);
         if (t.getCount() == 0) return false;
         for (int i = 0; i < t.getCount(); i++) {
             t.moveToPosition(i);
+            int factor = 1;
+            System.out.println(t.getString(10) + " -> " + t.getString(2) + " -> " + t.getString(12) + " foo " + t.getInt(3) + " : " + t.getString(7));
+            if (t.getString(2).equals("bank") || t.getString(2).equals("kasse") || t.getString(2).equals("spenden")) {
+                if (t.getInt(3) != 1 || !t.getString(7).equals("Cash") || t.getFloat(5) != 1) {
+                    msg += " * auf Konto " + t.getString(12) + " kann nur Cash verbucht werden\n";
+                }
+            } else if (t.getString(10).equals("mitglieder")) {
+                factor = -1;
+                if (t.getInt(3) != 2 || !t.getString(7).equals("Korns") || t.getFloat(5) != 1) {
+                    msg += " * auf Konto " + t.getString(12) + " kann nur Korns verbucht werden\n";
+                }
+            }
             Cursor stocks = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
-                    null, "title IS '" + t.getString(7) + "'", null, null);
-            int factor = 1;
-            if (t.getString(10).equals("passiva") || t.getString(10).equals("mitglieder")) {
+                    null, "title IS '" + t.getString(7) + "' AND price = ROUND(" + t.getFloat(5) + ", 2)", null, null);
+            if (t.getString(10).equals("passiva")){
                 factor = -1;
             }
             if (stocks.getCount() > 0) {
