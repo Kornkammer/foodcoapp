@@ -608,6 +608,7 @@ public class LedgerProvider extends ContentProvider {
                         if (isTransactionValid(uri.getLastPathSegment())) {
                             result = db.getWritableDatabase().update("transactions", values,
                                     "_id = " + uri.getLastPathSegment(), null);
+                            result = 1;
                         }
                     }
                 }

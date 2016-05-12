@@ -36,10 +36,10 @@
   <string name="deposit">Einzahlen</string>
   <string name="eur"> €</string>
 
-  <string name="msg_deposit_cash">Ja, ich habe ein Kuvert mit %1$s EUR in die Barkasse.\n\n(beschriftet mit Namen und Mitgliedsnummer %2$s) \n\nAndernfalls will ich nicht %3$s heißen!</string>
-  <string name="msg_deposit_bank">Ja, ich habe eine Überweisung von %1$s EUR \n(so gut wie) bereits längst schon veranlasst.\n\n(mit Verwendungszweck: Einzahlung %2$s \n\nAndernfalls will ich nicht %3$s heißen!</string>
-  <string name="btn_yes">Selbstverfreilich!</string>
-  <string name="btn_no">Achso?? Nö!</string>
+  <string name="msg_deposit_cash">Ja, ich hab ein Kuvert mit %1$s EUR in die Barkasse gelegt.\n\n(beschriftet mit Namen und Mitgliedsnummer %2$s) \n\nAndernfalls will ich nicht %3$s heißen!</string>
+  <string name="msg_deposit_bank">Ja, ich hab eine Überweisung von %1$s EUR \n(so gut wie) bereits längst schon veranlasst.\n\n(mit Verwendungszweck: Einzahlung %2$s \n\nAndernfalls will ich nicht %3$s heißen!</string>
+  <string name="btn_yes">Ja Ok</string>
+  <string name="btn_no">Nein Abbrechen</string>
 
   <string name="member">Mitgliedsnummer</string>
   <string name="fee">Monatsbeitrag</string>

@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -81,11 +82,9 @@ public class DepositActivity extends AppCompatActivity {
             Toast.makeText(this, "So viel gibts ja gar nicht!", Toast.LENGTH_LONG).show();
             return;
         }
-        Toast.makeText(this, "Guthaben aufgeladen \n" + amount, Toast.LENGTH_LONG).show();
         ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(200);
         MediaPlayer.create(this, R.raw.chaching).start();
         ContentValues t = new ContentValues();
-        t.put("status", "final");
         t.put("comment", "Einzahlung:\n" + title + "\n" +
                 ((EditText) findViewById(R.id.comment)).getText().toString());
         Uri transaction = getContentResolver().insert(Uri.parse(
@@ -98,23 +97,33 @@ public class DepositActivity extends AppCompatActivity {
         b.put("price", amount);
         getContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
-        b = new ContentValues();
-        b.put("product_id", 2);
-        b.put("title", "Korns");
-        b.put("account_guid", guid);
-        b.put("quantity", - amount);
-        b.put("price", 1);
+        ContentValues g = new ContentValues();
+        g.put("product_id", 2);
+        g.put("title", "Korns");
+        g.put("account_guid", guid);
+        g.put("quantity", - amount);
+        g.put("price", 1);
         getContentResolver().insert(transaction.buildUpon()
-                .appendEncodedPath("products").build(), b);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startActivity(new Intent(DepositActivity.this, BrowseActivity.class)
-                        .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
-                                guid + "/transactions")));
-                finish();
-            }
-        }, 550);
+                .appendEncodedPath("products").build(), g);
+        ContentValues f = new ContentValues();
+        f.put("status", "final");
+        int r = getContentResolver().update(transaction, f, null, null);
+        if (r == 0) {
+            Toast.makeText(this, "deposit error - invalid txn", Toast.LENGTH_LONG).show();
+            Log.e(AccountActivity.TAG, "deposit error - invalid txn");
+        } else {
+            Toast.makeText(this, "Guthaben aufgeladen \n" + amount, Toast.LENGTH_LONG).show();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startActivity(new Intent(DepositActivity.this, BrowseActivity.class)
+                            .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                    guid + "/transactions")));
+                    finish();
+                }
+
+            }, 550);
+        }
     }
 
     @Override
