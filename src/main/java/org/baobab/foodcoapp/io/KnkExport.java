@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -43,10 +44,10 @@ public class KnkExport {
             while (p.moveToNext()) {
                 out.writeNext(new String[] {
                         p.getString(2),
-                        String.format("%.3f", p.getFloat(4)),
+                        String.format(Locale.ENGLISH, "%.3f", p.getFloat(4)),
                         p.getString(6),
                         p.getString(7),
-                        String.format("%.2f", p.getFloat(5))});
+                        String.format(Locale.ENGLISH, "%.2f", p.getFloat(5))});
             }
             out.close();
         } catch (IOException e) {
@@ -67,7 +68,7 @@ public class KnkExport {
         } else {
             sign = c.getInt(8) > 0? "-" : "+";
         }
-       row[3] = sign + String.format("%.2f", c.getFloat(6));
+       row[3] = sign + String.format(Locale.ENGLISH, "%.2f", c.getFloat(6));
         return row;
     }
 

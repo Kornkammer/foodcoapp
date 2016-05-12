@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -279,7 +280,7 @@ public class BackupExport {
         } else {
             sign = c.getInt(8) > 0? "-" : "+";
         }
-       row[3] = sign + String.format("%.2f", c.getFloat(6));
+        row[3] = sign + String.format(Locale.ENGLISH, "%.2f", c.getFloat(6));
         return row;
     }
 
