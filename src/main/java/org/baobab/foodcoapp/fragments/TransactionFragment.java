@@ -137,6 +137,7 @@ public class TransactionFragment extends Fragment
 
         @Override
         public void onClick(final View v) {
+            if ((Integer) v.getTag() < 0) return;
             txn.moveToPosition((Integer) v.getTag());
             getFragmentManager().beginTransaction()
                     .replace(R.id.container, new NumberDialogFragment(
