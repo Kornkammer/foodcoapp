@@ -4,25 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.support.v4.content.Loader;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.ProductEditActivity;
 import org.baobab.foodcoapp.R;
 
 public class TransactionEditFragment extends TransactionFragment {
 
     @Override
-    public void setEditable() {
-        super.setEditable();
+    public void enableEdit(boolean allowNegative) {
+        super.enableEdit(allowNegative);
         transaction.setOnTitleClick(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {

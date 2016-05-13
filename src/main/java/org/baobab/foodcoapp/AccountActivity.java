@@ -159,13 +159,13 @@ public class AccountActivity extends CheckoutActivity {
                             " " + getString(R.string.transaction) + " " +
                             getIntent().getData().getLastPathSegment() + "   (draft)");
                 }
-                transactionFragment.setEditable();
+                transactionFragment.enableEdit(true);
                 editable = true;
             }
             return;
         }
         if (editable) {
-            transactionFragment.setEditable();
+            transactionFragment.enableEdit(true);
         }
         final int pages;
         if (data.getCount() > 0) {

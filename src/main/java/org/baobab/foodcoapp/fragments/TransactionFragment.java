@@ -50,7 +50,7 @@ public class TransactionFragment extends Fragment
         return scrollView;
     }
 
-    public void setEditable() {
+    public void enableEdit(final boolean allowNegative) {
         transaction.setOnAmountClick(new NumberEditListener() {
             @Override
             String text() {
@@ -74,9 +74,17 @@ public class TransactionFragment extends Fragment
             @Override
             String chars() {
                 if (!txn.isNull(6) && txn.getString(6).equals(getString(R.string.piece))) {
-                    return "-0123456789";
+                    if (allowNegative) {
+                        return "-0123456789";
+                    } else {
+                        return "0123456789";
+                    }
                 } else {
-                    return "-0123456789.,";
+                    if (allowNegative) {
+                        return "-0123456789.,";
+                    } else {
+                        return "0123456789.,";
+                    }
                 }
             }
         });
