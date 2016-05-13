@@ -252,6 +252,14 @@ public class TransactionFragment extends Fragment
                 if (t.getInt(3) != 2 || !t.getString(7).equals("Korns") || t.getFloat(5) != 1) {
                     msg += " * auf Konto " + t.getString(12) + " kann nur Korns verbucht werden\n";
                 }
+            } else if (t.getString(2).equals("einlagen") || t.getString(2).equals("beiträge")) {
+                factor = -1;
+                Cursor members = getActivity().getContentResolver().query(
+                        Uri.parse("content://org.baobab.foodcoapp/accounts/mitglieder/accounts"),
+                        null, "status is NOT 'deleted' AND name IS '" + t.getString(7) + "'", null, null);
+                if (members.getCount() != 1) {
+                    msg += " # kein Mitglied '" + t.getString(7) + "' gefunden\n";
+                }
             }
             Cursor stocks = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),

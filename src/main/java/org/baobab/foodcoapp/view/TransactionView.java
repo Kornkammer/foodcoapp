@@ -265,9 +265,10 @@ public class TransactionView extends GridLayout {
                                         cv.put("title", "Korns");
                                         cv.put("quantity", quantity * price);
                                     } else {
+                                        int q = quantity * price > 0? 1: -1;
                                         cv.put("product_id", 3);
-                                        cv.put("quantity", price);
-                                        cv.put("price", quantity);
+                                        cv.put("quantity", q);
+                                        cv.put("price", quantity * price * q);
                                     }
                                     getContext().getContentResolver()
                                             .update(((FragmentActivity) getContext())

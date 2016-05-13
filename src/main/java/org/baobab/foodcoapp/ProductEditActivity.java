@@ -256,20 +256,27 @@ public class ProductEditActivity extends AppCompatActivity
                     cv.put("ean", ean.getText().toString());
                 }
             }
+            cv.put("price", p);
+            cv.put("unit", unit.getText().toString());
             if (Math.abs(getIntent().getFloatExtra("price", 0)) == p) {
                 if (getIntent().getFloatExtra("price", 0) > 0) {
                     cv.put("account_guid", "kosten");
                     cv.put("quantity", 1);
+                    cv.put("product_id", 3);
                 } else {
                     cv.put("account_guid", "spenden");
+                    cv.put("unit", "Stück");
+                    cv.put("product_id", 1);
+                    cv.put("quantity", -p);
+                    cv.put("price", 1);
                 }
             } else {
                 if (getIntent().getFloatExtra("price", 0) < 0) {
                     cv.put("quantity", 1);
+                    cv.put("product_id", 3);
                 }
             }
-            cv.put("price", p);
-            cv.put("unit", unit.getText().toString());
+
             if (getIntent().hasExtra("button")) {
                 cv.put("button", getIntent().getIntExtra("button", 0));
             }
