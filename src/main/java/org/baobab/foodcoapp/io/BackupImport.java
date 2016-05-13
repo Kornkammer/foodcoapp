@@ -1,34 +1,34 @@
 package org.baobab.foodcoapp.io;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
+import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.ImportActivity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
 
 public class BackupImport implements ImportActivity.Importer {
 
     private String msg;
+
+    public String getDbFile() {
+        return dbFile;
+    }
+
+    private String dbFile;
 
     public BackupImport load(Context ctx, Uri file) {
 
@@ -37,13 +37,13 @@ public class BackupImport implements ImportActivity.Importer {
             zis = new ZipInputStream(new BufferedInputStream(
                     ctx.getContentResolver().openInputStream(file)));
 
-            String name = zis.getNextEntry().getName();
-            if (!name.contains(".BAK")) {
-                msg = "No Backup file!";
+            dbFile = zis.getNextEntry().getName();
+            if (!dbFile.contains(".BAK")) {
+                Log.e(AccountActivity.TAG, "No Backup db");
                 return this;
             }
             File dest = new File(Environment.getDataDirectory(),
-                    "//data//org.baobab.foodcoapp//databases//" + name);
+                    "//data//org.baobab.foodcoapp//databases//" + dbFile);
 
             BufferedOutputStream os = new BufferedOutputStream(new FileOutputStream(dest));
             int count;
@@ -52,13 +52,11 @@ public class BackupImport implements ImportActivity.Importer {
                 os.write(buf, 0, count);
             }
             os.close();
-            ctx.getContentResolver().insert(Uri.parse(
-                    "content://org.baobab.foodcoapp/load/" + name), null);
             zis.close();
-            msg = "Imformationsstand " + name + " geladen";
+            msg = "\n\nImformationsstand " + dbFile + " laden?\n\nrestore backup?\n \n";
+            return this;
         } catch (Exception e) {
-            e.printStackTrace();
-            msg = "No Backup file!";
+            Log.i(AccountActivity.TAG, "No Backup zip!");
         }
         return this;
     }

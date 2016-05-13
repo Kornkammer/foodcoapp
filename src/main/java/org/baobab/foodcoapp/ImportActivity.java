@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.baobab.foodcoapp.fragments.TransactionListFragment;
 import org.baobab.foodcoapp.io.BackupImport;
@@ -67,7 +68,7 @@ public class ImportActivity extends AppCompatActivity {
                 protected Integer doInBackground(String... args) {
                     try {
                         importer = new BackupImport().load(ImportActivity.this, getIntent().getData());
-                        if (!importer.getMsg().equals("No Backup file!")) {
+                        if (importer.getMsg() != null) {
                             return 1;
                         }
                         InputStream is = getContentResolver().openInputStream(getIntent().getData());
@@ -204,11 +205,20 @@ public class ImportActivity extends AppCompatActivity {
     private void showMsg(String msg) {
         new AlertDialog.Builder(ImportActivity.this)
                 .setMessage(msg + "\n")
-                .setPositiveButton("Ja!", new DialogInterface.OnClickListener() {
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (importer instanceof BackupImport || importer instanceof BnnImport) {
-                            startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
+                        if (importer instanceof BackupImport) {
+                            getContentResolver().insert(Uri.parse(
+                                    "content://org.baobab.foodcoapp/load/" +
+                                            ((BackupImport) importer).getDbFile()), null);
+                            Toast.makeText(ImportActivity.this, "backup restored.", Toast.LENGTH_LONG).show();
+                            startActivity(new Intent(ImportActivity.this, BalanceActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                            finish();
+                        } else if (importer instanceof BnnImport) {
+                            startActivity(new Intent(ImportActivity.this, BalanceActivity.class)
+                                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                             finish();
                         } else if (importer instanceof MembersImport) {
                             ((MembersImport) importer).update(ImportActivity.this);
@@ -216,10 +226,18 @@ public class ImportActivity extends AppCompatActivity {
                                     .setMessage("Done.").setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    startActivity(new Intent(ImportActivity.this, BalanceActivity.class));
+                                    startActivity(new Intent(ImportActivity.this, BalanceActivity.class)
+                                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                                    finish();
                                 }
                             }).show();
                         }
+                    }
+                })
+                .setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
                     }
                 }).show();
     }
