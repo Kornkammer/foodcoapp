@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -23,6 +24,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.baobab.foodcoapp.BalanceActivity;
 import org.baobab.foodcoapp.R;
 
 
@@ -133,7 +135,7 @@ public class TransactionView extends GridLayout {
 
     private void addProduct(int position, int transactionId, int productId, String accountGuid,
                          float quantity, String unit, float price, String title, String img) {
-        images(accountGuid, productId, quantity, img);
+        images(accountGuid, productId, quantity, img, title);
         amount(quantity, productId, position);
         unit(quantity, productId, unit);
         title(title, position, transactionId);
@@ -281,7 +283,7 @@ public class TransactionView extends GridLayout {
     }
 
 
-    private void images(final String accountGuid, final int productId, float quantity, String path) {
+    private void images(final String accountGuid, final int productId, final float quantity, String path, final String title) {
         LinearLayout images = new LinearLayout(getContext());
         images.setBackgroundResource(R.drawable.background_translucent);
         images.setOrientation(LinearLayout.HORIZONTAL);
@@ -328,20 +330,50 @@ public class TransactionView extends GridLayout {
                     images.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            getContext().getContentResolver().delete(
-                                    ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                            .appendEncodedPath("accounts/" + accountGuid +
-                                                    "/products/" + productId).build(), null, null);
+                            if (quantity % 1 != 0) {
+                                new android.support.v7.app.AlertDialog.Builder(getContext())
+                                        .setMessage("\n" + quantity + " " + title + " aus Liste entfernen?\n\n")
+                                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                getContext().getContentResolver().delete(
+                                                        ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                                                .appendEncodedPath("accounts/" + accountGuid +
+                                                                        "/products/" + productId).build(), "all", null);
+                                            }
+                                        })
+                                        .setNegativeButton("Nö", null).show();
+                            } else {
+                                getContext().getContentResolver().delete(
+                                        ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                                .appendEncodedPath("accounts/" + accountGuid +
+                                                        "/products/" + productId).build(), null, null);
+                            }
                         }
                     });
                     images.setOnLongClickListener(new OnLongClickListener() {
 
                         @Override
                         public boolean onLongClick(View v) {
-                            getContext().getContentResolver().delete(
-                                    ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
-                                            .appendEncodedPath("accounts/" + accountGuid +
-                                                    "/products/" + productId).build(), "all", null);
+                            if (quantity % 1 != 0) {
+                                new android.support.v7.app.AlertDialog.Builder(getContext())
+                                        .setMessage("\n" + quantity + " " + title + " aus Liste entfernen?\n\n")
+                                        .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                getContext().getContentResolver().delete(
+                                                        ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                                                .appendEncodedPath("accounts/" + accountGuid +
+                                                                        "/products/" + productId).build(), "all", null);
+                                            }
+                                        })
+                                        .setNegativeButton("Nö", null).show();
+                            } else {
+                                getContext().getContentResolver().delete(
+                                        ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
+                                                .appendEncodedPath("accounts/" + accountGuid +
+                                                        "/products/" + productId).build(), "all", null);
+                            }
                             return false;
                         }
                     });
