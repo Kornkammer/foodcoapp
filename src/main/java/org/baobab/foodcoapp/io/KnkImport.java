@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.ImportActivity;
@@ -37,12 +38,14 @@ public class KnkImport implements ImportActivity.Importer {
         session = storeSession();
         while ((line = csv.readNext()) != null) {
             if (line[0].equals("")) {
-            } else if (line.length == 3) {
+            } else if (line[0].equals("KNK Version 0.1")) {
                 Log.i(TAG, "TRANSACTION");
                 try {
                     time = KnkExport.df.parse(line[2]);
                 } catch (ParseException e) {
                     e.printStackTrace();
+                    Log.e(TAG, "bad date parse fail: " + line[2]);
+                    Toast.makeText(ctx, "bad date parse fail: " + line[2], Toast.LENGTH_LONG).show();
                 }
                 txn = storeTransaction(session, time, line[1]);
                 sum = 0;
@@ -146,7 +149,7 @@ public class KnkImport implements ImportActivity.Importer {
                     "content://org.baobab.foodcoapp/products"), cv);
             p = ctx.getContentResolver().query(Uri.parse(
                     "content://org.baobab.foodcoapp/products"),
-                    null, "_id = ?", new String[] { uri.getLastPathSegment() }, null, null);
+                    null, "_id = ?", new String[] { uri.getLastPathSegment() }, null);
             p.moveToFirst();
             return p;
         }
