@@ -92,7 +92,7 @@ public class CheckoutActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        transactionFragment.reload();
+        transactionFragment.load();
         Nfc.resume(this, NfcAdapter.ACTION_NDEF_DISCOVERED,
                 "application/vnd.kornkammer.products");
     }
@@ -242,7 +242,7 @@ public class CheckoutActivity extends AppCompatActivity
         cv.put("account_guid", account);
         cv.put("product_id", id);
         cv.put("title", title);
-        if (quantity != 1 && quantity != 0 && unit.equals(getString(R.string.weight))) {
+        if (quantity != 1 && quantity != 0 && unit.equals(getString(R.string.weight)) || !account.equals("lager")) {
             cv.put("quantity", quantity);
         }
         cv.put("price", price);
