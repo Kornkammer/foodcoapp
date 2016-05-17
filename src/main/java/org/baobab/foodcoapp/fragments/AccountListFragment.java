@@ -110,6 +110,7 @@ public class AccountListFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        if (data.isClosed()) return;
         if (loader.getId() < 0) {
             adapter.changeCursor(data);
         } else {

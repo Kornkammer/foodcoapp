@@ -291,7 +291,7 @@ public class TransactionView extends GridLayout {
         if (showImages || productId < 3) {
             Uri img = null;
             int imgWidth = getContext().getResources().getDimensionPixelSize(R.dimen.img_width);
-            if (path != null) {
+            if (path != null && !path.equals("")) {
                 img = Uri.parse(path);
             } else {
                 imgWidth = imgWidth / 2;
