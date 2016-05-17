@@ -550,6 +550,10 @@ public class LedgerProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(
                         Uri.parse("content://" + AUTHORITY + "/products" ), null);
                 break;
+            case TRANSACTION:
+                db.getWritableDatabase().delete("transactions", "_id = ?",
+                        new String[] { uri.getLastPathSegment() });
+                break;
             case TRANSACTION_PRODUCTS:
                 boolean completeDelete = selection != null;
                 selection = "transaction_id = ? AND account_guid IS ? AND product_id = ?";

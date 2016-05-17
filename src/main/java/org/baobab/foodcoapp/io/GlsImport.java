@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.ImportActivity;
 
 import java.io.IOException;
@@ -30,6 +31,7 @@ public class GlsImport implements ImportActivity.Importer {
     public final Uri uri;
     private int count = 0;
     String lineMsges = "";
+    private boolean intergrityCheckOk = true;
 
     public GlsImport(Context ctx) {
         this.ctx = ctx;
@@ -42,13 +44,65 @@ public class GlsImport implements ImportActivity.Importer {
     @Override
     public int read(CSVReader csv) throws IOException {
         List<String[]> lines = csv.readAll();
+        Cursor before = ctx.getContentResolver().query(Uri.parse(
+                "content://" + AUTHORITY + "/accounts"), null,
+                "guid IS 'bank'", null, null);
+        before.moveToFirst();
+        float kontostand = before.getFloat(3);
+        Log.i(AccountActivity.TAG, "Kontostand " + kontostand);
+        float sum = 0;
+        int exitingCount = 0;
         for (int i = lines.size()-1; i >= 0; i--) {
-            readLine(lines.get(i));
+            String[] line = lines.get(i);
+            Uri txn = readLine(line);
+            if (txn == null) {
+                System.out.println("WTF! null? " + line[1] + " " + line[3] );
+            }
+            Cursor t = ctx.getContentResolver().query(txn, null, null, null, null);
+            t.moveToFirst();
+            Cursor existing = ctx.getContentResolver().query(Uri.parse(
+                    "content://" + AUTHORITY + "/transactions"), null,
+                    "transactions.status IS 'final' AND transactions.start = ? AND transactions.comment IS ?",
+                    new String[] { t.getString(2), t.getString(4)}, null);
+            t.close();
+            if (existing.getCount() > 0) {
+                Log.i(AccountActivity.TAG, "Txn already exists! " + line[1] + " " + line[3]);
+                ctx.getContentResolver().delete(txn, null, null);
+                exitingCount++;
+                existing.close();
+            } else {
+                try {
+                    float amount = NumberFormat.getInstance(Locale.GERMAN).parse(line[19]).floatValue();
+                    float newKontostand = NumberFormat.getInstance(Locale.GERMAN).parse(line[20]).floatValue();
+                    if (Math.abs(kontostand + sum + amount - newKontostand) > 0.01) {
+                        String m = "\nKontostand stimmt nicht mehr überein!\n" +
+                                line[1] + " " + line[3] + "\n" +
+                                "Wäre " + (kontostand + sum + amount) +
+                                " aber sollte " + newKontostand + "\n\n";
+                        Log.e(AccountActivity.TAG, m);
+                        msg += m;
+                        intergrityCheckOk = false;
+                    } else {
+                        sum += amount;
+                        Log.i(AccountActivity.TAG, "Kontostand passt " + line[1] + " " + line[3] );
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if (exitingCount > 0) {
+            msg += "\n\n" + exitingCount + " Transactionsn existitierten bereits.\n";
         }
         if (lines.size() != count) {
-            msg = "Could not read " + (lines.size() - count) + " transactions!" + "\n\n" + msg;
+            msg += "Error! \nCould not read " + (lines.size() - count) + " lines!" + "\n\n" + msg;
+            intergrityCheckOk = false;
         }
-        return count;
+        return count - exitingCount;
+    }
+
+    public boolean isOk() {
+        return intergrityCheckOk;
     }
 
     @Override
@@ -68,7 +122,8 @@ public class GlsImport implements ImportActivity.Importer {
 
     static final Pattern vwz2Pattern = Pattern.compile("^([^-:\\s]*)[-:\\s]+(.*)([-:\\s]*|$)+.*");
 
-    public void readLine(String[] line) {
+    public Uri readLine(String[] line) {
+        Uri transaction = null;
         try {
             lineMsges = "";
             long time = date.parse(line[1]).getTime();
@@ -79,7 +134,7 @@ public class GlsImport implements ImportActivity.Importer {
                 String comment = "Bankeingang:\n\n" + line[3] + "\nVWZ: " + vwz;
                 Account account = findAccount(vwz);
                 if (account != null && account.guid != null && account.err == null) {
-                    Uri transaction = storeTransaction(time, comment);
+                    transaction = storeTransaction(time, comment);
                     storeBankCash(transaction, amount);
                     if (vwz.toLowerCase().contains("einzahlung") ||
                                 vwz.toLowerCase().contains("guthaben") ||
@@ -111,7 +166,7 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, account.name);
                     }
                 } else if (vwz.toLowerCase().contains("barkasse")) {
-                    Uri transaction = storeTransaction(time, comment);
+                    transaction = storeTransaction(time, comment);
                     storeBankCash(transaction, amount);
                     Iterator<Long> iter = findOpenTransactions("forderungen", "title LIKE 'Bar%'");
                     while (iter.hasNext()) {
@@ -130,12 +185,12 @@ public class GlsImport implements ImportActivity.Importer {
                         storeTransactionItem(transaction, "verbindlichkeiten", - amount, "Barkasse");
                     }
                 } else if (vwz.toLowerCase().contains("spende")) {
-                    Uri transaction = storeTransaction(time, comment);
+                    transaction = storeTransaction(time, comment);
                     storeBankCash(transaction, amount);
                     storeTransactionItem(transaction, "spenden", - amount, "Spende");
                 } else {
                     comment += "\nKein Mitglied gefunden";
-                    Uri transaction = storeTransaction(time, comment);
+                    transaction = storeTransaction(time, comment);
                     storeBankCash(transaction, amount);
                     if (vwz.toLowerCase().contains("einzahlung") ||
                             vwz.toLowerCase().contains("guthaben") ||
@@ -155,7 +210,7 @@ public class GlsImport implements ImportActivity.Importer {
                 }
                 count++;
                 msg += lineMsges;
-                return;
+                return transaction;
             } else { // amount < 0
                 String vwz1 = line[9] + line[10];
                 String vwz2 = line[11] + line[12] + line[13] + line[14];
@@ -165,12 +220,12 @@ public class GlsImport implements ImportActivity.Importer {
                 if (line[3].equals("Auszahlung")) {
                     comment = comment + "\nVWZ " + line[5] + " " + line[6];
                     if (!settleOpenPayable("Auszahlung", amount, time, comment)) {
-                        Uri transaction = storeTransaction(time, comment);
+                        transaction = storeTransaction(time, comment);
                         storeBankCash(transaction, amount);
                         storeTransactionItem(transaction, "forderungen", -amount, "Auszahlung");
                     }
                 } else if (line[4].contains("Kontof�hrung") || line[4].contains("Kontoführung")) {
-                    Uri transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
+                    transaction = storeTransaction(time, comment + "\nKontoführungsgebühren");
                     storeBankCash(transaction, amount);
                     storeBankCash(transaction, -amount, "kosten", "Kontogebühren");
                 } else {
@@ -178,22 +233,22 @@ public class GlsImport implements ImportActivity.Importer {
                     if (text.toLowerCase().contains("auslage")) {
                         Account account = findAccount(vwz1);
                         if (account != null) {
-                            Uri transaction = storeTransaction(time, comment);
+                            transaction = storeTransaction(time, comment);
                             storeBankCash(transaction, amount);
                             storeTransactionItem(transaction, "einlagen", -amount, account.name);
                             amount = 0;
                         }
                     }
                     if (amount < 0) {
-                        if (findBookingInstruction(time, amount, comment, line[9])) {
-                        } else if (findBookingInstruction(time, amount, comment, line[10])) {
-                        } else if (findBookingInstruction(time, amount, comment, text)) {
+                        if ((transaction = findBookingInstruction(time, amount, comment, line[9])) != null) {
+                        } else if ((transaction = findBookingInstruction(time, amount, comment, line[10])) != null) {
+                        } else if ((transaction = findBookingInstruction(time, amount, comment, text)) != null) {
                         } else {
                             if (!settleOpenPayable(line[9], amount, time, comment)
                                     && !settleOpenPayable(vwz1, amount, time, comment)
                                     && !settleOpenPayable(vwz2, amount, time, comment)) {
 
-                                Uri transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
+                                transaction = storeTransaction(time, comment + "\nVWZ nicht erkannt");
                                 storeBankCash(transaction, amount);
                                 if (!vwz2.equals("")) {
                                     storeTransactionItem(transaction, "forderungen", -amount, vwz2);
@@ -211,20 +266,23 @@ public class GlsImport implements ImportActivity.Importer {
             msg += lineMsges;
         } catch (ParseException e) {
             e.printStackTrace();
-            msg += "\nError! " + e.getMessage();
+            Log.e(AccountActivity.TAG, "parse error " + e.getMessage());
+            msg += "\nParse Error! " + e.getMessage();
+            return null;
         }
+        return transaction;
     }
 
     static final Pattern pattern =  Pattern.compile(".*([Kk]osten|[Ii]nventar)[-:,N\\s]+(.*)");
-    private boolean findBookingInstruction(long time, float amount, String comment, String text) {
+    private Uri findBookingInstruction(long time, float amount, String comment, String text) {
         Matcher m = pattern.matcher(text);
         if (m.matches()) {
             Uri transaction = storeTransaction(time, comment);
             storeBankCash(transaction, amount);
             storeTransactionItem(transaction, m.group(1).toLowerCase(), -amount, m.group(2));
-            return true;
+            return transaction;
         }
-        return false;
+        return null;
     }
 
     private boolean settleOpenPayable(String title, float amount, long time, String comment) {

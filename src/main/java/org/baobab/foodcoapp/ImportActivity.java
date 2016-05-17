@@ -138,7 +138,9 @@ public class ImportActivity extends AppCompatActivity {
                                     .replace(R.id.container, TransactionListFragment.newInstance(
                                             importer.getSession().buildUpon().appendPath(
                                                     "transactions").build())).commit();
-                            displayImportButton(readCount);
+                            if (importer instanceof GlsImport && ((GlsImport) importer).isOk()) {
+                                displayImportButton(readCount);
+                            }
                         }
                     }
                 }
