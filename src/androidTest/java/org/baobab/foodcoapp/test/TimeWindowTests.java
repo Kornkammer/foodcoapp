@@ -96,6 +96,31 @@ public class TimeWindowTests extends BaseProviderTests {
         assertEquals("balance a", 42.0, a.getDouble(3));
     }
 
+    public void testStandardAccounts() {
+        assertKasse("accounts/aktiva/accounts?debit=true&after=" + year1 + "&before=" + year2, 42.0);
+        assertKasse("accounts/aktiva/accounts?credit=true&after=" + year1 + "&before=" + year2, -126.0);
+        assertKasse("accounts/aktiva/accounts?after=" + year1 + "&before=" + year2, -84.0);
+        assertKasse("accounts/aktiva/accounts?debit=true&after=" + year1 + "&before=" + year2, 42.0);
+        assertKasse("accounts/aktiva/accounts?credit=true&after=" + year1 + "&before=" + year2, -126.0);
+        assertKasse("accounts/aktiva/accounts?before=" + year2, -84.0);
+        assertKasse("accounts/aktiva/accounts?after=" + year2 + "&before=" + year3, -84.0);
+        assertKasse("accounts/aktiva/accounts?after=" + year1 + "&before=" + year3, -168.0);
+        assertKasse("accounts/aktiva/accounts?before=" + year3, -168.0);
+        assertKasse("accounts/aktiva/accounts?debit=true&before=" + year3, 84.0);
+        assertKasse("accounts/aktiva/accounts?credit==true&before=" + year3, -252.0);
+        assertKasse("accounts/aktiva/accounts?after=" + year3 + "&before=" + year4, 0);
+        assertKasse("accounts/aktiva/accounts?debit=true&after=" + year3 + "&before=" + year4, 42.0);
+        assertKasse("accounts/aktiva/accounts?credit=true&after=" + year3 + "&before=" + year4, -42.0);
+        assertKasse("accounts/aktiva/accounts?after=" + year2 + "&before=" + year4, -84.0);
+    }
+
+    private void assertKasse(String uri, double balance) {
+        Cursor a = query(uri, 6);
+        a.moveToPosition(4);
+        assertEquals("Kasse", a.getString(1));
+        assertEquals("balance Kasse", balance, a.getDouble(3));
+    }
+
     public void testDebitCredit() {
         Cursor a = query("accounts/members/accounts?debit=true&after=" + year1 + "&before=" + year2, 2);
         assertEquals("debit a", 42.0, a.getDouble(3));

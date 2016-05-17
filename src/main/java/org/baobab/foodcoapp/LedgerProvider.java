@@ -229,7 +229,7 @@ public class LedgerProvider extends ContentProvider {
                                 "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
                                 " FROM transaction_products AS txn" +
                                 " JOIN transactions ON txn.transaction_id = transactions._id" +
-                                " WHERE transactions.status IS NOT 'draft'" +
+                                " WHERE transactions.status IS 'final'" +
                                 ((uri.getQueryParameter("after") != null)?
                                         " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
                                 ((uri.getQueryParameter("before") != null)?
@@ -265,7 +265,7 @@ public class LedgerProvider extends ContentProvider {
                                 "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
                                 " FROM transaction_products AS txn" +
                                 " JOIN transactions ON txn.transaction_id = transactions._id" +
-                                " WHERE transactions.status IS NOT 'draft'" +
+                                " WHERE transactions.status IS 'final'" +
                                 ((uri.getQueryParameter("after") != null)?
                                         " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
                                 ((uri.getQueryParameter("before") != null)?
@@ -278,12 +278,15 @@ public class LedgerProvider extends ContentProvider {
                             " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
                         ")" +
                         (uri.getQueryParameter("before") != null?
-                                " WHERE created_at < " + uri.getQueryParameter("before") : "") +
+                                " WHERE created_at < " + uri.getQueryParameter("before") +
+                                    " OR created_at IS NULL" : "") +
                         " GROUP BY guid" +
-                        " HAVING " + (selection != null? selection : "status IS NOT 'deleted'") +
-                        (uri.getQueryParameter("after") != null?
-                                " OR last_modified >= " + uri.getQueryParameter("after") :
-                                (uri.getQueryParameter("before") != null? " OR last_modified >= 0": "")) +
+                        " HAVING " + (selection != null? selection : "1 = 1") +
+                                " AND (status IS NOT 'deleted'" +
+                                (uri.getQueryParameter("after") != null?
+                                        " OR last_modified >= " + uri.getQueryParameter("after") + ")" :
+                                        (uri.getQueryParameter("before") != null?
+                                        " OR last_modified < " + uri.getQueryParameter("before") + ")" : ")")) +
                         (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),
                         (selectionArgs != null? selectionArgs : null));
                 break;
@@ -303,7 +306,7 @@ public class LedgerProvider extends ContentProvider {
                                 "SELECT _id, guid, name, max(_id), parent_guid FROM accounts GROUP BY guid" +
                                 ") AS accounts ON transaction_products.account_guid = accounts.guid" +
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
-                        " WHERE account_guid IS ? AND (transactions.status IS NOT 'draft'" +
+                        " WHERE account_guid IS ? AND (transactions.status IS 'final'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
                         " GROUP BY title, price" +
                         " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
@@ -334,7 +337,7 @@ public class LedgerProvider extends ContentProvider {
                 if (uri.getPathSegments().get(0).equals("sessions")) {
                     selection = "session_id = " + uri.getPathSegments().get(1);
                 } else if (selection == null) {
-                    selection = "transactions.status IS NOT 'draft'";
+                    selection = "transactions.status IS 'final'";
                     List<String> args = new ArrayList<>();
                     if (uri.getQueryParameter("title") != null) {
                         selection += " AND title IS ?";
