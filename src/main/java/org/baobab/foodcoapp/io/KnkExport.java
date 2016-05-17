@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -19,7 +20,10 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 public class KnkExport {
 
-    static final SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd--HH:mm");
+    static final SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd--HH:mm", Locale.GERMAN);
+    static {
+        df.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+    }
 
     public static File create(Context ctx, Uri txn) {
         File result = file("txn_" + txn.getLastPathSegment() + ".knk");

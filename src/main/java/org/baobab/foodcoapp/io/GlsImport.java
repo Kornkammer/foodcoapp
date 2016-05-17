@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,9 +27,12 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class GlsImport implements ImportActivity.Importer {
 
-    public static SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
+    public static SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy", Locale.GERMANY);
+    static {
+        date.setTimeZone(TimeZone.getTimeZone("Europe/Berlin"));
+    }
     public static String AUTHORITY = "org.baobab.foodcoapp";
-    private final SharedPreferences prefs;
+    private SharedPreferences prefs;
     private final Context ctx;
     private String msg = "";
     public final Uri uri;
@@ -42,7 +46,11 @@ public class GlsImport implements ImportActivity.Importer {
         cv.put("start", System.currentTimeMillis());
         uri = ctx.getContentResolver().insert(Uri.parse(
                 "content://" + AUTHORITY + "/sessions"), cv);
-        prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        try {
+            prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
+        } catch (UnsupportedOperationException e) {
+            // test env
+        }
     }
 
     @Override
@@ -58,13 +66,15 @@ public class GlsImport implements ImportActivity.Importer {
         int exitingCount = 0;
         for (int i = lines.size()-1; i >= 0; i--) {
             String[] line = lines.get(i);
-            String kNr = prefs.getString("Bank KontoNr", null);
-            if (kNr == null) {
-                prefs.edit().putString("Bank KontoNr", line[0]).commit();
-            } else if (!kNr.equals(line[0])) {
-                msg = "\nAndere Kontonummer?\n\nwar immer " + kNr + "\nist auf einmal " + line[0];
-                intergrityCheckOk = false;
-                return 0;
+            if (prefs != null) { // ie no test
+                String kNr = prefs.getString("Bank KontoNr", null);
+                if (kNr == null) {
+                    prefs.edit().putString("Bank KontoNr", line[0]).commit();
+                } else if (!kNr.equals(line[0])) {
+                    msg = "\nAndere Kontonummer?\n\nwar immer " + kNr + "\nist auf einmal " + line[0];
+                    intergrityCheckOk = false;
+                    return 0;
+                }
             }
             Uri txn = readLine(line);
             if (txn == null) {
@@ -337,7 +347,7 @@ public class GlsImport implements ImportActivity.Importer {
     private Cursor query(String guid, String selection) {
         return ctx.getContentResolver().query(Uri.parse(
                         "content://" + AUTHORITY + "/accounts/" + guid + "/transactions"),
-                null, selection + " AND transactions.status IS NOT 'draft'", null , null);
+                null, selection + " AND transactions.status IS 'final'", null , null);
     }
 
     private void storeBankCash(Uri transaction, float amount) {
