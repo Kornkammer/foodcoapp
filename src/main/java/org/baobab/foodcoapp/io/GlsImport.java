@@ -2,8 +2,10 @@ package org.baobab.foodcoapp.io;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import org.baobab.foodcoapp.AccountActivity;
@@ -26,6 +28,7 @@ public class GlsImport implements ImportActivity.Importer {
 
     public static SimpleDateFormat date = new SimpleDateFormat("dd.MM.yyyy");
     public static String AUTHORITY = "org.baobab.foodcoapp";
+    private final SharedPreferences prefs;
     private final Context ctx;
     private String msg = "";
     public final Uri uri;
@@ -39,6 +42,7 @@ public class GlsImport implements ImportActivity.Importer {
         cv.put("start", System.currentTimeMillis());
         uri = ctx.getContentResolver().insert(Uri.parse(
                 "content://" + AUTHORITY + "/sessions"), cv);
+        prefs = PreferenceManager.getDefaultSharedPreferences(ctx);
     }
 
     @Override
@@ -54,6 +58,14 @@ public class GlsImport implements ImportActivity.Importer {
         int exitingCount = 0;
         for (int i = lines.size()-1; i >= 0; i--) {
             String[] line = lines.get(i);
+            String kNr = prefs.getString("Bank KontoNr", null);
+            if (kNr == null) {
+                prefs.edit().putString("Bank KontoNr", line[0]).commit();
+            } else if (!kNr.equals(line[0])) {
+                msg = "\nAndere Kontonummer?\n\nwar immer " + kNr + "\nist auf einmal " + line[0];
+                intergrityCheckOk = false;
+                return 0;
+            }
             Uri txn = readLine(line);
             if (txn == null) {
                 System.out.println("WTF! null? " + line[1] + " " + line[3] );
