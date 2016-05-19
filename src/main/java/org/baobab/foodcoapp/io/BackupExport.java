@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,14 +34,27 @@ public class BackupExport {
     }
 
 
-    public static File create(Context ctx, String id) {
-
-        OutputStream os;
+    public static File create(Context ctx, String id, String guid) {
         ZipOutputStream zos;
         File result = file(id + ".zip");
         try {
-            os = new FileOutputStream(result);
-            zos = new ZipOutputStream(new BufferedOutputStream(os));
+            zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
+            report(ctx, zos, guid, "kontoauszug", 0);
+            zos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static File create(Context ctx, String id) {
+
+        ZipOutputStream zos;
+        File result = file(id + ".zip");
+        try {
+            zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
             String date = new SimpleDateFormat("yyyy_MM_dd--HH:mm", Locale.GERMAN).format(new Date());
 
             String db = PreferenceManager.getDefaultSharedPreferences(ctx)

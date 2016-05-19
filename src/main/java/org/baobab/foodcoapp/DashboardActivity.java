@@ -22,6 +22,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -127,7 +128,7 @@ public class DashboardActivity extends AppCompatActivity {
                 String mail = PreferenceManager.getDefaultSharedPreferences(this)
                         .getString("export_email", "");
                 final Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
-                String date = new SimpleDateFormat("yyyy_MM_dd--HH_mm").format(new Date());
+                String date = new SimpleDateFormat("yyyy_MM_dd--HH_mm", Locale.GERMAN).format(new Date());
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[] {mail});
                 intent.putExtra(Intent.EXTRA_TEXT, "FoodCoApp Backup und Excel Export vom " + date);
                 intent.putExtra(Intent.EXTRA_SUBJECT, "FoodCoApp " + date + " Export");
