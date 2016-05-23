@@ -12,11 +12,11 @@ point-of-sale checkout for food co-ops / food hubs
 
 ```
 
-Download version 1.1.13 apk [http://bit.ly/1SwqaUs](http://bit.ly/1SwqaUs)
+Download version 1.1.14 apk [http://bit.ly/1SwqaUs](http://bit.ly/1SwqaUs)
 
 
  
-    Copyright (C) 2015 by it's authors. Some rights reserved. See LICENSE
+    Copyright (C) 2015, 2016 by it's authors. Some rights reserved. See LICENSE
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
