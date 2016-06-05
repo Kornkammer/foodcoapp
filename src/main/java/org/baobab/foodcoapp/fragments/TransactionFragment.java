@@ -290,7 +290,7 @@ public class TransactionFragment extends Fragment
                                 MediaPlayer.create(getActivity(), R.raw.chaching).start();
                                 saveStatus("final", "Einkauf:");
                                 Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                                ((AccountActivity) getActivity()).resetTransaction();
+                                ((CheckoutActivity) getActivity()).resetTransaction();
                                 load();
                             }
                         }).setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
