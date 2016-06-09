@@ -35,7 +35,7 @@ public class TransactionView extends GridLayout {
     private OnClickListener onSumClick;
     private TextView header;
     private String account;
-    private int decimals = 3;
+    private int decimals = 1;
     private float weight = -1;
     private boolean positive;
     private boolean addProduct;
@@ -413,7 +413,6 @@ public class TransactionView extends GridLayout {
             }
         } else if (Math.abs(quantity) < 1) {
             amount.setTextSize(R.dimen.font_size_large);
-            ((LayoutParams) amount.getLayoutParams()).bottomMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
         }
     }
 
@@ -479,31 +478,27 @@ public class TransactionView extends GridLayout {
 
 
     private void sum(float quantity, int productId, int position, float price) {
-        TextView sum = new TextView(getContext());
+        DecimalView sum = new DecimalView(getContext(), 2, onSumClick);
         if (price == 0) return;
-        sum.setText(String.format("%.2f", Math.abs(quantity * price)));
-        sum.setTypeface(null, Typeface.BOLD);
+        sum.setNumber(Math.abs(quantity * price));
+        //sum.setTypeface(null, Typeface.BOLD);
         if (quantity < 0) {
-            sum.setTextColor(getResources().getColor(R.color.xdark_red));
+            sum.setColor(R.color.xdark_red);
         } else {
-            sum.setTextColor(getResources().getColor(R.color.xdark_green));
+            sum.setColor(R.color.xdark_green);
         }
-        sum.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
-        FrameLayout f = new FrameLayout(getContext());
-        f.addView(sum);
+        sum.amount.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
         if (onSumClick != null) {
-            f.setClickable(true);
-            f.setId(productId);
-            f.setTag(position);
-            f.setOnClickListener(onSumClick);
-            f.setBackgroundResource(R.drawable.background_translucent);
+            sum.setId(productId);
+            sum.setTag(position);
+            sum.setBackgroundResource(R.drawable.background_translucent);
         }
         LayoutParams lp = new LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.leftMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.bottomMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xxsmall);
         lp.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
-        addView(f, lp);
+        addView(sum, lp);
     }
 
 
