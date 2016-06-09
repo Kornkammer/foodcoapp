@@ -299,8 +299,8 @@ public class LedgerProvider extends ContentProvider {
                 }
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transaction_products._id, transaction_id, account_guid," +
-                                " product_id, sum(quantity) AS stock, ROUND(price, 2) AS price, MAX(unit), title, img," +
-                                " accounts._id, parent_guid, guid, name" +
+                                " product_id, sum(quantity) AS stock, price, MAX(unit), title, img," +
+                                " accounts._id, parent_guid, guid, name, ROUND(price, 2) AS rounded" +
                         " FROM transaction_products" +
                         " LEFT JOIN (" +
                                 "SELECT _id, guid, name, max(_id), parent_guid FROM accounts GROUP BY guid" +
@@ -308,7 +308,7 @@ public class LedgerProvider extends ContentProvider {
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE account_guid IS ? AND (transactions.status IS 'final'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
-                        " GROUP BY title, price" +
+                        " GROUP BY title, rounded" +
                         " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
                         (selection != null? " AND " + selection : ""),
                         new String[] { account_guid });
