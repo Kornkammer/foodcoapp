@@ -411,6 +411,9 @@ public class TransactionView extends GridLayout {
                 amount.setTextSize(R.dimen.font_size_large);
                 ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
             }
+        } else if (Math.abs(quantity) < 1) {
+            amount.setTextSize(R.dimen.font_size_large);
+            ((LayoutParams) amount.getLayoutParams()).bottomMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
         }
     }
 
