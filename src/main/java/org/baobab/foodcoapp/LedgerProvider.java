@@ -559,7 +559,7 @@ public class LedgerProvider extends ContentProvider {
                 break;
             case TRANSACTION_PRODUCTS:
                 boolean completeDelete = selection != null;
-                selection = "transaction_id = ? AND account_guid IS ? AND product_id = ?";
+                selection = "transaction_id = ? AND account_guid IS ? AND transaction_products._id = ?";
                 selectionArgs = new String[] {
                         uri.getPathSegments().get(1),
                         uri.getPathSegments().get(3),

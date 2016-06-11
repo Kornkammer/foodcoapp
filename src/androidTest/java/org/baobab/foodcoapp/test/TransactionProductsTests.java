@@ -45,12 +45,12 @@ public class TransactionProductsTests extends BaseProviderTests {
         createDummyAccount("dummy");
         Uri transaction = insertTransaction("lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
-                .appendEncodedPath("accounts/lager/products/23").build(), null, null);
+                .appendEncodedPath("accounts/lager/products/1").build(), null, null);
         Cursor products = query(transaction
                 .buildUpon().appendPath("products").build(), 2);
         assertEquals("quantity", -41.0, products.getDouble(4));
         getMockContentResolver().delete(transaction.buildUpon()
-                .appendEncodedPath("accounts/dummy/products/23").build(), null, null);
+                .appendEncodedPath("accounts/dummy/products/2").build(), null, null);
         products = query(transaction
                 .buildUpon().appendPath("products").build(), 2);
         products.moveToLast();
@@ -61,7 +61,7 @@ public class TransactionProductsTests extends BaseProviderTests {
         createDummyAccount("dummy");
         Uri transaction = insertTransaction("lager", "dummy");
         getMockContentResolver().delete(transaction.buildUpon()
-                .appendEncodedPath("accounts/lager/products/23").build(), "nix null", null);
+                .appendEncodedPath("accounts/lager/products/1").build(), "nix null", null);
         query(transaction.buildUpon().appendPath("products").build(), 1);
     }
 

@@ -115,10 +115,10 @@ public class TransactionView extends GridLayout {
             } else {
                 title = data.getString(7);
             }
-            addProduct(data.getPosition(), data.getInt(1), data.getInt(3), accountGuid,
+            addProduct(data.getPosition(), data.getInt(1), data.getInt(0), data.getInt(3), accountGuid,
                     quantity, data.getString(6), data.getFloat(5), title, data.getString(8));
         }
-        addProduct(-1, -1, 4, "lager", weight, "Kilo", 0, null, null);
+        addProduct(-1, -1, -1, 4, "lager", weight, "Kilo", 0, null, null);
 
         post(new Runnable() {
             @Override
@@ -133,9 +133,9 @@ public class TransactionView extends GridLayout {
 
     }
 
-    private void addProduct(int position, int transactionId, int productId, String accountGuid,
+    private void addProduct(int position, int transactionId, int txnProdId, int productId, String accountGuid,
                          float quantity, String unit, float price, String title, String img) {
-        images(accountGuid, productId, quantity, img, title);
+        images(accountGuid, txnProdId, productId, quantity, img, title);
         amount(quantity, productId, position);
         unit(quantity, productId, unit);
         title(title, position, transactionId);
@@ -151,7 +151,7 @@ public class TransactionView extends GridLayout {
         LayoutParams lp = new LayoutParams();
         lp.columnSpec = GridLayout.spec(0, 6);
         lp.setGravity(Gravity.FILL_HORIZONTAL);
-        final long transactionProductId = data.getLong(0);
+        final long txnProdId = data.getLong(0);
         FrameLayout f = new FrameLayout(getContext());
         if (data.getLong(9) <= 150 ) {
             if (quantity < 0) {
@@ -273,7 +273,7 @@ public class TransactionView extends GridLayout {
                                     getContext().getContentResolver()
                                             .update(((FragmentActivity) getContext())
                                                     .getIntent().getData().buildUpon()
-                                                    .appendEncodedPath("products/" + transactionProductId)
+                                                    .appendEncodedPath("products/" + txnProdId)
                                                     .build(), cv, null, null);
                                 }
                             }).show();
@@ -284,7 +284,7 @@ public class TransactionView extends GridLayout {
     }
 
 
-    private void images(final String accountGuid, final int productId, final float quantity, String path, final String title) {
+    private void images(final String accountGuid, final int txnProdId,  final int productId, final float quantity, String path, final String title) {
         LinearLayout images = new LinearLayout(getContext());
         images.setBackgroundResource(R.drawable.background_translucent);
         images.setOrientation(LinearLayout.HORIZONTAL);
@@ -340,7 +340,7 @@ public class TransactionView extends GridLayout {
                                                 getContext().getContentResolver().delete(
                                                         ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
                                                                 .appendEncodedPath("accounts/" + accountGuid +
-                                                                        "/products/" + productId).build(), "all", null);
+                                                                        "/products/" + txnProdId).build(), "all", null);
                                             }
                                         })
                                         .setNegativeButton("Nö", null).show();
@@ -348,7 +348,7 @@ public class TransactionView extends GridLayout {
                                 getContext().getContentResolver().delete(
                                         ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
                                                 .appendEncodedPath("accounts/" + accountGuid +
-                                                        "/products/" + productId).build(), null, null);
+                                                        "/products/" + txnProdId).build(), null, null);
                             }
                         }
                     });
@@ -365,7 +365,7 @@ public class TransactionView extends GridLayout {
                                                 getContext().getContentResolver().delete(
                                                         ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
                                                                 .appendEncodedPath("accounts/" + accountGuid +
-                                                                        "/products/" + productId).build(), "all", null);
+                                                                        "/products/" + txnProdId).build(), "all", null);
                                             }
                                         })
                                         .setNegativeButton("Nö", null).show();
@@ -373,7 +373,7 @@ public class TransactionView extends GridLayout {
                                 getContext().getContentResolver().delete(
                                         ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
                                                 .appendEncodedPath("accounts/" + accountGuid +
-                                                        "/products/" + productId).build(), "all", null);
+                                                        "/products/" + txnProdId).build(), "all", null);
                             }
                             return false;
                         }
