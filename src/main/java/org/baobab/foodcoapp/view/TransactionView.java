@@ -389,9 +389,9 @@ public class TransactionView extends GridLayout {
 
     private void amount(float quantity, int productId, int position) {
         final DecimalView amount = new DecimalView(getContext(), decimals, onAmountClick);
+        LayoutParams lp = new LayoutParams();
         if (productId < 3 || (productId == 4 && weight == -1)) {
-            amount.setNumber(1);
-            amount.setVisibility(INVISIBLE);
+            amount.setVisibility(GONE);
         } else {
             amount.setId(productId);
             amount.setTag(position);
@@ -401,7 +401,6 @@ public class TransactionView extends GridLayout {
                 amount.setNumber(quantity);
             }
         }
-        LayoutParams lp = new LayoutParams();
         lp.rowSpec = GridLayout.spec(0, 2);
         lp.setGravity(Gravity.RIGHT);
         addView(amount, lp);
@@ -471,6 +470,7 @@ public class TransactionView extends GridLayout {
         f.setBackgroundResource(R.drawable.background_translucent);
         LayoutParams lp = new LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2, 3);
+        lp.leftMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_small);
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.width = getContext().getResources().getDimensionPixelSize(columnWidth);
         addView(f, lp);
@@ -487,7 +487,7 @@ public class TransactionView extends GridLayout {
         } else {
             sum.setColor(R.color.xdark_green);
         }
-        sum.amount.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
+        sum.setTextSize(R.dimen.font_size_large);
         if (onSumClick != null) {
             sum.setId(productId);
             sum.setTag(position);
@@ -498,6 +498,9 @@ public class TransactionView extends GridLayout {
         lp.leftMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.bottomMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xxsmall);
         lp.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
+        if (quantity * price >= 10000) {
+            sum.setTextSize(R.dimen.font_size_medium);
+        }
         addView(sum, lp);
     }
 

@@ -224,6 +224,32 @@ public class AccountListFragment extends Fragment
                             }).show();
                 }
             });
+            transaction.setOnAmountClick(new OnClickListener() {
+
+                @Override
+                public void onClick(final View v) {
+                    products.moveToPosition((Integer) v.getTag());
+                    final String account = products.getString(2);
+                    final String title = products.getString(7);
+                    final float amount = products.getFloat(4);
+                    final float price = products.getFloat(5);
+                    AlertDialog number = new AlertDialog.Builder(getActivity())
+                            .setView(R.layout.fragment_dialog_number)
+                            .setPositiveButton("Korrektur buchen", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    float n = Float.valueOf(
+                                            ((EditText) ((AlertDialog) dialog).findViewById(R.id.number))
+                                                    .getText().toString().replace(",", "."));
+                                    startActivity(new Intent(getActivity(), AccountActivity.class)
+                                            .putExtra("title", title).putExtra("account", account)
+                                            .putExtra("amount", amount -n).putExtra("price", price));
+                                    Toast.makeText(getContext(), "foo " + (n - amount), 3000).show();
+                                }
+                            }).show();
+                    ((TextView) number.findViewById(R.id.message)).setText("Auf Ist setzen");
+                }
+            });
             transaction.setDecimals(1);
             transaction.populate(products);
             LayoutParams lp = new LayoutParams(

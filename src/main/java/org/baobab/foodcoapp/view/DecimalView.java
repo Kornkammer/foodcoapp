@@ -55,13 +55,17 @@ public class DecimalView extends LinearLayout {
     }
 
     public void setTextSize(int size) {
+        decimals.setTextSize(TypedValue.COMPLEX_UNIT_PX, (float) (getResources().getDimension(size) * 0.7));
+        point.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(size));
         amount.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(size));
+        amount.setPadding(0, (int) (- getResources().getDimension(size) * 0.2),
+                0, (int) (- getResources().getDimension(size) * 0.2));
     }
 
     public void setNumber(float number) {
         amount.setText(String.valueOf((int) Math.abs(number)));
         String dec = "";
-        if (Math.abs(number) % 1 < 0.1) {
+        if (Math.abs(number) % 1 < 0.01) {
             point.setVisibility(INVISIBLE);
             decimals.setVisibility(INVISIBLE);
         } else {
