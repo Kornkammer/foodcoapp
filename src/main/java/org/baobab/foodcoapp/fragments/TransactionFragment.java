@@ -22,7 +22,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -163,6 +162,7 @@ public class TransactionFragment extends Fragment
 
     public void reload() {
         if (getActivity() != null) {
+            getActivity().getSupportLoaderManager().destroyLoader(1);
             getActivity().getSupportLoaderManager().restartLoader(1, null, this);
         }
     }
@@ -354,7 +354,6 @@ public class TransactionFragment extends Fragment
             }, 1000);
             Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
             ((CheckoutActivity) getActivity()).resetTransaction();
-            reload();
             return true;
         } else {
             Toast.makeText(getActivity(), "Transaktion gibts schon!", Toast.LENGTH_LONG).show();

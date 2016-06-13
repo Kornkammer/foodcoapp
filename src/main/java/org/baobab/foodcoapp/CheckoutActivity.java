@@ -72,9 +72,16 @@ public class CheckoutActivity extends AppCompatActivity
     }
 
     public void resetTransaction() {
+        getSupportLoaderManager().destroyLoader(42);
         Uri uri = getContentResolver().insert(Uri.parse(
                 "content://org.baobab.foodcoapp/transactions"), null);
         setIntent(getIntent().setData(uri));
+        getSupportActionBar().setTitle(getString(R.string.neues) +
+                " " + getString(R.string.transaction) + " " + uri.getLastPathSegment());
+        if (transactionFragment != null) {
+            transactionFragment.enableEdit(true);
+            transactionFragment.reload();
+        }
         editable = true;
     }
 
@@ -82,9 +89,11 @@ public class CheckoutActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
 //        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        transactionFragment = (TransactionFragment)
-                getSupportFragmentManager().findFragmentById(R.id.transaction);
-        transactionView = (TransactionView) findViewById(R.id.transaction_view);
+        if (transactionFragment == null) {
+            transactionFragment = (TransactionFragment)
+                    getSupportFragmentManager().findFragmentById(R.id.transaction);
+            transactionView = (TransactionView) findViewById(R.id.transaction_view);
+        }
         scale = new Scale(this);
         scale.registerForUsb();
     }
@@ -92,7 +101,7 @@ public class CheckoutActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        transactionFragment.load();
+        transactionFragment.reload();
         Nfc.resume(this, NfcAdapter.ACTION_NDEF_DISCOVERED,
                 "application/vnd.kornkammer.products");
     }
