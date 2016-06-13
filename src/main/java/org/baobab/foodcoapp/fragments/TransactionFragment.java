@@ -242,8 +242,8 @@ public class TransactionFragment extends Fragment
         for (int i = 0; i < t.getCount(); i++) {
             t.moveToPosition(i);
             int factor = 1;
-            System.out.println(t.getString(10) + " -> " + t.getString(2) + " -> " + t.getString(12) + " foo " + t.getInt(3) + " : " + t.getString(7));
-            if (t.getString(2).equals("bank") || t.getString(2).equals("kasse") || t.getString(2).equals("spenden")) {
+            //System.out.println(t.getString(10) + " -> " + t.getString(2) + " -> " + t.getString(12) + " foo " + t.getInt(3) + " : " + t.getString(7));
+            if (t.getString(2).equals("bank") || t.getString(2).equals("kasse")) {
                 if (t.getInt(3) != 1 || !t.getString(7).equals("Cash") || t.getFloat(5) != 1) {
                     msg += " * auf Konto " + t.getString(12) + " kann nur Cash verbucht werden\n";
                 }

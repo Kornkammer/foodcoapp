@@ -251,8 +251,7 @@ public class TransactionView extends GridLayout {
                                     ContentValues cv = new ContentValues();
                                     cv.put("account_guid", accounts.getString(2));
                                     if (accounts.getString(2).equals("bank") ||
-                                            accounts.getString(2).equals("kasse") ||
-                                            accounts.getString(2).equals("spenden")) {
+                                            accounts.getString(2).equals("kasse")) {
                                         cv.put("price", 1);
                                         cv.put("product_id", 1);
                                         cv.put("title", "Cash");
