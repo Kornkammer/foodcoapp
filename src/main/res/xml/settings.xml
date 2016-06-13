@@ -1,7 +1,7 @@
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <PreferenceCategory android:title="Einstellungen" >
+  <PreferenceCategory android:title="@string/settings" >
 
     <CheckBoxPreference
       android:key="rotate_screen"
@@ -20,4 +20,13 @@
       android:defaultValue="flo@sonnenstreifen.de" />
 
   </PreferenceCategory>
+
+  <PreferenceCategory android:title="Backup / Restore" >
+
+    <Preference
+      android:key="restore"
+      android:title="@string/restore_last_txn" />
+
+  </PreferenceCategory>
+
 </PreferenceScreen>

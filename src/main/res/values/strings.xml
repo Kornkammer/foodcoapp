@@ -43,5 +43,6 @@
 
   <string name="member">Mitgliedsnummer</string>
   <string name="fee">Monatsbeitrag</string>
+  <string name="restore_last_txn">Letzte Buchung wiederherstellen</string>
 
 </resources>

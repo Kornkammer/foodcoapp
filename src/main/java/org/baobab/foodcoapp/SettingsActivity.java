@@ -1,9 +1,13 @@
 
 package org.baobab.foodcoapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
@@ -25,6 +29,18 @@ public class SettingsActivity extends PreferenceActivity
     protected void onResume() {
         super.onResume();
         setMail();
+        findPreference("restore").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Cursor c = getContentResolver().query(
+                        Uri.parse("content://org.baobab.foodcoapp/transactions"),
+                        null, "transactions.status IS NOT NULL", null, null);
+                c.moveToLast();
+                startActivity(new Intent(SettingsActivity.this, AccountActivity.class)
+                        .setData(Uri.parse("content://org.baobab.foodcoapp/transactions/" + c.getLong(0))));
+                return false;
+            }
+        });
     }
 
     @Override
