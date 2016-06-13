@@ -263,7 +263,7 @@ public class TransactionFragment extends Fragment
             }
             Cursor stocks = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + t.getString(2) + "/products"),
-                    null, "title IS '" + t.getString(7) + "' AND price = ROUND(" + t.getFloat(5) + ", 2)", null, null);
+                    null, "title IS '" + t.getString(7) + "' AND rounded = ROUND(" + t.getFloat(5) + ", 2)", null, null);
             if (t.getString(10).equals("passiva")){
                 factor = -1;
             }

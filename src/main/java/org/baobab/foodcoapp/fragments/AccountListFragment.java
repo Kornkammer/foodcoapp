@@ -244,7 +244,6 @@ public class AccountListFragment extends Fragment
                                     startActivity(new Intent(getActivity(), AccountActivity.class)
                                             .putExtra("title", title).putExtra("account", account)
                                             .putExtra("amount", amount -n).putExtra("price", price));
-                                    Toast.makeText(getContext(), "foo " + (n - amount), 3000).show();
                                 }
                             }).show();
                     ((TextView) number.findViewById(R.id.message)).setText("Auf Ist setzen");

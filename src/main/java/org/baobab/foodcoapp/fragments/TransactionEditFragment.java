@@ -37,7 +37,7 @@ public class TransactionEditFragment extends TransactionFragment {
         });
     }
 
-        @Override
+    @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         super.onLoadFinished(loader, data);
         transaction.headersClickable(true);
