@@ -112,7 +112,15 @@ public class KnkImport implements ImportActivity.Importer {
     private ContentValues storeTransactionItem(Uri txn, String account, String product, String img, String[] line) {
         ContentValues cv = new ContentValues();
         cv.put("account_guid", account);
-        cv.put("product_id", product != null? product : "3");
+        if (account.equals("bank") || account.equals("kasse")) {
+            cv.put("product_id", 1);
+        } else if (!account.equals("inventar") && !account.equals("kosten") && !account.equals("lager")
+                && !account.equals("einlagen") && !account.equals("beiträge") && !account.equals("spenden")
+                && !account.equals("forderungen") && !account.equals("verbindlichkeiten")) {
+            cv.put("product_id", 2);
+        } else {
+            cv.put("product_id", product != null? product : "3");
+        }
         cv.put("title", line[3]);
         cv.put("quantity", Float.valueOf(line[1].replace(",", ".")));
         cv.put("unit", line[2]);
