@@ -330,7 +330,7 @@ public class TransactionView extends GridLayout {
                     images.setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if (quantity % 1 != 0) {
+                            if (unit.equals(getContext().getString(R.string.weight))) {
                                 new android.support.v7.app.AlertDialog.Builder(getContext())
                                         .setMessage("\n" + quantity + " " + title + " aus Liste entfernen?\n\n")
                                         .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
@@ -342,7 +342,7 @@ public class TransactionView extends GridLayout {
                                                                         "/products/" + txnProdId).build(), "all", null);
                                             }
                                         })
-                                        .setNegativeButton("Nö", null).show();
+                                        .setNegativeButton("Nein", null).show();
                             } else {
                                 getContext().getContentResolver().delete(
                                         ((FragmentActivity) getContext()).getIntent().getData().buildUpon()
@@ -355,7 +355,7 @@ public class TransactionView extends GridLayout {
 
                         @Override
                         public boolean onLongClick(View v) {
-                            if (quantity % 1 != 0) {
+                            if (unit.equals(getContext().getString(R.string.piece))) {
                                 new android.support.v7.app.AlertDialog.Builder(getContext())
                                         .setMessage("\n" + quantity + " " + title + " aus Liste entfernen?\n\n")
                                         .setPositiveButton("Ja", new DialogInterface.OnClickListener() {
