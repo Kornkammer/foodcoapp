@@ -135,7 +135,7 @@ public class TransactionView extends GridLayout {
 
     private void addProduct(int position, int transactionId, int txnProdId, int productId, String accountGuid,
                          float quantity, String unit, float price, String title, String img) {
-        images(accountGuid, txnProdId, productId, quantity, img, title);
+        images(accountGuid, txnProdId, productId, quantity, img, title, unit);
         amount(quantity, productId, position);
         unit(quantity, productId, unit);
         title(title, position, transactionId);
@@ -283,7 +283,7 @@ public class TransactionView extends GridLayout {
     }
 
 
-    private void images(final String accountGuid, final int txnProdId,  final int productId, final float quantity, String path, final String title) {
+    private void images(final String accountGuid, final int txnProdId,  final int productId, final float quantity, String path, final String title, final String unit) {
         LinearLayout images = new LinearLayout(getContext());
         images.setBackgroundResource(R.drawable.background_translucent);
         images.setOrientation(LinearLayout.HORIZONTAL);

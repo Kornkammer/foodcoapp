@@ -97,7 +97,9 @@ public class AccountActivity extends CheckoutActivity {
                         intent.getStringExtra("title"),
                         intent.getFloatExtra("amount", 0) * -1,
                         intent.getFloatExtra("price", 0),
-                        "", "", intent.getStringExtra("account"));
+                        intent.getStringExtra("unit"),
+                        intent.getStringExtra("img"),
+                        intent.getStringExtra("account"));
             }
         } else {
             editable = false;

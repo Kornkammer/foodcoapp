@@ -233,6 +233,8 @@ public class AccountListFragment extends Fragment
                     final String title = products.getString(7);
                     final float amount = products.getFloat(4);
                     final float price = products.getFloat(5);
+                    final String unit = products.getString(6);
+                    final String img = products.getString(8);
                     AlertDialog number = new AlertDialog.Builder(getActivity())
                             .setView(R.layout.fragment_dialog_number)
                             .setPositiveButton("Korrektur buchen", new DialogInterface.OnClickListener() {
@@ -243,7 +245,8 @@ public class AccountListFragment extends Fragment
                                                     .getText().toString().replace(",", "."));
                                     startActivity(new Intent(getActivity(), AccountActivity.class)
                                             .putExtra("title", title).putExtra("account", account)
-                                            .putExtra("amount", amount -n).putExtra("price", price));
+                                            .putExtra("amount", amount -n).putExtra("price", price)
+                                            .putExtra("unit", unit).putExtra("img", img));
                                 }
                             }).show();
                     ((TextView) number.findViewById(R.id.message)).setText("Auf Ist setzen");
