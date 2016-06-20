@@ -151,7 +151,9 @@ public class DashboardActivity extends AppCompatActivity {
                         intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(export));
                         Intent chooser = Intent.createChooser(intent, "Daten Backup Ex(el)port");
                         startActivity(chooser);
-                        dialog.dismiss();
+                        if (dialog != null && dialog.isShowing()) {
+                            dialog.dismiss();
+                        }
                     }
                 }.execute(date);
                 break;
