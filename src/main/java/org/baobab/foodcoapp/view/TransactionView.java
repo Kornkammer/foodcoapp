@@ -411,6 +411,7 @@ public class TransactionView extends GridLayout {
             }
         } else if (Math.abs(quantity) < 1) {
             amount.setTextSize(R.dimen.font_size_large);
+            amount.hideDecimals();
         }
     }
 

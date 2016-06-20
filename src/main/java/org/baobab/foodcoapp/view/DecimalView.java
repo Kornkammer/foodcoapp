@@ -80,6 +80,11 @@ public class DecimalView extends LinearLayout {
         decimals.setText(dec);
     }
 
+    public void hideDecimals() {
+        point.setVisibility(GONE);
+        decimals.setVisibility(GONE);
+    }
+
     public void setColor(int color) {
         amount.setTextColor(getResources().getColor(color));
         point.setTextColor(getResources().getColor(color));
