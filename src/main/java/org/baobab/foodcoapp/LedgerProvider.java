@@ -309,8 +309,8 @@ public class LedgerProvider extends ContentProvider {
                         " WHERE account_guid IS ? AND (transactions.status IS 'final'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
                         " GROUP BY title, rounded, unit" +
-                        " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
-                        (selection != null? " AND " + selection : ""),
+                        //" HAVING (stock <= -0.001 OR 0.001 <= stock)" +
+                        (selection != null? selection : ""),
                         new String[] { account_guid });
                 break;
             case ACCOUNT:
