@@ -332,6 +332,7 @@ public class GlsImport implements ImportActivity.Importer {
         while (products.moveToNext()) {
             Cursor txns = query(guid, "title IS '" + products.getString(7) + "'" +
                 " AND price = " + products.getFloat(5) + // select before groupBy
+                " AND unit IS '" + products.getString(6) + "'" +
                 (products.getFloat(4) > 0? " AND quantity > 0" : " AND quantity < 0"));
             txns.moveToLast();
             for (int i = 0; i < Math.abs(products.getFloat(4)); i++) {

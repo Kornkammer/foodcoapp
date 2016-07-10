@@ -24,7 +24,7 @@ public class LedgerProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context, String db) {
-            super(context, db, null, 3);
+            super(context, db, null, 4);
         }
 
         @Override
@@ -59,7 +59,7 @@ public class LedgerProvider extends ContentProvider {
                     ");");
             db.execSQL("CREATE UNIQUE INDEX idx"
                     + " ON transaction_products (" +
-                    "transaction_id, account_guid, title, price);");
+                    "transaction_id, account_guid, title, price, unit);");
             db.execSQL("CREATE TABLE accounts (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     "last_modified INTEGER, " +
@@ -197,7 +197,7 @@ public class LedgerProvider extends ContentProvider {
                         " WHERE transaction_id = ?" +
                                 (uri.getPathSegments().size() > 3?
                                 " AND transaction_products._id = " + uri.getLastPathSegment() : "") +
-                        " GROUP BY accounts.guid, title, price" +
+                        " GROUP BY accounts.guid, title, price, unit" +
                         " ORDER BY accounts._id, transaction_products.quantity < 0, transaction_products.title",
                         new String[] { uri.getPathSegments().get(1) });
                 break;
@@ -308,7 +308,7 @@ public class LedgerProvider extends ContentProvider {
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE account_guid IS ? AND (transactions.status IS 'final'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
-                        " GROUP BY title, rounded" +
+                        " GROUP BY title, rounded, unit" +
                         " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
                         (selection != null? " AND " + selection : ""),
                         new String[] { account_guid });
@@ -447,6 +447,7 @@ public class LedgerProvider extends ContentProvider {
             break;
             case TRANSACTION_PRODUCTS:
                 String quantity = null;
+                String unit = values.getAsString("unit");
                 if (values.containsKey("unit")) { // not cash
                     if (values.containsKey("quantity")) { // then overwrite
                         db.getWritableDatabase().execSQL(
@@ -466,6 +467,8 @@ public class LedgerProvider extends ContentProvider {
                     } else {
                         quantity = "-1.0";
                     }
+                } else {
+                    unit = "Stück"; // for sqlite to group by them together
                 }
                 if (quantity == null) quantity = values.getAsString("quantity");
                 db.getWritableDatabase().execSQL(
@@ -475,19 +478,20 @@ public class LedgerProvider extends ContentProvider {
                                 "COALESCE(" +
                                 "(SELECT quantity FROM transaction_products" +
                                 " WHERE transaction_id = ? AND account_guid = ?" +
-                                    " AND title IS ? AND price = ?)," +
+                                    " AND title IS ? AND price = ? AND unit IS ?)," +
                                 "0) + ?);", new String[] {
                                 uri.getPathSegments().get(1),
                                 values.getAsString("account_guid"),
                                 values.getAsString("product_id"),
                                 values.getAsString("title"),
                                 values.getAsString("price"),
-                                values.getAsString("unit"),
+                                unit,
                                 values.getAsString("img"),
                                 uri.getPathSegments().get(1),
                                 values.getAsString("account_guid"),
                                 values.getAsString("title"),
                                 values.getAsString("price"),
+                                unit,
                                 quantity });
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;

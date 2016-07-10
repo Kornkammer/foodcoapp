@@ -72,10 +72,10 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testQueryTransaction() {
         createDummyAccount("dummy");
-        insertTransaction("dummy", "forderungen", 25, "foo");
-        insertTransaction("dummy", "forderungen", 25, "bar");
-        insertTransaction("dummy", "forderungen", 42.23f, "foo");
-        insertTransaction("dummy", "forderungen", 25, "foo bar");
+        insertTransaction("dummy", "forderungen", "Cash", 25, "foo");
+        insertTransaction("dummy", "forderungen", "Cash", 25, "bar");
+        insertTransaction("dummy", "forderungen", "Cash", 42.23f, "foo");
+        insertTransaction("dummy", "forderungen", "Cash", 25, "foo bar");
         query("transactions?price=42.23", 1);
         query("transactions?price=25", 3);
         query("transactions?title=baz", 0);
@@ -89,7 +89,7 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testFinalizeTransaction() {
         createDummyAccount("dummy");
-        Uri txn = insertTransaction(5, "draft", "lager", "kasse", 20f);
+        Uri txn = insertTransaction(5, "draft", "lager", "kasse", null, 20f);
         ContentValues cv = new ContentValues();
         cv.put("status", "final");
         getMockContentResolver().update(txn, cv, null, null);
@@ -118,7 +118,7 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testForderungen() { // subquery to display open/closed
         createDummyAccount("dummy");
-        insertTransaction("dummy", "forderungen", 42f, "Bar Dumm"); // like deposit
+        insertTransaction("dummy", "forderungen", "Cash", 42f, "Bar Dumm"); // like deposit
         Cursor transactions = query("accounts/dummy/transactions", 1); // kontoauszug
         assertEquals("sum", -42.0, transactions.getDouble(6));
         assertEquals("who", "dummy", transactions.getString(3));
@@ -126,16 +126,16 @@ public class TransactionsTests extends BaseProviderTests {
         assertEquals("amount", 1f, products.getFloat(4));
         assertEquals("price", 42f, products.getFloat(5));
         assertEquals("title", "Bar Dumm", products.getString(7));
-        insertTransaction("forderungen", "bank", 42f, "Bar Dumm"); // begleichen
+        insertTransaction("forderungen", "bank", "Cash", 42f, "Bar Dumm"); // begleichen
         query("accounts/forderungen/products", "title IS 'Bar Dumm'", 0);
     }
 
     public void testFindLatestTransactions() {
         createDummyAccount("dummy");
-        insertTransaction(9, "draft", "dummy", "kasse", 1, 30, "Bar Dumm");
-        insertTransaction(9, "final", "dummy", "kasse", 1, 30, "Bar Dumm");
-        insertTransaction(9, "final", "dummy", "kasse", 1, 50, "Bar Dumm");
-        insertTransaction(9, "final", "dummy", "kasse", 1, 50, "Bar Dumm");
+        insertTransaction(9, "draft", "dummy", "kasse", null, 1, 30, "Bar Dumm");
+        insertTransaction(9, "final", "dummy", "kasse", null, 1, 30, "Bar Dumm");
+        insertTransaction(9, "final", "dummy", "kasse", null, 1, 50, "Bar Dumm");
+        insertTransaction(9, "final", "dummy", "kasse", null, 1, 50, "Bar Dumm");
         query("accounts/dummy/transactions", 3);
         Cursor txns = query("accounts/dummy/transactions", "title IS 'Bar Dumm'", 4);
         txns.moveToLast();
@@ -146,8 +146,8 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testSessionTransactions() {
         createDummyAccount("dummy");
-        insertTransaction(5, "draft", "lager", "kasse", 20f);
-        insertTransaction(5, "draft", "lager", "kasse", 44f);
+        insertTransaction(5, "draft", "lager", "kasse", null, 20f);
+        insertTransaction(5, "draft", "lager", "kasse", null, 44f);
         Cursor transactions = query("sessions/5/transactions", 2);
         assertEquals("draft", transactions.getString(10));
         int result = finalizeSession(5);
@@ -160,7 +160,7 @@ public class TransactionsTests extends BaseProviderTests {
 
     public void testInvalidSessionTransactions() {
         createDummyAccount("dummy");
-        insertTransaction(5, "draft", "lager", "kasse", 20f);
+        insertTransaction(5, "draft", "lager", "kasse", null, 20f);
         insertInvalidTransaction(30);
         int result = finalizeSession(5);
         assertEquals("no txns updated", 0, result);
@@ -171,7 +171,7 @@ public class TransactionsTests extends BaseProviderTests {
     }
 
     private Uri insertInvalidTransaction(float amount) {
-        Uri txn = insertTransaction(5, "draft", "lager", "kasse", amount);
+        Uri txn = insertTransaction(5, "draft", "lager", "kasse", null, amount);
         ContentValues b = new ContentValues();
         b.put("account_guid", "dummy");
         b.put("quantity", -1);

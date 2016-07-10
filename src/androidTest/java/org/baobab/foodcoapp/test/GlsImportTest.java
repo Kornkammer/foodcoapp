@@ -145,15 +145,15 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testForderungBegleichen() {
-        insertTransaction("0815", "forderungen", 20, "Bank Susi"); // offen
-        insertTransaction("0815", "forderungen", 20, "Bank Andere"); // offen
-        insertTransaction("0815", "forderungen", 20, "andere Forderung");
+        insertTransaction("0815", "forderungen", "Stück", 20, "Bank Susi"); // offen
+        insertTransaction("0815", "forderungen", "Stück", 20, "Bank Andere"); // offen
+        insertTransaction("0815", "forderungen", "Stück", 20, "andere Forderung");
         assertBegleichtForderung("Einzahlung - Susi", 20);
         assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> " + String.format("%.2f", 20f)));
-        insertTransaction("0815", "forderungen", 50, "Bank Susi"); // offen
+        insertTransaction("0815", "forderungen", "Stück", 50, "Bank Susi"); // offen
         assertBegleichtForderung("Einzahlung - Susi", 50);
         assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> " + String.format("%.2f", 50f)));
-        insertTransaction("0815", "forderungen", 50, "Bank Susi"); // offen
+        insertTransaction("0815", "forderungen", "Stück", 50, "Bank Susi"); // offen
         assertBegleichtForderung("Einzahlung - Susi", 50);
         assertTrue(importer.getMsg().contains("Forderung beglichen: Bank Susi -> " + String.format("%.2f", 50f)));
     }
@@ -174,7 +174,7 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testForderungBegleichenMehrfach() {
-        insertTransaction("0815", "forderungen", 40, "Bank Susi");
+        insertTransaction("0815", "forderungen", "Stück", 40, "Bank Susi");
         importer = new GlsImport(ctx);
         importer.readLine(gls().vwz1("Einzahlung - Susi").amount(40).line); // überweisen
         importer.readLine(gls().vwz1("Einzahlung - Susi").amount(60).line); // überweisen
@@ -195,13 +195,13 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testBarEinzahlung() {
-        insertTransaction("1234", "forderungen", 20, "Bar Albert"); // 1
-        insertTransaction("0815", "forderungen", 30, "Bar Susi");   // 2
-        insertTransaction("1234", "forderungen", 20, "Bar Albert"); // 3
-        insertTransaction("0815", "forderungen", 10, "Bar Susi");   // 4
+        insertTransaction("1234", "forderungen", "Stück", 20,"Bar Albert"); // 1
+        insertTransaction("0815", "forderungen", "Stück", 30, "Bar Susi");   // 2
+        insertTransaction("1234", "forderungen", "Stück", 20, "Bar Albert"); // 3
+        insertTransaction("0815", "forderungen", "Stück", 10, "Bar Susi");   // 4
         // kasse wird entleert und eingezahlt. Inzwischen gibt es weitere
-        insertTransaction("1234", "forderungen", 50, "Bar Albert"); // 5
-        insertTransaction("0815", "forderungen", 30, "Bar Susi");   // 6
+        insertTransaction("1234", "forderungen", "Stück", 50, "Bar Albert"); // 5
+        insertTransaction("0815", "forderungen", "Stück", 30, "Bar Susi");   // 6
         read(gls().vwz1("Barkasse").amount(90)); // überweisung kommt an
         Cursor items = assertTransaction("Barkasse", 5);
         assertTransactionItem("bank", "Bank", "Cash", 90, 1.0f, items);

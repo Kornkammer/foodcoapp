@@ -181,9 +181,10 @@ public class AccountsTests extends BaseProviderTests {
 
     public void testAccountProducts() {
         createDummyAccount("dummy");
-        insertTransaction("dummy", "lager");
+        insertTransaction(7, "final", "dummy", "lager", "Zeugs", 1f);
+        insertTransaction(7, "final", "dummy", "lager", "Zeugs", 1f);
         Cursor c = query("accounts/lager/products", 1);
-        insertTransaction(7, "final", "lager", "dummy",  41.9991f);
+        insertTransaction(7, "final", "lager", "dummy", "Zeugs", 2f);
         query("accounts/lager/products", 0);
     }
 }

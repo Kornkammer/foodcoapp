@@ -71,30 +71,34 @@ public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
     }
 
     public Uri insertTransaction(String from_account, String to_account) {
-        return insertTransaction(7, "final", from_account, to_account, 42.0f, 1.0f, "sth");
+        return insertTransaction(7, "final", from_account, to_account, null, 42.0f, 1.0f, "sth");
     }
 
     public Uri insertInventurTransaction(String from_account, String to_account) {
-        return insertTransaction(7, "final", from_account, to_account, 42.0f, 1.0f, "sth", "else");
+        return insertTransaction(7, "final", from_account, to_account, null, 42.0f, 1.0f, "sth", "else");
     }
 
     public Uri insertTransaction(String status, String from_account, String to_account) {
-        return insertTransaction(7, status, from_account, to_account, 42.0f, 1.0f, "sth");
+        return insertTransaction(7, status, from_account, to_account, null, 42.0f, 1.0f, "sth");
     }
 
     public Uri insertTransaction(String from_account, String to_account, float price, String title) {
-        return insertTransaction(7, "final", from_account, to_account, 1.0f, price, title);
+        return insertTransaction(7, "final", from_account, to_account, null, 1.0f, price, title);
     }
 
-    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount) {
-        return insertTransaction(sessionId, status, from_account, to_account, amount, 1.0F, "sth");
+    public Uri insertTransaction(String from_account, String to_account, String unit, float price, String title) {
+        return insertTransaction(7, "final", from_account, to_account, unit, 1.0f, price, title);
     }
 
-    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, float price, String title) {
-        return insertTransaction(sessionId, status, from_account, to_account, amount, price, title, title);
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, String unit, float amount) {
+        return insertTransaction(sessionId, status, from_account, to_account, unit, amount, 1.0F, "sth");
     }
 
-    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, float amount, float price, String fromTitle, String toTitle) {
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, String unit, float amount, float price, String title) {
+        return insertTransaction(sessionId, status, from_account, to_account, unit, amount, price, title, title);
+    }
+
+    public Uri insertTransaction(int sessionId, String status, String from_account, String to_account, String unit, float amount, float price, String fromTitle, String toTitle) {
         ContentValues t = new ContentValues();
         t.put("session_id", sessionId);
         t.put("status", status);
@@ -107,14 +111,20 @@ public class BaseProviderTests extends ProviderTestCase2<LedgerProvider> {
         b.put("quantity", -amount);
         b.put("title", fromTitle);
         b.put("price", price);
-        b.put("unit", "dinge");
+        if (unit != null) {
+            b.put("unit", unit);
+        } else {
+            b.put("unit", "dinge");
+        }
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         b.put("account_guid", to_account);
 //        b.put("title", title + "_diff");
         b.put("quantity", amount);
         b.put("title", toTitle);
-        b.put("unit", "sachen");
+        if (unit == null) {
+            b.put("unit", "Cash");
+        }
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         return transaction;
