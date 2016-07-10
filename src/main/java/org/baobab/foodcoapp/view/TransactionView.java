@@ -409,7 +409,7 @@ public class TransactionView extends GridLayout {
                 amount.setTextSize(R.dimen.font_size_large);
                 ((LayoutParams) amount.getLayoutParams()).topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
             }
-        } else if (Math.abs(quantity) < 1) {
+        } else if (Math.abs(quantity) < 1 && Math.abs(quantity) >= 0.01) {
             amount.setTextSize(R.dimen.font_size_large);
             amount.hideDecimals();
         }
@@ -482,7 +482,7 @@ public class TransactionView extends GridLayout {
         if (price == 0) return;
         sum.setNumber(Math.abs(quantity * price));
         //sum.setTypeface(null, Typeface.BOLD);
-        if (quantity < 0) {
+        if (quantity < 0.01) {
             sum.setColor(R.color.xdark_red);
         } else {
             sum.setColor(R.color.xdark_green);
