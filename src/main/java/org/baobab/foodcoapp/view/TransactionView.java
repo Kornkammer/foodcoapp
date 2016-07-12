@@ -509,11 +509,9 @@ public class TransactionView extends GridLayout {
         if (price == 0) return;
         LayoutParams lp;TextView details = new TextView(getContext());
         details.setTextColor(getResources().getColor(android.R.color.black));
-        if (productId > 5 && unit != null &&
-                unit.equals(getContext().getString(R.string.weight))) {
+        if (unit != null && unit.equals(getContext().getString(R.string.weight))) {
             details.setText(String.format("%.2f", price) + "/kg");
-        } else if (productId > 5 && unit != null &&
-                unit.equals(getContext().getString(R.string.volume))) {
+        } else if (unit != null && unit.equals(getContext().getString(R.string.volume))) {
             details.setText(String.format("%.2f", price) + "/L");
         } else {
             details.setText(String.format("%.2f", price) + "/St");
