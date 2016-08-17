@@ -154,6 +154,7 @@ public class LedgerProvider extends ContentProvider {
         router.addURI(AUTHORITY, "accounts/*", ACCOUNT);
         router.addURI(AUTHORITY, "accounts", ACCOUNTS);
         router.addURI(AUTHORITY, "accounts/*/accounts", ACCOUNTS);
+        router.addURI(AUTHORITY, "accounts/*/memberships", ACCOUNTS);
         router.addURI(AUTHORITY, "accounts/*/products", ACCOUNT_PRODUCTS);
         router.addURI(AUTHORITY, "sessions/#/accounts/*/products", ACCOUNT_PRODUCTS);
         router.addURI(AUTHORITY, "products", PRODUCTS);
@@ -223,7 +224,7 @@ public class LedgerProvider extends ContentProvider {
                                 (uri.getQueryParameter("before") != null?
                                         " WHERE last_modified < " + uri.getQueryParameter("before") +
                                             " OR last_modified IS NULL" : "") +
-                                " GROUP BY guid" +
+                                " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")? ", fee" : "") +
                             ") AS accounts" +
                             " LEFT JOIN (" +
                                 "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
@@ -251,15 +252,15 @@ public class LedgerProvider extends ContentProvider {
                                 (uri.getQueryParameter("before") != null?
                                         " WHERE last_modified < " + uri.getQueryParameter("before") +
                                                 " OR last_modified IS NULL" : "") +
-                                " GROUP BY guid" +
-                            ") AS accounts" +
+                                " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")? ", fee" : "") +
+                                ") AS accounts" +
                             " LEFT JOIN (SELECT _id, name, guid, max(_id), parent_guid," +
                                     " created_at, last_modified, status, fee" +
                                 " FROM accounts" +
                                 (uri.getQueryParameter("before") != null?
                                         " WHERE last_modified < " + uri.getQueryParameter("before") +
                                                 " OR last_modified IS NULL" : "") +
-                                " GROUP BY guid" +
+                                " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")? ", fee" : "") +
                             ") AS children ON accounts.guid = children.parent_guid" +
                             " LEFT JOIN (" +
                                 "SELECT transactions._id, account_guid, sum(txn.quantity * txn.price) AS height" +
@@ -280,7 +281,7 @@ public class LedgerProvider extends ContentProvider {
                         (uri.getQueryParameter("before") != null?
                                 " WHERE created_at < " + uri.getQueryParameter("before") +
                                     " OR created_at IS NULL" : "") +
-                        " GROUP BY guid" +
+                        " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")? ", fee" : "") +
                         " HAVING " + (selection != null? selection : "1 = 1") +
                                 " AND (status IS NOT 'deleted'" +
                                 (uri.getQueryParameter("after") != null?
@@ -309,8 +310,8 @@ public class LedgerProvider extends ContentProvider {
                         " WHERE account_guid IS ? AND (transactions.status IS 'final'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
                         " GROUP BY title, rounded, unit" +
-                        //" HAVING (stock <= -0.001 OR 0.001 <= stock)" +
-                        (selection != null? selection : ""),
+                        " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
+                        (selection != null? " AND " + selection : ""),
                         new String[] { account_guid });
                 break;
             case ACCOUNT:
@@ -321,7 +322,7 @@ public class LedgerProvider extends ContentProvider {
                         " LEFT OUTER JOIN transaction_products ON transaction_products.account_guid = accounts.guid" +
 //                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +
                         " WHERE accounts.guid = ?" +
-                        " GROUP BY guid",
+                        " GROUP BY guid, fee",
                         new String[] { uri.getLastPathSegment() });
                 break;
             case LEGITIMATE:

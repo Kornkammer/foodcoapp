@@ -15,8 +15,8 @@ public class TimeWindowTests extends BaseProviderTests {
         super.setUp();
         createDummyAccount("members");
         year1 = System.currentTimeMillis();
-        createDummyAccount("a", "a", "members", "foo", year1, year1);
-        createDummyAccount("b", "b", "members", "foo", year1, year1);
+        createDummyAccount("a", "a", "members", "foo", year1, year1, 9);
+        createDummyAccount("b", "b", "members", "foo", year1, year1, 9);
         insertTransaction("kasse", "a");
         insertTransaction("kasse", "b");
         insertTransaction("b", "kasse");
@@ -35,9 +35,9 @@ public class TimeWindowTests extends BaseProviderTests {
         insertTransaction("kasse", "a");
         a = query("accounts/members/accounts", 2);
         assertEquals("balance", 84.0, a.getDouble(3));
-        createDummyAccount("c", "c", "members", "foo", year2, year2);
+        createDummyAccount("c", "c", "members", "foo", year2, year2, 9);
         insertTransaction("kasse", "c");
-        createDummyAccount("a", "a", "members", "deleted", year1, year2);
+        createDummyAccount("a", "a", "members", "deleted", year1, year2, 9);
         query("accounts/members/accounts", 2);
 
         try {

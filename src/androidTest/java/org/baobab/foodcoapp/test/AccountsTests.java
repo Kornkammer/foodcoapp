@@ -26,6 +26,32 @@ public class AccountsTests extends BaseProviderTests {
         assertEquals("parent", "dummy", accounts.getString(4));
     }
 
+    public void testAccountFees() {
+        createDummyAccount("dummy", "dummy", "mitglieder", "foo", 1, 1, 3);
+        insertTransaction("kasse", "dummy");
+        query("accounts/mitglieder/accounts", 1);
+        query("accounts/mitglieder/memberships", 1);
+        createDummyAccount("dummy", "dummy", "mitglieder", "foo", 2, 2, 9);
+        query("accounts/mitglieder/accounts", 1);
+        Cursor accounts = query("accounts/mitglieder/memberships", 2);
+        accounts.moveToPosition(0);
+        assertEquals("name", "dummy", accounts.getString(1));
+        assertEquals("created", 1, accounts.getLong(5));
+        assertEquals("modified", 1, accounts.getLong(6));
+        assertEquals("fee", 3, accounts.getLong(8));
+        accounts.moveToPosition(1);
+        assertEquals("name", "dummy", accounts.getString(1));
+        assertEquals("created", 2, accounts.getLong(5));
+        assertEquals("modified", 2, accounts.getLong(6));
+        assertEquals("fee", 9, accounts.getLong(8));
+        Cursor account = query("accounts/dummy", 2);
+        assertEquals("created", 1, account.getLong(9));
+        assertEquals("fee", 3, account.getLong(10));
+        account.moveToPosition(1);
+        assertEquals("created", 2, account.getLong(9));
+        assertEquals("fee", 9, account.getLong(10));
+    }
+
     public void testAccountDebit() {
         createDummyAccount("dummy");
         createDummyAccount("sub", "sub", "dummy");
@@ -78,7 +104,6 @@ public class AccountsTests extends BaseProviderTests {
 
     public void testInventur() {
         createDummyAccount("dummy");
-        createDummyAccount("spenden");
         insertTransaction("kasse", "lager"); // 3 x einlagern
         insertTransaction("kasse", "lager");
         insertTransaction("kasse", "lager");
@@ -96,11 +121,11 @@ public class AccountsTests extends BaseProviderTests {
         accounts.moveToPosition(6);
         assertEquals("name", "Kasse", accounts.getString(1));
         assertEquals("balance", 3 * -42.0, accounts.getDouble(3)); // 3 x einlagern
-        accounts.moveToPosition(12);
+        accounts.moveToPosition(13);
         assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", 2 * -42.0, accounts.getDouble(3)); // 2 x einzahlen
-        accounts.moveToPosition(13);
-        assertEquals("name", "spenden", accounts.getString(1));
+        accounts.moveToPosition(10);
+        assertEquals("name", "Spenden", accounts.getString(1));
         assertEquals("balance", -42.0, accounts.getDouble(3));
 
         accounts = query("accounts?debit=true", 14);
@@ -110,19 +135,19 @@ public class AccountsTests extends BaseProviderTests {
         accounts.moveToPosition(6);
         assertEquals("name", "Kasse", accounts.getString(1));
         assertEquals("balance", 2 * 42.0, accounts.getDouble(3)); // 2 x einzahlen
-        accounts.moveToPosition(12);
+        accounts.moveToPosition(13);
         assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", 1 * 42.0, accounts.getDouble(3)); // 1 x einkaufen
-        accounts.moveToPosition(13);
-        assertEquals("name", "spenden", accounts.getString(1));
+        accounts.moveToPosition(10);
+        assertEquals("name", "Spenden", accounts.getString(1));
         assertEquals("balance", 0.0, accounts.getDouble(3));
 
         accounts = query("accounts/passiva/accounts?credit=true", 6);
-        accounts.moveToPosition(4);
+        accounts.moveToPosition(5);
         assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", 2 * -42.0, accounts.getDouble(3)); // 2 x einzahlen
-        accounts.moveToNext();
-        assertEquals("name", "spenden", accounts.getString(1));
+        accounts.moveToPosition(2);
+        assertEquals("name", "Spenden", accounts.getString(1));
         assertEquals("balance", 1 * -42.0, accounts.getDouble(3)); // 1 x einkaufen
 
         accounts = query("accounts/aktiva/accounts?credit=true", 6);
@@ -134,11 +159,11 @@ public class AccountsTests extends BaseProviderTests {
         assertEquals("balance", 3 * -42.0, accounts.getDouble(3)); // 3 x einlagern
 
         accounts = query("accounts/passiva/accounts?debit=true", 6);
-        accounts.moveToPosition(4);
+        accounts.moveToPosition(5);
         assertEquals("name", "dummy", accounts.getString(1));
         assertEquals("balance", 1 * 42.0, accounts.getDouble(3)); // 1 x einkaufen
-        accounts.moveToNext();
-        assertEquals("name", "spenden", accounts.getString(1));
+        accounts.moveToPosition(2);
+        assertEquals("name", "Spenden", accounts.getString(1));
         assertEquals("balance", 0.0, accounts.getDouble(3));
 
         accounts = query("accounts/aktiva/accounts?debit=true", 6);
