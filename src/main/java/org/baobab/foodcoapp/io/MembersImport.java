@@ -38,6 +38,7 @@ public class MembersImport implements ImportActivity.Importer {
                 v.put("fee", line[5]);
                 v.put("created_at", BackupExport.df.parse(line[2]).getTime());
                 values.add(v);
+                System.out.println("guid " + line[0] + " - fee " + line[5] + " - date " + line[2]);
             } catch (ParseException e) {
                 Log.e(TAG, line[1] + ": could not parse " + line[2]);
                 e.printStackTrace();

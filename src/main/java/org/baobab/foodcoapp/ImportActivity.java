@@ -81,7 +81,7 @@ public class ImportActivity extends AppCompatActivity {
                             importer = new BnnImport(ImportActivity.this);
                         } else if (line.length == 22) {
                             importer = new GlsImport(ImportActivity.this);
-                        } else if (getIntent().getDataString().contains("mitglieder")) {
+                        } else if (line.length == 19) {
                             importer = new MembersImport(ImportActivity.this);
                         } else {
                             is = getContentResolver().openInputStream(getIntent().getData());

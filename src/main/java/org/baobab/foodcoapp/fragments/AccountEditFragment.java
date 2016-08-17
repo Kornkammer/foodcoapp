@@ -2,6 +2,7 @@ package org.baobab.foodcoapp.fragments;
 
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -18,7 +19,9 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,15 +29,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.baobab.foodcoapp.R;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.util.Crypt;
-import org.baobab.foodcoapp.R;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 import java.util.Random;
 
 public class AccountEditFragment extends Fragment
@@ -87,17 +94,78 @@ public class AccountEditFragment extends Fragment
         //        return true;
         //    }
         //});
+        LinearLayout mem = ((LinearLayout) getView().findViewById(R.id.memberships));
         if (getArguments().containsKey("uri")) {
             getLoaderManager().initLoader(0, null, this);
         } else {
             String guid = generateGUID();
-            ((EditText) view.findViewById(R.id.guid)).setText(guid);
             view.findViewById(R.id.guid).setEnabled(true);
-            view.findViewById(R.id.fee).setEnabled(true);
-            ((EditText) view.findViewById(R.id.created_at))
-                    .setText(new SimpleDateFormat("dd/MM/yyyy")
-                            .format(System.currentTimeMillis()));
+            ((EditText) view.findViewById(R.id.guid)).setText(guid);
+            getArguments().putLong("created_at", System.currentTimeMillis());
+            getArguments().putLong("fee", 0);
+            TextView r = new TextView(getActivity());
+            r.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
+            r.setText(R.string.monthly_fee);
+            mem.addView(r);
         }
+        mem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final View d = getActivity().getLayoutInflater()
+                        .inflate(R.layout.dialog_membership, null, false);
+                final AlertDialog dialog = new AlertDialog.Builder(getActivity())
+                        .setView(d)
+                        .show();
+                final Calendar c = Calendar.getInstance();
+                final int day = c.get(Calendar.DAY_OF_MONTH);
+                final int month = c.get(Calendar.MONTH);
+                final int year = c.get(Calendar.YEAR);
+                final TextView date = (TextView) d.findViewById(R.id.since);
+                date.setText("ab " + new SimpleDateFormat("dd/MM/yyyy").format(c.getTimeInMillis()));
+                date.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                            @Override
+                            public void onDateSet(DatePicker view, int y, int m, int d) {
+                                c.set(Calendar.DAY_OF_MONTH, d);
+                                c.set(Calendar.MONTH, m);
+                                c.set(Calendar.YEAR, y);
+                                date.setText("ab " + new SimpleDateFormat("dd/MM/yyyy").format(c.getTimeInMillis()));
+                            }
+                        }, year, month, day).show();
+                    }
+                });
+                d.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        if (c.getTimeInMillis() < getArguments().getLong("created_at")) {
+                            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                            Snackbar.make(getView(), "Datum muss später als " +
+                                    new SimpleDateFormat("dd/MM/yyyy", Locale.GERMAN)
+                                            .format(getArguments().getLong("created_at")) + " sein!",
+                                    Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                        getArguments().putLong("created_at", c.getTimeInMillis());
+                        getArguments().putInt("fee", Integer.valueOf(((EditText)
+                                d.findViewById(R.id.fee)).getText().toString()));
+
+                        dialog.dismiss();
+                        if (store()) {
+                            getLoaderManager().restartLoader(0, null, AccountEditFragment.this);
+                        }
+                    }
+                });
+                d.findViewById(R.id.terminate).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+            }
+        });
         getView().findViewById(R.id.scan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -178,7 +246,10 @@ public class AccountEditFragment extends Fragment
                 new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        store();
+                        if (store()) {
+                            getActivity().getSupportFragmentManager().popBackStack();
+                            ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+                        }
                     }
                 }
         );
@@ -219,16 +290,31 @@ public class AccountEditFragment extends Fragment
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        data.moveToFirst();
         switch (loader.getId()) {
             case 0:
+                LinearLayout mem = ((LinearLayout) getView().findViewById(R.id.memberships));
+                mem.removeAllViews();
+                while (data.moveToNext()) {
+                    if (data.getInt(10) == 0) continue;
+                    View r = getActivity().getLayoutInflater().inflate(R.layout.membership_row, null, false);
+                    mem.addView(r);
+                    ((TextView) r.findViewById(R.id.created_at))
+                            .setText(getString(R.string.since, new SimpleDateFormat("dd/MM/yyyy",
+                                    Locale.GERMAN).format(data.getLong(9))));
+                    ((TextView) r.findViewById(R.id.fee))
+                            .setText(getString(R.string.per_month, data.getInt(10)));
+                }
+                if (mem.getChildCount() == 0) {
+                    TextView r = new TextView(getActivity());
+                    r.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
+                    r.setText(R.string.monthly_fee);
+                    mem.addView(r);
+                }
+                data.moveToLast();
+                getArguments().putLong("created_at", data.getLong(9));
+                getArguments().putInt("fee", data.getInt(10));
                 getArguments().putString("guid", data.getString(1));
                 ((EditText) getView().findViewById(R.id.guid)).setText(data.getString(1));
-                getArguments().putLong("created_at", data.getLong(9));
-                ((TextView) getView().findViewById(R.id.created_at))
-                        .setText(new SimpleDateFormat("dd/MM/yyyy").format(data.getLong(9)));
-                ((TextView) getView().findViewById(R.id.fee))
-                        .setText(data.getString(10));
                 getActivity().setTitle("Edit " + data.getString(2));
                 if (!data.isNull(4)) {
                     getArguments().putString("pin", data.getString(4));
@@ -268,8 +354,24 @@ public class AccountEditFragment extends Fragment
         }
     }
 
-    public void store() {
+    public boolean store() {
         ContentValues values = new ContentValues();
+        String guid = ((EditText) getView().findViewById(R.id.guid)).getText().toString();
+        if (getArguments().containsKey("guid")) {
+            archivePreviousVersions();
+            values.put("guid", getArguments().getString("guid"));
+            values.put("created_at", getArguments().getLong("created_at"));
+        } else {
+            if (exists(guid)) {
+                MediaPlayer.create(getActivity(), R.raw.error_4).start();
+                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                Snackbar.make(getView(), "MitgliedsNr vergeben", Snackbar.LENGTH_LONG).show();
+                return false;
+            } else {
+                values.put("guid", guid);
+                values.put("created_at", System.currentTimeMillis());
+            }
+        }
         String name = ((EditText) getView().findViewById(R.id.name)).getText().toString();
         Cursor accounts = getActivity().getContentResolver().query(Uri.parse(
                 "content://org.baobab.foodcoapp/accounts/passiva/accounts"), null,
@@ -279,13 +381,13 @@ public class AccountEditFragment extends Fragment
             if (!accounts.getString(2).equals(getArguments().getString("guid"))) {
                 Snackbar.make(getView().findViewById(R.id.name),
                         "Name vergeben!", Snackbar.LENGTH_LONG).show();
-                return;
+                return false;
             }
         }
         if (!name.equals("")) {
             values.put("name", name);
         } else {
-            values.put("name", values.getAsString("guid"));
+            values.put("name", guid);
         }
         String pin = ((EditText) getView().findViewById(R.id.pin)).getText().toString();
         String pin2 = ((EditText) getView().findViewById(R.id.pin2)).getText().toString();
@@ -294,13 +396,13 @@ public class AccountEditFragment extends Fragment
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(150);
             Snackbar.make(getView().findViewById(R.id.pin),
                     "Pin brauchts!", Snackbar.LENGTH_LONG).show();
-            return;
+            return false;
         } else if (!pin.equals(pin2)) {
             MediaPlayer.create(getActivity(), R.raw.error_2).start();
             ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(250);
             Snackbar.make(getView().findViewById(R.id.pin2),
                     "pins nicht gleich", Snackbar.LENGTH_LONG).show();
-            return;
+            return false;
         }
         String hash = Crypt.hash(pin, getActivity());
         if (getArguments().containsKey("pin") &&
@@ -312,25 +414,9 @@ public class AccountEditFragment extends Fragment
                 MediaPlayer.create(getActivity(), R.raw.error_3).start();
                 ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(1000);
                 Snackbar.make(getView(), "PIN gibts schon!!!", Snackbar.LENGTH_LONG).show();
-                return;
+                return false;
             }
             values.put("pin", hash);
-        }
-        if (getArguments().containsKey("guid")) {
-            archivePreviousVersions();
-            values.put("guid", getArguments().getString("guid"));
-            values.put("created_at", getArguments().getLong("created_at"));
-        } else {
-            String guid = ((EditText) getView().findViewById(R.id.guid)).getText().toString();
-            if (exists(guid)) {
-                MediaPlayer.create(getActivity(), R.raw.error_4).start();
-                ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
-                Snackbar.make(getView(), "MitgliedsNr vergeben", Snackbar.LENGTH_LONG).show();
-                return;
-            } else {
-                values.put("guid", guid);
-                values.put("created_at", System.currentTimeMillis());
-            }
         }
         if (getArguments().containsKey("parent_guid")) {
             values.put("parent_guid", getArguments().getString("parent_guid"));
@@ -345,19 +431,17 @@ public class AccountEditFragment extends Fragment
                 MediaPlayer.create(getActivity(), R.raw.error_4).start();
                 ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
                 Snackbar.make(getView(), "QR code gibts schon!!!", Snackbar.LENGTH_LONG).show();
-                return;
+                return false;
             }
             values.put("qr", getArguments().getString("qr"));
         }
-        values.put("fee", ((EditText) getView().findViewById(R.id.fee)).getText().toString());
+        values.put("fee", getArguments().getInt("fee"));
         values.put("last_modified", System.currentTimeMillis());
-        getActivity().getContentResolver().insert(
-                Uri.parse("content://org.baobab.foodcoapp/accounts"),
-                values);
+        Uri uri = getActivity().getContentResolver().insert(
+                Uri.parse("content://org.baobab.foodcoapp/accounts"), values);
+        getArguments().putString("uri", uri.toString());
         Snackbar.make(getView(), "Gespeichert", Snackbar.LENGTH_SHORT).show();
-        getActivity().getSupportFragmentManager().popBackStack();
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-        return;
+        return true;
     }
 
     private void archivePreviousVersions() {

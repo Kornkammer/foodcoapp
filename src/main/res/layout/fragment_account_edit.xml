@@ -3,38 +3,58 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:padding="@dimen/small"
-  android:orientation="vertical"
+  android:id="@+id/frame"
+  android:orientation="horizontal"
   android:layout_width="match_parent"
   android:layout_height="match_parent" >
 
   <LinearLayout
     android:padding="@dimen/small"
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
+    android:orientation="vertical"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
     android:layout_weight="444" >
 
     <TextView
       android:id="@+id/contact"
       android:clickable="true"
       android:focusable="true"
-      android:layout_width="0dp"
+      android:layout_width="match_parent"
       android:layout_weight="382"
-      android:layout_height="match_parent"
+      android:layout_height="0dp"
       style="?android:buttonStyle"
       android:drawableTop="@drawable/ic_menu_invite" />
 
-    <LinearLayout
-      android:layout_width="0dp"
+    <Button
+      android:id="@+id/scan"
+      android:layout_width="match_parent"
       android:layout_weight="618"
+      android:layout_height="0dp"
+      android:textSize="22sp"
+      android:drawableLeft="@drawable/ic_qr_qcan"
+      android:textColor="@color/blue" />
+
+  </LinearLayout>
+
+  <LinearLayout
+    android:orientation="vertical"
+    android:padding="@dimen/small"
+    android:layout_width="0dp"
+    android:layout_height="match_parent"
+    android:layout_weight="618" >
+
+    <LinearLayout
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:orientation="vertical" >
+      android:orientation="horizontal" >
 
       <EditText
         android:id="@+id/name"
         android:textStyle="bold"
         android:textColor="#fff"
         android:selectAllOnFocus="true"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
+        android:layout_weight="618"
         android:layout_height="wrap_content"
         android:textSize="@dimen/font_size_larger"
         android:inputType="textNoSuggestions|textCapWords"
@@ -43,97 +63,66 @@
         android:nextFocusDown="@id/pin"
         android:hint="name" />
 
-      <LinearLayout
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/guid"
-            android:enabled="false"
-            android:textStyle="bold"
-            android:textColor="@color/medium_green"
-            android:selectAllOnFocus="true"
-            android:layout_width="0dp"
-            android:layout_weight="382"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_medium"
-            android:inputType="textNoSuggestions|number"
-            android:imeOptions="flagNoExtractUi"
-            android:hint="@string/member" />
-        <EditText
-            android:id="@+id/fee"
-            android:enabled="false"
-            android:textStyle="bold"
-            android:textColor="@color/medium_green"
-            android:selectAllOnFocus="true"
-            android:layout_width="0dp"
-            android:layout_weight="236"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_large"
-            android:inputType="textNoSuggestions|number"
-            android:imeOptions="flagNoExtractUi"
-            android:hint="@string/fee" />
-        <EditText
-            android:id="@+id/created_at"
-            android:enabled="false"
-            android:textStyle="bold"
-            android:textColor="@color/medium_green"
-            android:selectAllOnFocus="true"
-            android:layout_width="0dp"
-            android:layout_weight="382"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_medium"
-            android:inputType="textNoSuggestions|number"
-            android:imeOptions="flagNoExtractUi" />
-
-      </LinearLayout>
-
+      <EditText
+        android:id="@+id/guid"
+        android:enabled="false"
+        android:textStyle="bold"
+        android:textColor="@color/medium_green"
+        android:selectAllOnFocus="true"
+        android:layout_width="0dp"
+        android:layout_weight="382"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/font_size_medium"
+        android:inputType="textNoSuggestions|number"
+        android:imeOptions="flagNoExtractUi"
+        android:hint="@string/member" />
     </LinearLayout>
-  </LinearLayout>
 
-  <LinearLayout
-    android:padding="@dimen/small"
+    <LinearLayout
+      android:id="@+id/memberships"
+      android:clickable="true"
+      android:focusable="true"
+      android:background="@drawable/background_translucent"
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content">
+    </LinearLayout>
 
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="618" >
-
-    <Button
-      android:id="@+id/scan"
-      android:layout_width="0dp"
-      android:layout_weight="382"
-      android:layout_height="match_parent"
-      android:textSize="22sp"
-      android:drawableLeft="@drawable/ic_qr_qcan"
-      android:textColor="@color/blue" />
-
-    <EditText
-      android:id="@+id/pin"
-      android:textSize="42sp"
-      android:textStyle="bold"
-      android:textColor="#fff"
-      android:selectAllOnFocus="true"
-      android:inputType="numberPassword"
-      android:password="true"
-      android:layout_width="0dp"
-      android:layout_weight="309"
+    <LinearLayout
+      android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:imeOptions="flagNoExtractUi"
-      android:hint="pin" />
+      android:layout_weight="1"
+      android:gravity="bottom"
+      android:orientation="horizontal" >
 
+      <EditText
+        android:id="@+id/pin"
+        android:textSize="42sp"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        android:selectAllOnFocus="true"
+        android:inputType="numberPassword"
+        android:password="true"
+        android:layout_width="0dp"
+        android:layout_weight="309"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:hint="pin" />
 
-    <EditText
-      android:id="@+id/pin2"
-      android:textSize="42sp"
-      android:textStyle="bold"
-      android:textColor="#fff"
-      android:selectAllOnFocus="true"
-      android:inputType="numberPassword"
-      android:password="true"
-      android:layout_width="0dp"
-      android:layout_weight="309"
-      android:layout_height="wrap_content"
-      android:imeOptions="flagNoExtractUi"
-      android:hint="pin wdh" />
+      <EditText
+        android:id="@+id/pin2"
+        android:textSize="42sp"
+        android:textStyle="bold"
+        android:textColor="#fff"
+        android:selectAllOnFocus="true"
+        android:inputType="numberPassword"
+        android:password="true"
+        android:layout_width="0dp"
+        android:layout_weight="309"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:hint="pin wdh" />
+    </LinearLayout>
 
   </LinearLayout>
 
