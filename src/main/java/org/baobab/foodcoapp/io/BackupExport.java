@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -129,7 +130,10 @@ public class BackupExport {
                 e.printStackTrace();
             }
         }
-        Cursor accounts = getMembers(ctx, "?" + timewindow, null);
+        Cursor accounts = ctx.getContentResolver().query(
+                Uri.parse("content://org.baobab.foodcoapp/accounts/mitglieder/memberships?"
+                        + timewindow), null, null, null, "guid, _id");
+        System.out.println(accounts.getCount() + " memberships");
         File tmp;
         if (year > 0) {
             tmp = file(year + "_mitglieder.csv");
@@ -152,32 +156,60 @@ public class BackupExport {
             float sumPostPaidThisY = 0;
             float sumSoll = 0;
             float sumPaid = 0;
+            Cons prePaid = null;
             float sumPrePaidThisY = 0;
             float sumStillOpen = 0;
+            String guid = "";
+            float result = 0;
             while (accounts.moveToNext()) {
-                String guid = accounts.getString(2);
+                boolean another = false;
                 String name = accounts.getString(1);
-                report(ctx, zos, guid, name, year);
+                if (accounts.getString(2).equals(guid)) {
+                    System.out.println("  # another membership for " + guid + " " + name);
+                    another = true;
+                } else {
+                    if (result < 0) {
+                        sumStillOpen += (-1 * result);
+                    } else {
+                        sumPrePaidThisY += result;
+                    }
+                    result = 0;
+                    prePaid = null;
+                    guid = accounts.getString(2);
+                    System.out.println("# " + guid + " " + name);
+                }
+                if (!another) {
+                    report(ctx, zos, guid, name, year);
+                }
                 Cons einlage = getContribution(ctx, "?credit=true", name, "einlagen");
                 Cons auslage = getContribution(ctx, "?debit=true", name, "einlagen");
                 long joined = accounts.getLong(5);
                 int fee = accounts.getInt(8);
-                if (fee == 0) fee = 9;
-                int days = (int) ((System.currentTimeMillis() - joined) / 86400000);
+                long ended = System.currentTimeMillis();
+                if (accounts.moveToNext()) {
+                    if (accounts.getString(2).equals(guid)) {
+                        ended = accounts.getLong(5);
+                        System.out.println("  one coming for " + guid);
+                    }
+                }
+                accounts.moveToPrevious();
+                int days = Math.round(((float) (ended - joined)) / 86400000);
                 float preDays = 0;
-                float gut = 0;
-                Cons paid = getContribution(ctx, "?" + timewindow, name, "beiträge");
                 Cursor standBegin = null;
                 Cursor standEnd = null;
                 if (year > 0) {
                     try {
                         long after = YEAR.parse("" + year).getTime();
                         long before = YEAR.parse("" + (year + 1)).getTime();
-                        days = (int) (((Math.min(System.currentTimeMillis(), before) - Math.max(after, joined)) / 86400000));
-                        preDays = Math.max(0, after - joined) / 86400000;
-                        Cons prePaid = getContribution(ctx, "?before=" + after, name, "beiträge");
-                        gut = prePaid.sum - preDays * fee * 12f/365;
-                        Cons duePaid = getContribution(ctx, "?before=" + before, name, "beiträge");
+                        if (prePaid == null) {
+                            prePaid = getContribution(ctx, "?before=" + after, name, "beiträge");
+                        }
+                        int thisDays = Math.round((((float) (Math.min(ended, before) - Math.max(after, joined))) / 86400000));
+                        preDays = days - Math.max(0, thisDays);
+                        System.out.println("   fee " + fee + "  preDays=" + preDays + " thisDays=" + thisDays);
+                        //preDays = Math.max(0, after - joined) / 86400000;
+                        prePaid.sum -= preDays * fee * 12f/365;
+                        days = thisDays;
                         standBegin = getMembers(ctx, "?before=" + after, name);
                         standBegin.moveToFirst();
                         standEnd = getMembers(ctx, "?before=" + before, name);
@@ -185,43 +217,61 @@ public class BackupExport {
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
-                }
-                int soll = Math.round(days * fee * 12f/365);
-                float result = gut + paid.sum - soll;
-                String balance;
-                int resultDays = Math.round(result / (fee * 12f/365));
-                if (result < 0) {
-                    sumStillOpen += (-1 * result);
-                    balance = "noch (" + (-1 * resultDays) + " Tage) " + Math.round(-1 * result) + "€ offen";
                 } else {
-                    balance = "noch (" + resultDays + " Tage) " + Math.round(result) + "€ gut";
-                    sumPrePaidThisY += result;
+                    prePaid = new Cons();
                 }
-                if (gut > 0) {
-                    sumPrePaidBefore += gut;
-                } else {
-                    // actually paid this year???
-                    sumPostPaidThisY += (-1 * gut);
+                if (days < 0) {
+                    System.out.println("no relevance for " + year);
+                    continue;
                 }
+                float soll = days * fee * 12f/365;
                 sumSoll += soll;
-                sumPaid += paid.sum;
-                Cursor debit = getMembers(ctx, "?debit=true&" + timewindow, name);
-                debit.moveToFirst();
-                Cursor credit = getMembers(ctx, "?credit=true&" + timewindow, name);
-                credit.moveToFirst();
+                if (result == 0) {
+                    Cons paid = getContribution(ctx, "?" + timewindow, name, "beiträge");
+                    result = prePaid.sum + paid.sum - soll;
+                    sumPaid += paid.sum;
+                    if (prePaid.sum > 0) {
+                        sumPrePaidBefore += prePaid.sum;
+                    } else {
+                        // actually paid this year???
+                        sumPostPaidThisY += (-1 * prePaid.sum);
+                    }
+                    Cursor debit = getMembers(ctx, "?debit=true&" + timewindow, name);
+                    debit.moveToFirst();
+                    Cursor credit = getMembers(ctx, "?credit=true&" + timewindow, name);
+                    credit.moveToFirst();
 
-                csv.writeNext(new String[] { guid, name, df.format(joined),
-                        "" + einlage.sum, einlage.dates, "" + fee, "€/Monat",
-                        (year > 0 && gut != 0? "" + Math.round(gut) : ""),
-                        days + " Tage", "" + soll, "" + paid.sum, balance, "",
-                        (year > 0 && standBegin.getCount() > 0?
-                            String.format(Locale.ENGLISH, "%.2f", (-1 * standBegin.getFloat(3))) : "0"),
-                            String.format(Locale.ENGLISH, "%.2f", (-1 * credit.getFloat(3))),
-                            String.format(Locale.ENGLISH, "%.2f", (-1 * debit.getFloat(3))),
-                        (year > 0 && standBegin.getCount() > 0?
-                            String.format(Locale.ENGLISH, "%.2f", (-1 * standEnd.getFloat(3))) :
-                                String.format(Locale.ENGLISH, "%.2f", (-1 * accounts.getFloat(3)))),
-                        (auslage.sum != 0? "" + auslage.sum : ""), auslage.dates } );
+                    csv.writeNext(new String[]{guid, name, df.format(joined),
+                            "" + einlage.sum, einlage.dates, "" + fee, "€/Monat",
+                            (year > 0 && prePaid.sum != 0 ? "" + String.format(Locale.ENGLISH, "%.2f", prePaid.sum) : ""),
+                            days + " Tage", "" + String.format(Locale.ENGLISH, "%.2f", soll),
+                            "" + String.format(Locale.ENGLISH, "%.2f", paid.sum), computeBalance(result, fee), "",
+                            (year > 0 && standBegin.getCount() > 0 ?
+                                    String.format(Locale.ENGLISH, "%.2f", (-1 * standBegin.getFloat(3))) : ""),
+                            (credit.getCount() > 0? String.format(Locale.ENGLISH, "%.2f", (-1 * credit.getFloat(3))) : ""),
+                            (debit.getCount() >0? String.format(Locale.ENGLISH, "%.2f", (-1 * debit.getFloat(3))) : ""),
+                            (year > 0 && standBegin.getCount() > 0 ?
+                                    String.format(Locale.ENGLISH, "%.2f", (-1 * standEnd.getFloat(3))) :
+                                    String.format(Locale.ENGLISH, "%.2f", (-1 * accounts.getFloat(3)))),
+                            (auslage.sum != 0 ? "" + auslage.sum : ""), auslage.dates});
+                } else {
+                    result -= soll;
+                    String balance = computeBalance(result, fee);
+                    System.out.println("    status " + accounts.getString(7) + " " + accounts.getString(1));
+                    if (accounts.isNull(7)) {
+                        System.out.println("NULL");
+                    }
+                    if (!accounts.isNull(7) && accounts.getString(7).equals("deleted")) {
+                        csv.writeNext(new String[] { guid, name, df.format(joined), "", "nicht mehr dabei",
+                                "", "", "", "", "", "", "", "", "", "", "", ""});
+                    } else {
+                        csv.writeNext(new String[]{guid, name, df.format(joined), "", "",
+                                "" + fee, "€/Monat", "", days + " Tage",
+                                "" + String.format(Locale.ENGLISH, "%.2f", soll),
+                                "", computeBalance(result, fee), "", "", "", "", "", ""});
+                    }
+                }
+
             }
             csv.close();
             File eur;
@@ -253,7 +303,11 @@ public class BackupExport {
             csv.writeNext(new String[] { } );
             Cursor anfang = getAccounts(ctx, "aktiva", "?before=" + after , "Bank");
             anfang.moveToFirst();
-            csv.writeNext(new String[] {"Bank Konto Stand 1. Jan " + y, String.format(Locale.ENGLISH, "%.2f", anfang.getFloat(3)), ""});
+            if (anfang.getCount() > 0) {
+                csv.writeNext(new String[] {"Bank Konto Stand 1. Jan " + y, String.format(Locale.ENGLISH, "%.2f", anfang.getFloat(3)), ""});
+            } else {
+                csv.writeNext(new String[] {"Bank Konto Stand 1. Jan " + y, String.format(Locale.ENGLISH, "%.2f", 0f), ""});
+            }
             csv.writeNext(new String[] { } );
             Cursor einlagen = getAccounts(ctx, "passiva", "?" + timewindow, "Einlagen");
             einlagen.moveToFirst();
@@ -284,16 +338,16 @@ public class BackupExport {
 
             Cursor in = getTxns(ctx, "?debit=true&" + timewindow, null, "lager");
             while (in.moveToNext()) {
-                System.out.println(in.getFloat(6));
+                //System.out.println(in.getFloat(6));
                 String[] a = in.getString(5).split(",");
                 Cursor prods = ctx.getContentResolver().query(Uri.parse(
                         "content://org.baobab.foodcoapp/transactions/" + in.getInt(0) + "/products"), null, null, null, null);
                 while (prods.moveToNext()) {
-                    System.out.println("-> " + prods.getString(2) + " :: " + prods.getString(7));
+                    //System.out.println("-> " + prods.getString(2) + " :: " + prods.getString(7));
                     if (!prods.getString(2).equals("lager")) {
                         Cursor orig = getTxns(ctx, "?" + timewindow, prods.getString(7), prods.getString(2));
                         while (orig.moveToNext()) {
-                            System.out.println("  ### " + orig.getFloat(6) + " | " + orig.getString(5));
+                            //System.out.println("  ### " + orig.getFloat(6) + " | " + orig.getString(5));
                         }
                     }
                 }
@@ -337,6 +391,20 @@ public class BackupExport {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @NonNull
+    private static String computeBalance(float result, int fee) {
+        String balance;
+        int resultDays = Math.round(result / (fee * 12f/365));
+        if (result < 0) {
+            balance = "noch (" + (-1 * resultDays) + " Tage) " +
+                    String.format(Locale.ENGLISH, "%.2f", -1 * result) + "€ offen";
+        } else {
+            balance = "noch (" + resultDays + " Tage) " +
+                    String.format(Locale.ENGLISH, "%.2f", result) + "€ gut";
+        }
+        return balance;
     }
 
     private static Cursor getMembers(Context ctx, String query, String name) {

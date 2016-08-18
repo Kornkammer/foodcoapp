@@ -149,11 +149,15 @@ public class AccountEditFragment extends Fragment
                             return;
                         }
                         getArguments().putLong("created_at", c.getTimeInMillis());
-                        getArguments().putInt("fee", Integer.valueOf(((EditText)
-                                d.findViewById(R.id.fee)).getText().toString()));
-
-                        dialog.dismiss();
+                        if (((Button) v).getText().equals(getString(R.string.change))) {
+                            getArguments().putInt("fee", Integer.valueOf(((EditText)
+                                    d.findViewById(R.id.fee)).getText().toString()));
+                        } else if (((Button) v).getText().equals(getString(R.string.terminate))) {
+                            getArguments().putInt("fee", -1);
+                            getArguments().putString("status", "deleted");
+                        }
                         if (store()) {
+                            dialog.dismiss();
                             getLoaderManager().restartLoader(0, null, AccountEditFragment.this);
                         }
                     }
@@ -161,7 +165,15 @@ public class AccountEditFragment extends Fragment
                 d.findViewById(R.id.terminate).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dialog.dismiss();
+                        if (!getArguments().containsKey("guid")) {
+                            ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(500);
+                            Snackbar.make(getView(), "Mitglied gibts noch gar nicht ", Snackbar.LENGTH_LONG).show();
+                            return;
+                        }
+                        d.findViewById(R.id.terminate).setVisibility(View.GONE);
+                        ((Button) d.findViewById(R.id.ok)).setText(R.string.terminate);
+                        ((EditText) d.findViewById(R.id.fee)).setText("");
+
                     }
                 });
             }
@@ -301,8 +313,13 @@ public class AccountEditFragment extends Fragment
                     ((TextView) r.findViewById(R.id.created_at))
                             .setText(getString(R.string.since, new SimpleDateFormat("dd/MM/yyyy",
                                     Locale.GERMAN).format(data.getLong(9))));
-                    ((TextView) r.findViewById(R.id.fee))
-                            .setText(getString(R.string.per_month, data.getInt(10)));
+                    System.out.println("so! " + data.getString(11));
+                    if (!data.isNull(7) && data.getString(11).equals("deleted")) {
+                        ((TextView) r.findViewById(R.id.fee)).setText("nicht mehr");
+                    } else {
+                        ((TextView) r.findViewById(R.id.fee))
+                                .setText(getString(R.string.per_month, data.getInt(10)));
+                    }
                 }
                 if (mem.getChildCount() == 0) {
                     TextView r = new TextView(getActivity());
@@ -424,7 +441,11 @@ public class AccountEditFragment extends Fragment
         if (getArguments().containsKey("contact")) {
             values.put("contact", getArguments().getString("contact"));
         }
-        values.put("status", "foo");
+        if (getArguments().containsKey("status")) {
+            values.put("status", getArguments().getString("status"));
+        } else {
+            values.put("status", "foo");
+        }
         if (getArguments().containsKey("qr") &&
                 getArguments().getString("qr") != null) {
             if (lockAccountIfAlreadyTaken(getArguments().getString("qr"))) {

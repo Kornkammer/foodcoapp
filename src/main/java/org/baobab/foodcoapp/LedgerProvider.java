@@ -224,8 +224,8 @@ public class LedgerProvider extends ContentProvider {
                                     " created_at, last_modified, status, fee" +
                                 " FROM accounts" +
                                 (uri.getQueryParameter("before") != null?
-                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
-                                            " OR last_modified IS NULL" : "") +
+                                        " WHERE created_at < " + uri.getQueryParameter("before") +
+                                            " OR created_at IS NULL" : "") +
                                 " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")?
                                         ", created_at, fee" : "") +
                             ") AS accounts" +
@@ -253,8 +253,8 @@ public class LedgerProvider extends ContentProvider {
                                     " created_at, last_modified, status, fee" +
                                 " FROM accounts" +
                                 (uri.getQueryParameter("before") != null?
-                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
-                                                " OR last_modified IS NULL" : "") +
+                                        " WHERE created_at < " + uri.getQueryParameter("before") +
+                                                " OR created_at IS NULL" : "") +
                                 " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")?
                                         ", created_at, fee" : "") +
                                 ") AS accounts" +
@@ -262,8 +262,8 @@ public class LedgerProvider extends ContentProvider {
                                     " created_at, last_modified, status, fee" +
                                 " FROM accounts" +
                                 (uri.getQueryParameter("before") != null?
-                                        " WHERE last_modified < " + uri.getQueryParameter("before") +
-                                                " OR last_modified IS NULL" : "") +
+                                        " WHERE created_at < " + uri.getQueryParameter("before") +
+                                                " OR created_at IS NULL" : "") +
                                 " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")?
                                     ", created_at, fee" : "") +
                             ") AS children ON accounts.guid = children.parent_guid" +
@@ -291,9 +291,9 @@ public class LedgerProvider extends ContentProvider {
                         " HAVING " + (selection != null? selection : "1 = 1") +
                                 " AND (status IS NOT 'deleted'" +
                                 (uri.getQueryParameter("after") != null?
-                                        " OR last_modified >= " + uri.getQueryParameter("after") + ")" :
+                                        " OR created_at >= " + uri.getQueryParameter("after") + ")" :
                                         (uri.getQueryParameter("before") != null?
-                                        " OR last_modified < " + uri.getQueryParameter("before") + ")" : ")")) +
+                                        " OR created_at < " + uri.getQueryParameter("before") + ")" : ")")) +
                         (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),
                         (selectionArgs != null? selectionArgs : null));
                 break;
@@ -323,7 +323,8 @@ public class LedgerProvider extends ContentProvider {
             case ACCOUNT:
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT accounts._id AS _id, guid, name, contact, pin, qr, max(accounts._id), " +
-                                "sum(transaction_products.quantity * transaction_products.price), parent_guid, created_at, fee" +
+                                "sum(transaction_products.quantity * transaction_products.price), " +
+                                "parent_guid, created_at, fee, status" +
                         " FROM accounts" +
                         " LEFT OUTER JOIN transaction_products ON transaction_products.account_guid = accounts.guid" +
 //                        " LEFT OUTER JOIN products ON transaction_products.product_id = products._id" +

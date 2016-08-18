@@ -23,6 +23,10 @@ public class TimeWindowTests extends BaseProviderTests {
         insertTransaction("kasse", "b");
         Cursor a = query("accounts/members/accounts", 2);
         assertEquals("balance", 42.0, a.getDouble(3));
+        query("accounts/members/memberships", 2);
+        createDummyAccount("b", "b", "members", "foo", year1+1, year1+1, 5); // change fee
+        query("accounts/members/accounts", 2);
+        query("accounts/members/memberships", 3);
 
         try {
             Thread.sleep(10);
@@ -36,9 +40,15 @@ public class TimeWindowTests extends BaseProviderTests {
         a = query("accounts/members/accounts", 2);
         assertEquals("balance", 84.0, a.getDouble(3));
         createDummyAccount("c", "c", "members", "foo", year2, year2, 9);
+        a = query("accounts/members/accounts", 3);
         insertTransaction("kasse", "c");
-        createDummyAccount("a", "a", "members", "deleted", year1, year2, 9);
+        query("accounts/members/memberships", 4);
+        createDummyAccount("a", "a", "members", "foo", year2, year2, 3); //change fee
+        query("accounts/members/accounts", 3);
+        query("accounts/members/memberships", 5);
+        createDummyAccount("a", "a", "members", "deleted", year2, year2, -1); // delete
         query("accounts/members/accounts", 2);
+        query("accounts/members/memberships", 5);
 
         try {
             Thread.sleep(10);
@@ -55,6 +65,13 @@ public class TimeWindowTests extends BaseProviderTests {
             e.printStackTrace();
         }
         year4 = System.currentTimeMillis();
+    }
+
+    public void testMemberships() {
+        query("accounts/members/memberships", 5);
+        query("accounts/members/memberships?after=" + year1 + "&before=" + year2, 3);
+        query("accounts/members/accounts?after=" + year2 + "&before=" + year3, 3);
+        query("accounts/members/memberships?after=" + year2 + "&before=" + year3, 6);
     }
 
     public void testBalance() {
