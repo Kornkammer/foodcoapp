@@ -104,6 +104,7 @@ public class CheckoutActivity extends AppCompatActivity
         transactionFragment.reload();
         Nfc.resume(this, NfcAdapter.ACTION_NDEF_DISCOVERED,
                 "application/vnd.kornkammer.products");
+        SettingsActivity.crashCheck(this);
     }
 
     @Override

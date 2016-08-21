@@ -107,6 +107,12 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        SettingsActivity.crashCheck(this);
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == LEGITIMATE) {
             startActivity(new Intent(this, BrowseActivity.class)

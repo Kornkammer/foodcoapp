@@ -1,10 +1,14 @@
 package org.baobab.foodcoapp;
 
 import android.app.Application;
+import android.content.Context;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
-import org.acra.annotation.*;
+import org.acra.annotation.ReportsCrashes;
+import org.acra.collector.CrashReportData;
+import org.acra.sender.ReportSender;
+import org.acra.sender.ReportSenderException;
 
 @ReportsCrashes(
         mailTo = "flo@sonnenstreifen.de",
@@ -23,6 +27,14 @@ public class FoodcoApplication extends Application {
         super.onCreate();
         if (!BuildConfig.DEBUG) {
             ACRA.init(this);
+            ACRA.getErrorReporter().addReportSender(new ReportSender() {
+                @Override
+                public void send(Context context, CrashReportData errorContent) throws ReportSenderException {
+                    context.getSharedPreferences("crash", MODE_MULTI_PROCESS).edit()
+                            .putBoolean("crashed", true).commit();
+                }
+            });
+            ACRA.getErrorReporter().setEnabled(true);
         }
     }
 }
