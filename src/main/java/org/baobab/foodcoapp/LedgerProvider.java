@@ -289,11 +289,12 @@ public class LedgerProvider extends ContentProvider {
                         " GROUP BY guid" + (uri.getLastPathSegment().equals("memberships")?
                                 ", created_at, fee" : "") +
                         " HAVING " + (selection != null? selection : "1 = 1") +
-                                " AND (status IS NOT 'deleted'" +
-                                (uri.getQueryParameter("after") != null?
+                                (!uri.getLastPathSegment().equals("memberships")?
+                                    " AND (status IS NOT 'deleted'" +
+                                    (uri.getQueryParameter("after") != null?
                                         " OR created_at >= " + uri.getQueryParameter("after") + ")" :
                                         (uri.getQueryParameter("before") != null?
-                                        " OR created_at < " + uri.getQueryParameter("before") + ")" : ")")) +
+                                        " OR created_at < " + uri.getQueryParameter("before") + ")" : ")")) : "") +
                         (sortOrder != null? " ORDER BY " + sortOrder : " ORDER BY _id"),
                         (selectionArgs != null? selectionArgs : null));
                 break;

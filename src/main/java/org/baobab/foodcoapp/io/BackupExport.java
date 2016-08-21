@@ -161,6 +161,7 @@ public class BackupExport {
             float sumStillOpen = 0;
             String guid = "";
             float result = 0;
+            boolean relevant = false;
             while (accounts.moveToNext()) {
                 boolean another = false;
                 String name = accounts.getString(1);
@@ -175,6 +176,7 @@ public class BackupExport {
                     }
                     result = 0;
                     prePaid = null;
+                    relevant = false;
                     guid = accounts.getString(2);
                     System.out.println("# " + guid + " " + name);
                 }
@@ -189,7 +191,6 @@ public class BackupExport {
                 if (accounts.moveToNext()) {
                     if (accounts.getString(2).equals(guid)) {
                         ended = accounts.getLong(5);
-                        System.out.println("  one coming for " + guid);
                     }
                 }
                 accounts.moveToPrevious();
@@ -206,9 +207,7 @@ public class BackupExport {
                         }
                         int thisDays = Math.round((((float) (Math.min(ended, before) - Math.max(after, joined))) / 86400000));
                         preDays = days - Math.max(0, thisDays);
-                        System.out.println("   fee " + fee + "  preDays=" + preDays + " thisDays=" + thisDays);
-                        //preDays = Math.max(0, after - joined) / 86400000;
-                        prePaid.sum -= preDays * fee * 12f/365;
+                        prePaid.sum -= preDays * Math.max(0, fee) * 12f/365;
                         days = thisDays;
                         standBegin = getMembers(ctx, "?before=" + after, name);
                         standBegin.moveToFirst();
@@ -220,13 +219,9 @@ public class BackupExport {
                 } else {
                     prePaid = new Cons();
                 }
-                if (days < 0) {
-                    System.out.println("no relevance for " + year);
-                    continue;
-                }
-                float soll = days * fee * 12f/365;
+                float soll = days * Math.max(0, fee) * 12f/365;
                 sumSoll += soll;
-                if (result == 0) {
+                if (!relevant) {
                     Cons paid = getContribution(ctx, "?" + timewindow, name, "beiträge");
                     result = prePaid.sum + paid.sum - soll;
                     sumPaid += paid.sum;
@@ -236,13 +231,20 @@ public class BackupExport {
                         // actually paid this year???
                         sumPostPaidThisY += (-1 * prePaid.sum);
                     }
+                    System.out.println("   relevant?  preDays=" + preDays + " thisDays=" + days + " fee=" + fee + " result=" + result + " prePaid=" + prePaid.sum);
+                    if (days < 0 || (fee == -1 && prePaid.sum == 0)) {
+                        System.out.println("no relevance for " + year);
+                        continue;
+                    }
+                    relevant = true;
                     Cursor debit = getMembers(ctx, "?debit=true&" + timewindow, name);
                     debit.moveToFirst();
                     Cursor credit = getMembers(ctx, "?credit=true&" + timewindow, name);
                     credit.moveToFirst();
 
                     csv.writeNext(new String[]{guid, name, df.format(joined),
-                            "" + einlage.sum, einlage.dates, "" + fee, "€/Monat",
+                            "" + einlage.sum, einlage.dates, (fee > 0? "" + fee : ""),
+                            (!accounts.isNull(7) && accounts.getString(7).equals("deleted")? "nicht mehr" : "€/Monat"),
                             (year > 0 && prePaid.sum != 0 ? "" + String.format(Locale.ENGLISH, "%.2f", prePaid.sum) : ""),
                             days + " Tage", "" + String.format(Locale.ENGLISH, "%.2f", soll),
                             "" + String.format(Locale.ENGLISH, "%.2f", paid.sum), computeBalance(result, fee), "",
@@ -394,15 +396,15 @@ public class BackupExport {
     }
 
     @NonNull
-    private static String computeBalance(float result, int fee) {
+    public static String computeBalance(float result, int fee) {
         String balance;
         int resultDays = Math.round(result / (fee * 12f/365));
         if (result < 0) {
-            balance = "noch (" + (-1 * resultDays) + " Tage) " +
-                    String.format(Locale.ENGLISH, "%.2f", -1 * result) + "€ offen";
+            balance = " = " + String.format(Locale.ENGLISH, "%.2f", -1 * result) +
+                    "€ (" + (-1 * resultDays) + " Tage) offen";
         } else {
-            balance = "noch (" + resultDays + " Tage) " +
-                    String.format(Locale.ENGLISH, "%.2f", result) + "€ gut";
+            balance = " =" + String.format(Locale.ENGLISH, "%.2f", result) +
+                    "€ (" + resultDays + " Tage) gut";
         }
         return balance;
     }
@@ -417,11 +419,11 @@ public class BackupExport {
                     null, (name != null? "name IS '" + name + "'" : null), null, null);
     }
 
-    private static class Cons {
-        String dates = "";
-        float sum;
+    public static class Cons {
+        public String dates = "";
+        public float sum;
     }
-    private static Cons getContribution(Context ctx, String query, String title, String account) {
+    public static Cons getContribution(Context ctx, String query, String title, String account) {
         Cons cons = new Cons();
         Cursor txns = getTxns(ctx, query, title, account);
         if (txns.getCount() > 0) cons.dates = "€ am ";

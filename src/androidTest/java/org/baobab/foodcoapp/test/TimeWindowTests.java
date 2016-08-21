@@ -27,7 +27,6 @@ public class TimeWindowTests extends BaseProviderTests {
         createDummyAccount("b", "b", "members", "foo", year1+1, year1+1, 5); // change fee
         query("accounts/members/accounts", 2);
         query("accounts/members/memberships", 3);
-
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
@@ -48,8 +47,7 @@ public class TimeWindowTests extends BaseProviderTests {
         query("accounts/members/memberships", 5);
         createDummyAccount("a", "a", "members", "deleted", year2, year2, -1); // delete
         query("accounts/members/accounts", 2);
-        query("accounts/members/memberships", 5);
-
+        query("accounts/members/memberships", 6);
         try {
             Thread.sleep(10);
         } catch (InterruptedException e) {
@@ -68,10 +66,13 @@ public class TimeWindowTests extends BaseProviderTests {
     }
 
     public void testMemberships() {
-        query("accounts/members/memberships", 5);
+        query("accounts/members/memberships", 6);
+        query("accounts/members/accounts?after=" + year1 + "&before=" + year2, 2);
         query("accounts/members/memberships?after=" + year1 + "&before=" + year2, 3);
         query("accounts/members/accounts?after=" + year2 + "&before=" + year3, 3);
         query("accounts/members/memberships?after=" + year2 + "&before=" + year3, 6);
+        query("accounts/members/accounts?after=" + year3 + "&before=" + year4, 2);
+        query("accounts/members/memberships?after=" + year3 + "&before=" + year4, 6);
     }
 
     public void testBalance() {

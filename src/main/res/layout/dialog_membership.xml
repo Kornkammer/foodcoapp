@@ -15,7 +15,7 @@
     android:textSize="@dimen/font_size_medium"
     android:textStyle="bold"
     android:gravity="center"
-    android:text="Mitgliedschaft ändern\n(braucht Papier mit Unterschrift)"
+    android:text="@string/change_membership"
     android:layout_gravity="center" />
 
   <TextView
@@ -39,7 +39,7 @@
       android:id="@+id/terminate"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="KÜNDIGEN" />
+      android:text="@string/terminate" />
 
     <EditText
       android:id="@+id/fee"
@@ -54,6 +54,7 @@
       android:imeOptions="flagNoExtractUi" />
 
     <TextView
+      android:id="@+id/unit"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_weight="1"
@@ -63,7 +64,7 @@
       android:id="@+id/ok"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="ÄNDERN" />
+      android:text="@string/change" />
 
   </LinearLayout>
 

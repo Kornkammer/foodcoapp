@@ -32,10 +32,12 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.baobab.foodcoapp.R;
+import org.baobab.foodcoapp.io.BackupExport;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.util.Crypt;
 
@@ -49,6 +51,10 @@ public class AccountEditFragment extends Fragment
 
     public static final int CONTACT = 1;
     private static final int SCAN = 0;
+    private float soll;
+    private BackupExport.Cons paid;
+    private int fee;
+    private long begin;
 
     public static AccountEditFragment newInstance() {
         AccountEditFragment f = new AccountEditFragment();
@@ -109,18 +115,22 @@ public class AccountEditFragment extends Fragment
             mem.addView(r);
         }
         mem.setOnClickListener(new View.OnClickListener() {
+            public int year;
+            public int month;
+            public int day;
+
             @Override
             public void onClick(View v) {
-                final View d = getActivity().getLayoutInflater()
+                final View dia = getActivity().getLayoutInflater()
                         .inflate(R.layout.dialog_membership, null, false);
                 final AlertDialog dialog = new AlertDialog.Builder(getActivity())
-                        .setView(d)
+                        .setView(dia)
                         .show();
                 final Calendar c = Calendar.getInstance();
-                final int day = c.get(Calendar.DAY_OF_MONTH);
-                final int month = c.get(Calendar.MONTH);
-                final int year = c.get(Calendar.YEAR);
-                final TextView date = (TextView) d.findViewById(R.id.since);
+                day = c.get(Calendar.DAY_OF_MONTH);
+                month = c.get(Calendar.MONTH);
+                year = c.get(Calendar.YEAR);
+                final TextView date = (TextView) dia.findViewById(R.id.since);
                 date.setText("ab " + new SimpleDateFormat("dd/MM/yyyy").format(c.getTimeInMillis()));
                 date.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -128,15 +138,24 @@ public class AccountEditFragment extends Fragment
                         new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int y, int m, int d) {
+                                day = c.get(Calendar.DAY_OF_MONTH);
+                                month = c.get(Calendar.MONTH);
+                                year = c.get(Calendar.YEAR);
                                 c.set(Calendar.DAY_OF_MONTH, d);
                                 c.set(Calendar.MONTH, m);
                                 c.set(Calendar.YEAR, y);
                                 date.setText("ab " + new SimpleDateFormat("dd/MM/yyyy").format(c.getTimeInMillis()));
+                                if (((Button) dia.findViewById(R.id.ok)).getText()
+                                        .equals(getString(R.string.terminate))) {
+                                    int days = Math.round(((float) (c.getTimeInMillis() - begin)) / 86400000);
+                                    ((TextView) dia.findViewById(R.id.unit)).setText(BackupExport.computeBalance(paid.sum
+                                            - (soll + days * Math.max(0, fee) * 12f/365), fee));
+                                }
                             }
                         }, year, month, day).show();
                     }
                 });
-                d.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
+                dia.findViewById(R.id.ok).setOnClickListener(new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -151,7 +170,7 @@ public class AccountEditFragment extends Fragment
                         getArguments().putLong("created_at", c.getTimeInMillis());
                         if (((Button) v).getText().equals(getString(R.string.change))) {
                             getArguments().putInt("fee", Integer.valueOf(((EditText)
-                                    d.findViewById(R.id.fee)).getText().toString()));
+                                    dia.findViewById(R.id.fee)).getText().toString()));
                         } else if (((Button) v).getText().equals(getString(R.string.terminate))) {
                             getArguments().putInt("fee", -1);
                             getArguments().putString("status", "deleted");
@@ -162,7 +181,7 @@ public class AccountEditFragment extends Fragment
                         }
                     }
                 });
-                d.findViewById(R.id.terminate).setOnClickListener(new View.OnClickListener() {
+                dia.findViewById(R.id.terminate).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         if (!getArguments().containsKey("guid")) {
@@ -170,9 +189,17 @@ public class AccountEditFragment extends Fragment
                             Snackbar.make(getView(), "Mitglied gibts noch gar nicht ", Snackbar.LENGTH_LONG).show();
                             return;
                         }
-                        d.findViewById(R.id.terminate).setVisibility(View.GONE);
-                        ((Button) d.findViewById(R.id.ok)).setText(R.string.terminate);
-                        ((EditText) d.findViewById(R.id.fee)).setText("");
+                        if (((Button) v).getText().equals(getString(R.string.terminate))) {
+                            dia.findViewById(R.id.fee).setVisibility(View.GONE);
+                            ((Button) dia.findViewById(R.id.ok)).setText(R.string.terminate);
+                            ((Button) dia.findViewById(R.id.terminate)).setText(R.string.btn_no);
+                            ((TextView) dia.findViewById(R.id.message)).setText(R.string.terminate_membership);
+                            int days = Math.round(((float) (c.getTimeInMillis() - begin)) / 86400000);
+                            ((TextView) dia.findViewById(R.id.unit)).setText(BackupExport.computeBalance(paid.sum
+                                    - (soll + days * Math.max(0, fee) * 12f/365), fee));
+                        } else {
+                            dialog.dismiss();
+                        }
 
                     }
                 });
@@ -306,28 +333,58 @@ public class AccountEditFragment extends Fragment
             case 0:
                 LinearLayout mem = ((LinearLayout) getView().findViewById(R.id.memberships));
                 mem.removeAllViews();
+                soll = 0;
+                begin = 0;
+                fee = 0;
                 while (data.moveToNext()) {
                     if (data.getInt(10) == 0) continue;
+                    if (fee >= 0) {
+                        int days = Math.round(((float) (data.getLong(9) - begin)) / 86400000);
+                        soll += days * Math.max(0, fee) * 12f/365;
+                    }
                     View r = getActivity().getLayoutInflater().inflate(R.layout.membership_row, null, false);
                     mem.addView(r);
+                    begin = data.getLong(9);
                     ((TextView) r.findViewById(R.id.created_at))
                             .setText(getString(R.string.since, new SimpleDateFormat("dd/MM/yyyy",
-                                    Locale.GERMAN).format(data.getLong(9))));
-                    System.out.println("so! " + data.getString(11));
+                                    Locale.GERMAN).format(begin)));
                     if (!data.isNull(7) && data.getString(11).equals("deleted")) {
                         ((TextView) r.findViewById(R.id.fee)).setText("nicht mehr");
                     } else {
+                        fee = data.getInt(10);
                         ((TextView) r.findViewById(R.id.fee))
-                                .setText(getString(R.string.per_month, data.getInt(10)));
+                                .setText(getString(R.string.fee_per_month, fee));
                     }
                 }
+                data.moveToLast();
                 if (mem.getChildCount() == 0) {
                     TextView r = new TextView(getActivity());
                     r.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
                     r.setText(R.string.monthly_fee);
                     mem.addView(r);
+                } else if (fee >= 0) {
+                    int days = Math.round(((float) (System.currentTimeMillis() - begin)) / 86400000);
+                    paid = BackupExport.getContribution(getActivity(),
+                            "", data.getString(2), "beiträge");
+                    System.out.println(data.getString(2) + " soll " + soll + " and paid " + paid.sum );
+                    TextView b = new TextView(getActivity());
+                    b.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
+                    b.setText("Beiträge gezahlt " + String.format(Locale.ENGLISH, "%.2f", paid.sum) +
+                            "€  -  " + String.format(Locale.ENGLISH, "%.2f", soll) + "€ soll");
+                    mem.addView(b);
+                    TextView r = new TextView(getActivity());
+                    r.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
+                    r.setText(BackupExport.computeBalance(paid.sum
+                            - (soll + days * Math.max(0, fee) * 12f/365), fee));
+                    mem.addView(r);
                 }
-                data.moveToLast();
+                final ScrollView scrollView = (ScrollView) getView().findViewById(R.id.scroll);
+                scrollView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                    }
+                });
                 getArguments().putLong("created_at", data.getLong(9));
                 getArguments().putInt("fee", data.getInt(10));
                 getArguments().putString("guid", data.getString(1));
