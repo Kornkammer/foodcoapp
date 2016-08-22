@@ -208,9 +208,9 @@ public class GlsImportTest extends BaseProviderTests {
         items.moveToNext();
         assertTransactionItem("forderungen", "Forderungen", "Bar Albert", -2.0f, 20, items);
         items.moveToNext();
-        assertTransactionItem("forderungen", "Forderungen", "Bar Susi", -1.0f, 10, items);
-        items.moveToNext();
         assertTransactionItem("forderungen", "Forderungen", "Bar Susi", -1.0f, 30, items);
+        items.moveToNext();
+        assertTransactionItem("forderungen", "Forderungen", "Bar Susi", -1.0f, 10, items);
         items.moveToNext();
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Barkasse", -1.0f, 10, items);
         assertTrue(importer.getMsg().contains("Forderung beglichen: Bar Albert -> " + String.format("%.2f", 20f)));

@@ -9,12 +9,14 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -25,6 +27,8 @@ import org.baobab.foodcoapp.util.Nfc;
 import org.baobab.foodcoapp.view.StretchableGrid;
 
 import java.text.DecimalFormat;
+import java.util.HashSet;
+import java.util.Locale;
 
 public class AccountActivity extends CheckoutActivity {
 
@@ -77,6 +81,22 @@ public class AccountActivity extends CheckoutActivity {
             @Override
             public void onBackStackChanged() {
                 fullscreen();
+            }
+        });
+        pager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                multitouch.clear();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
             }
         });
     }
@@ -253,11 +273,71 @@ public class AccountActivity extends CheckoutActivity {
 
     @Override
     public boolean onLongClick(View v) {
+        if (multitouch.size() > 1) {
+            if (!misching) {
+                misching = true;
+            } else {
+                misching = false;
+                Cursor t = getContentResolver().query(getIntent().getData().buildUpon()
+                        .appendEncodedPath("products").build(), null, null, null, null);
+                if (t.getCount() > 0) {
+                    Snackbar.make(findViewById(R.id.frame), "Mischen braucht leere Txn!",
+                            Snackbar.LENGTH_LONG).show();
+                    return true;
+                }
+                Snackbar.make(findViewById(R.id.frame), "Misch Misch Hurra", Snackbar.LENGTH_LONG).show();
+                float sumPrice = 0;
+                float sumQuantity = 0;
+                ContentValues cv = new ContentValues();
+                for (ProductButton b : multitouch) {
+                    Cursor stock = getContentResolver().query(
+                            Uri.parse("content://org.baobab.foodcoapp/accounts/lager/products"),
+                            null, "title IS '" + b.title + "' AND rounded = ROUND(" + b.price + ", 2)", null, null);
+                    if (stock.getCount() == 0) {
+                        Snackbar.make(findViewById(R.id.frame), b.title + " " +
+                                String.format(Locale.GERMAN, "%2f", b.price) +
+                                " nicht mehr auf Lager", Snackbar.LENGTH_LONG).show();
+                        return true;
+                    }
+                    stock.moveToFirst();
+                    sumQuantity += stock.getFloat(4);
+                    sumPrice += stock.getFloat(5) * stock.getFloat(4);
+                    cv = new ContentValues();
+                    cv.put("account_guid", "lager");
+                    cv.put("product_id", b.id);
+                    cv.put("title", b.title);
+                    cv.put("quantity", - stock.getFloat(4));
+                    cv.put("price", b.price);
+                    cv.put("unit", b.unit);
+                    cv.put("img", b.img);
+                    getContentResolver().insert(getIntent().getData().buildUpon()
+                            .appendEncodedPath("products").build(), cv);
+                }
+                cv.put("quantity", sumQuantity);
+                cv.put("price", sumPrice / sumQuantity);
+                getContentResolver().insert(getIntent().getData().buildUpon()
+                        .appendEncodedPath("products").build(), cv);
+            }
+            return true;
+        }
         startActivity(new Intent(Intent.ACTION_EDIT,
                 Uri.parse("content://org.baobab.foodcoapp/products" +
                         (((ProductButton) v).empty ? "" : "/" + ((ProductButton) v).id)))
                 .putExtra("button", ((ProductButton) v).button));
         return true;
+    }
+
+    final HashSet<ProductButton> multitouch = new HashSet<>();
+    boolean misching = false;
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (event.getAction() == 0) {
+            multitouch.add(((ProductButton) v));
+        } else if (event.getAction() == 1) {
+            multitouch.remove(v);
+        }
+        return false;
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.baobab.foodcoapp;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.net.Uri;
 import android.nfc.NfcAdapter;
@@ -280,14 +281,11 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     public boolean onLongClick(View v) {
-        System.out.println("LONG");
         return false;
     }
 
-    final HashSet<Integer> multitouch = new HashSet<>();
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-
         return false;
     }
 

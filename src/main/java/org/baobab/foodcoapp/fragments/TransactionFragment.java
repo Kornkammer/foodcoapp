@@ -269,10 +269,10 @@ public class TransactionFragment extends Fragment
             }
             if (stocks.getCount() > 0) {
                 stocks.moveToFirst();
-                if (factor * stocks.getInt(4) >= 0 && factor * stocks.getInt(4) + factor * t.getInt(4) < 0) {
+                if (factor * stocks.getFloat(4) >= 0.001 && factor * stocks.getFloat(4) + factor * t.getFloat(4) < 0) {
                     msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(12) + "\n";
                 }
-            } else if (factor * t.getInt(4) < 0) {
+            } else if (factor * t.getFloat(4) < 0) {
                 msg += " - Nicht genug " + t.getString(7) + " auf " + t.getString(12) + "\n";
             }
         }
