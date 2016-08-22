@@ -129,8 +129,8 @@ public class CheckoutActivity extends AppCompatActivity
                 return new CursorLoader(this, getIntent().getData(), null, null, null, null);
             case 23:
                 return new CursorLoader(this,
-                        Uri.parse("content://org.baobab.foodcoapp/accounts/lager/products"),
-                        null, null, null, null);
+                        Uri.parse("content://org.baobab.foodcoapp/products"),
+                        null, "_id > 5", null, "UPPER(title)");
         }
         return null;
     }
@@ -161,11 +161,11 @@ public class CheckoutActivity extends AppCompatActivity
                     if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
                                 CheckoutActivity.this,
-                                data.getLong(3),
-                                data.getString(7),
-                                data.getFloat(5),
-                                data.getString(6),
-                                data.getString(8), button), i);
+                                data.getLong(0),
+                                data.getString(1),
+                                data.getFloat(2),
+                                data.getString(3),
+                                data.getString(4), button), i);
                         if (!data.isAfterLast()) {
                             data.moveToNext();
                         }
