@@ -191,10 +191,10 @@ public class AccountActivity extends CheckoutActivity {
                         page.addView(new ProductButton(
                                 AccountActivity.this,
                                 data.getLong(0),
-                                data.getString(1),
-                                data.getFloat(2),
                                 data.getString(3),
-                                data.getString(4), button), i);
+                                data.getFloat(5),
+                                data.getString(7),
+                                data.getString(8), button), i);
                         if (!data.isAfterLast()) {
                             data.moveToNext();
                         }

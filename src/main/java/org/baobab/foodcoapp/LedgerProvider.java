@@ -26,15 +26,19 @@ public class LedgerProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context, String db) {
-            super(context, db, null, 4);
+            super(context, db, null, 5);
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE products (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "guid TEXT, " +
+                    "variant TEXT, " +
                     "title TEXT, " +
                     "price FLOAT, " +
+                    "tax INTEGER, " +
+                    "amount INTEGER, " +
                     "unit TEXT, " +
                     "img TEXT," +
                     "button INTEGER," +
@@ -119,6 +123,27 @@ public class LedgerProvider extends ContentProvider {
                 db.execSQL("ALTER TABLE accounts" +
                         " ADD fee INTEGER;");
                 System.out.println("DB UPDATED !!!!!!!!!!! ");
+            } else if (oldV == 4) {
+                db.execSQL("DROP table products;");
+                db.execSQL("CREATE TABLE products (" +
+                        "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                        "guid TEXT, " +
+                        "variant TEXT, " +
+                        "title TEXT, " +
+                        "tax INTEGER, " +
+                        "price FLOAT, " +
+                        "amount INTEGER, " +
+                        "unit TEXT, " +
+                        "img TEXT," +
+                        "button INTEGER," +
+                        "ean TEXT UNIQUE" +
+                        "origin TEXT" +
+                        ");");
+                db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.foodcoapp/drawable/cash');");
+                db.execSQL("INSERT INTO products (title, price, img) VALUES ('Korns', 1, 'android.resource://org.baobab.foodcoapp/drawable/ic_korn');");
+                db.execSQL("INSERT INTO products (title) VALUES ('');");
+                db.execSQL("INSERT INTO products (title) VALUES ('');");
+                db.execSQL("INSERT INTO products (title) VALUES ('');");
             }
         }
     }
