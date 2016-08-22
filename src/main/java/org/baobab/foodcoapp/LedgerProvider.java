@@ -201,7 +201,7 @@ public class LedgerProvider extends ContentProvider {
                                 (uri.getPathSegments().size() > 3?
                                 " AND transaction_products._id = " + uri.getLastPathSegment() : "") +
                         " GROUP BY accounts.guid, title, price, unit" +
-                        " ORDER BY accounts._id, transaction_products.quantity < 0, transaction_products.title",
+                        " ORDER BY accounts._id, transaction_products.quantity < 0, transaction_products._id",
                         new String[] { uri.getPathSegments().get(1) });
                 break;
             case SUM:
@@ -455,53 +455,43 @@ public class LedgerProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(uri, null);
             break;
             case TRANSACTION_PRODUCTS:
-                String quantity = null;
-                String unit = values.getAsString("unit");
-                if (values.containsKey("unit")) { // not cash
-                    if (values.containsKey("quantity")) { // then overwrite
-                        db.getWritableDatabase().execSQL(
-                                "INSERT OR REPLACE INTO transaction_products" +
-                                        " (transaction_id, account_guid, product_id, title, quantity, price, unit, img)" +
-                                        " VALUES (?, ?, ?, ?, ?, ?, ?, ?);", new String[] {
-                                        uri.getPathSegments().get(1),
-                                        values.getAsString("account_guid"),
-                                        values.getAsString("product_id"),
-                                        values.getAsString("title"),
-                                        values.getAsString("quantity"),
-                                        values.getAsString("price"),
-                                        values.getAsString("unit"),
-                                        values.getAsString("img") });
-                        getContext().getContentResolver().notifyChange(uri, null);
-                        break;
-                    } else {
-                        quantity = "-1.0";
-                    }
-                } else {
-                    unit = "Stück"; // for sqlite to group by them together
+                boolean cash = false;
+                if (!values.containsKey("unit") || (
+                        values.containsKey("product_id") &&
+                        values.getAsInteger("product_id") == 2)) {
+                    cash = true;
+                    values.put("unit", "Stück");
                 }
-                if (quantity == null) quantity = values.getAsString("quantity");
-                db.getWritableDatabase().execSQL(
-                        "INSERT OR REPLACE INTO transaction_products" +
-                                " (transaction_id, account_guid, product_id, title, price, unit, img, quantity)" +
-                                " VALUES (?, ?, ?, ?, ?, ?, ?, " +
-                                "COALESCE(" +
-                                "(SELECT quantity FROM transaction_products" +
-                                " WHERE transaction_id = ? AND account_guid = ?" +
-                                    " AND title IS ? AND price = ? AND unit IS ?)," +
-                                "0) + ?);", new String[] {
-                                uri.getPathSegments().get(1),
-                                values.getAsString("account_guid"),
-                                values.getAsString("product_id"),
-                                values.getAsString("title"),
-                                values.getAsString("price"),
-                                unit,
-                                values.getAsString("img"),
-                                uri.getPathSegments().get(1),
-                                values.getAsString("account_guid"),
-                                values.getAsString("title"),
-                                values.getAsString("price"),
-                                unit,
-                                quantity });
+                values.put("transaction_id", uri.getPathSegments().get(1));
+                if (!values.containsKey("title")) values.put("title", "");
+                if (!values.containsKey("price")) values.put("price", 1);
+                values.put("price", values.getAsString("price"));
+
+                String where = "transaction_id = ? AND account_guid = ? " +
+                        "AND title IS ? AND price = ? AND unit IS ?";
+                String[] whereArgs = new String[] {
+                        uri.getPathSegments().get(1),
+                        values.getAsString("account_guid"),
+                        values.getAsString("title"),
+                        values.getAsString("price"),
+                        values.getAsString("unit") };
+                Cursor existing = db.getWritableDatabase().query(
+                        "transaction_products", new String[] {"quantity"},
+                        where, whereArgs, null, null, null);
+                if (existing.getCount() > 0) {
+                    existing.moveToFirst();
+                    if (!values.containsKey("quantity")) {
+                        values.put("quantity", existing.getFloat(0) - 1);
+                    } else if (cash) {
+                        values.put("quantity", existing.getFloat(0) + values.getAsFloat("quantity"));
+                    }
+                    db.getWritableDatabase().update("transaction_products", values, where, whereArgs);
+                } else {
+                    if (!values.containsKey("quantity")) {
+                        values.put("quantity", -1);
+                    }
+                    db.getWritableDatabase().insert("transaction_products", null, values);
+                }
                 getContext().getContentResolver().notifyChange(uri, null);
                 break;
             case ACCOUNTS:

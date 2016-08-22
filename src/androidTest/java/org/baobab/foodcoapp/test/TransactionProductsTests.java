@@ -23,6 +23,7 @@ public class TransactionProductsTests extends BaseProviderTests {
         assertEquals("lager", products.getString(11));
         assertEquals("quantity", -1.0, products.getDouble(4));
         // press button again
+        b.remove("quantity");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         products = query(transaction
@@ -30,6 +31,7 @@ public class TransactionProductsTests extends BaseProviderTests {
         assertEquals("quantity", -2.0, products.getDouble(4));
         // press button again
         b.put("price", 1000);
+        b.remove("quantity");
         getMockContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
         products = query(transaction

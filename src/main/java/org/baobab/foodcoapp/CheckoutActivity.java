@@ -14,6 +14,7 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -28,9 +29,11 @@ import org.baobab.foodcoapp.util.Scale;
 import org.baobab.foodcoapp.view.StretchableGrid;
 import org.baobab.foodcoapp.view.TransactionView;
 
+import java.util.HashSet;
+
 public class CheckoutActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        View.OnClickListener, Scale.ScaleListener, View.OnKeyListener, View.OnLongClickListener {
+        View.OnClickListener, Scale.ScaleListener, View.OnKeyListener, View.OnLongClickListener, View.OnTouchListener {
 
     TransactionFragment transactionFragment;
     TransactionView transactionView;
@@ -277,6 +280,14 @@ public class CheckoutActivity extends AppCompatActivity
 
     @Override
     public boolean onLongClick(View v) {
+        System.out.println("LONG");
+        return false;
+    }
+
+    final HashSet<Integer> multitouch = new HashSet<>();
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+
         return false;
     }
 
@@ -312,6 +323,7 @@ public class CheckoutActivity extends AppCompatActivity
             setClickable(true);
             setOnClickListener(CheckoutActivity.this);
             setOnLongClickListener(CheckoutActivity.this);
+            setOnTouchListener(CheckoutActivity.this);
         }
     }
 }
