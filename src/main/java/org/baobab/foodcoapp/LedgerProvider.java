@@ -222,7 +222,7 @@ public class LedgerProvider extends ContentProvider {
                 break;
             case PRODUCT:
                 result = db.getReadableDatabase().query("products", new String[] {
-                          "_id", "-1", "''", "_id AS product_id", "0",
+                          "_id", "-1", "guid", "_id AS product_id", "0",
                                 "price", "unit", "title", "img", "ean" }, "_id = ?",
                         new String[] { uri.getLastPathSegment() }, null, null, null);
                 break;

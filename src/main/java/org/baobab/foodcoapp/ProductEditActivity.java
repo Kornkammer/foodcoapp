@@ -15,6 +15,7 @@ import android.nfc.NfcAdapter;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -184,7 +185,7 @@ public class ProductEditActivity extends AppCompatActivity
     }
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+    public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         if (data.moveToFirst()) {
             setTitle(getString(R.string.edit) + " " + getString(R.string.product) + " " + data.getString(7));
             if (!data.isNull(7)) {
@@ -213,14 +214,28 @@ public class ProductEditActivity extends AppCompatActivity
                     @Override
                     public void onClick(View v) {
                         new AlertDialog.Builder(ProductEditActivity.this)
-                                .setTitle(title.getText().toString() + " löschen?")
-                                .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                                .setTitle(title.getText().toString() + " aus dem Sortiment nehmen?")
+                                .setPositiveButton(R.string.btn_yes, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        getContentResolver().delete(getIntent().getData(), null, null);
-                                        finish();
+                                        Cursor stocks = getContentResolver().query(
+                                                Uri.parse("content://org.baobab.foodcoapp/accounts/lager/products"),
+                                                null, "title IS '" + data.getString(7) + "' AND rounded = ROUND(" + data.getFloat(5) + ", 2)", null, null);
+                                        if (stocks.getCount() > 0) {
+                                            stocks.moveToFirst();
+                                            Snackbar.make(title, "Produkt kann nicht entfernt werden.\n" +
+                                                    "noch " + stocks.getFloat(4) + " " + data.getString(6) +
+                                                    " auf Lager", Snackbar.LENGTH_LONG).show();
+                                        } else {
+                                            ContentValues cv = new ContentValues();
+                                            cv.put("guid", data.getString(2));
+                                            cv.put("status", "deleted");
+                                            getContentResolver().insert(
+                                                    Uri.parse("content://org.baobab.foodcoapp/products"), cv);
+                                            finish();
+                                        }
                                     }
-                                }).setNegativeButton("nö", null)
+                                }).setNegativeButton(R.string.btn_no, null)
                         .show();
                     }
                 });
