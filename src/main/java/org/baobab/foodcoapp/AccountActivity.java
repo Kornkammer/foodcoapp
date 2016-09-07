@@ -285,7 +285,9 @@ public class AccountActivity extends CheckoutActivity {
                             Snackbar.LENGTH_LONG).show();
                     return true;
                 }
-                Snackbar.make(findViewById(R.id.frame), "Misch Misch Hurra", Snackbar.LENGTH_LONG).show();
+                String msg = "";
+                for (ProductButton b : multitouch) msg += " und " + b.title;
+                Snackbar.make(findViewById(R.id.frame), msg.substring(4) + " zusammen mischen", Snackbar.LENGTH_LONG).show();
                 float sumPrice = 0;
                 float sumQuantity = 0;
                 ContentValues cv = new ContentValues();

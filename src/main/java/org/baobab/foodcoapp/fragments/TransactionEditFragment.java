@@ -95,7 +95,7 @@ public class TransactionEditFragment extends TransactionFragment {
         txn.moveToPosition(-1);
         final ArrayList<ContentValues> newProducts = new ArrayList<>();
         while (txn.moveToNext()) {
-            if (txn.getFloat(4) < 0) {
+            if (txn.getFloat(4) > 0) {
                 if (!txn.getString(2).equals("lager")) continue;
                 Cursor p = getActivity().getContentResolver().query(
                         Uri.parse("content://org.baobab.foodcoapp/products"),
@@ -155,18 +155,19 @@ public class TransactionEditFragment extends TransactionFragment {
                     null, "title IS '" + txn.getString(7) + "' AND rounded = ROUND(" + txn.getFloat(5) + ", 2)", null, null);
             if (stocks.getCount() > 0) {
                 stocks.moveToFirst();
-                if (stocks.getFloat(4) >= 0.001 && stocks.getFloat(4) + txn.getFloat(4) < 0) {
+                if (stocks.getFloat(4) >= 0.001 && stocks.getFloat(4) + txn.getFloat(4) <= 0) {
                     Cursor p = getActivity().getContentResolver().query(
                             Uri.parse("content://org.baobab.foodcoapp/products"),
                             null, "title IS '" + txn.getString(7) +
-                                    "' AND price = " + txn.getFloat(5), null, null);
+                                    "' AND ROUND(price, 2) = ROUND(" + txn.getFloat(5)+ ", 2)", null, null);
                     if (p.getCount() > 0) {
-                        msg += "\n - " + txn.getString(7) +
+                        p.moveToFirst();
+                        msg += "\n - " + txn.getString(7) + " " +
                                 String.format("%.2f", txn.getFloat(5)) +
-                                "€ pro " + txn.getString(6) + " -> " +
-                                "Lagerbestand " + stocks.getFloat(4) + txn.getFloat(4);
+                                "€/" + txn.getString(6) + " -> " +
+                                "Lagerbestand wird " + (stocks.getFloat(4) + txn.getFloat(4));
                         ContentValues cv = new ContentValues();
-                        cv.put("guid", p.getString(1));
+                        cv.put("guid", p.getString(2));
                         cv.put("status", "deleted");
                         emptyProducts.add(cv);
                     }
