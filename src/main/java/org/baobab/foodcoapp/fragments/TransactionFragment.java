@@ -361,18 +361,6 @@ public class TransactionFragment extends Fragment
         return false;
     }
 
-    private String emptyStocks(String account) {
-        Cursor empty_stocks = getActivity().getContentResolver().query(
-                Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/products"),
-                null, "stock < 0", null, null);
-        String msg = "";
-        for (int i = 0; i < empty_stocks.getCount(); i++) {
-            empty_stocks.moveToPosition(i);
-            msg += " - nicht genug " + empty_stocks.getString(7) + " in " + empty_stocks.getString(2) + "\n";
-        }
-        return msg;
-    }
-
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
     }
