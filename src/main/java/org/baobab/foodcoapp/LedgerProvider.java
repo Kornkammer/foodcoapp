@@ -42,7 +42,9 @@ public class LedgerProvider extends ContentProvider {
                     "unit TEXT, " +
                     "img TEXT," +
                     "button INTEGER," +
-                    "ean TEXT UNIQUE" +
+                    "ean TEXT UNIQUE," +
+                    "origin TEXT," +
+                    "status TEXT" +
                     ");");
             db.execSQL("CREATE TABLE transactions (" +
                     "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -119,11 +121,12 @@ public class LedgerProvider extends ContentProvider {
                 db.execSQL("ALTER TABLE accounts" +
                         " ADD last_modified INTEGER;");
                 db.execSQL("ALTER TABLE accounts" +
-                            " ADD created_at INTEGER;");
+                        " ADD created_at INTEGER;");
                 db.execSQL("ALTER TABLE accounts" +
                         " ADD fee INTEGER;");
                 System.out.println("DB UPDATED !!!!!!!!!!! ");
-            } else if (oldV == 4) {
+            }
+            if (oldV <= 4) {
                 db.execSQL("DROP table products;");
                 db.execSQL("CREATE TABLE products (" +
                         "_id INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -136,8 +139,9 @@ public class LedgerProvider extends ContentProvider {
                         "unit TEXT, " +
                         "img TEXT," +
                         "button INTEGER," +
-                        "ean TEXT UNIQUE" +
-                        "origin TEXT" +
+                        "ean TEXT UNIQUE," +
+                        "origin TEXT," +
+                        "status TEXT" +
                         ");");
                 db.execSQL("INSERT INTO products (title, price, img) VALUES ('Cash', 1, 'android.resource://org.baobab.foodcoapp/drawable/cash');");
                 db.execSQL("INSERT INTO products (title, price, img) VALUES ('Korns', 1, 'android.resource://org.baobab.foodcoapp/drawable/ic_korn');");
@@ -207,8 +211,14 @@ public class LedgerProvider extends ContentProvider {
         Cursor result = null;
         switch (router.match(uri)) {
             case PRODUCTS:
-                result = db.getReadableDatabase().query("products",
-                        projection, selection, selectionArgs, null, null, sortOrder);
+                result = db.getReadableDatabase().rawQuery("SELECT " +
+                        "0, 0, guid, MAX(_id), variant, price, unit, title, img, " +
+                        "tax, amount, button, ean, origin, status TEXT " +
+                        "FROM products " +
+                        (selection != null? "WHERE " + selection : "") +
+                        " GROUP BY guid " +
+                        "HAVING status IS NOT 'deleted' " +
+                        "ORDER BY title", null);
                 break;
             case PRODUCT:
                 result = db.getReadableDatabase().query("products", new String[] {
@@ -475,6 +485,9 @@ public class LedgerProvider extends ContentProvider {
                 db = new DatabaseHelper(getContext(), uri.getLastPathSegment());
                 break;
             case PRODUCTS:
+                if (!values.containsKey("guid")) {
+                    values.put("guid", UUID.randomUUID().toString());
+                }
                 uri = ContentUris.withAppendedId(uri,
                         db.getWritableDatabase().insert("products", null, values));
                 getContext().getContentResolver().notifyChange(uri, null);

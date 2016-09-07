@@ -210,10 +210,10 @@ public class AccountActivity extends CheckoutActivity {
                     } else if (data.getCount() > 0 && !data.isAfterLast()) {
                         page.addView(new ProductButton(
                                 AccountActivity.this,
-                                data.getLong(0),
-                                data.getString(3),
-                                data.getFloat(5),
+                                data.getLong(3),
                                 data.getString(7),
+                                data.getFloat(5),
+                                data.getString(6),
                                 data.getString(8), button), i);
                         if (!data.isAfterLast()) {
                             data.moveToNext();
@@ -295,7 +295,7 @@ public class AccountActivity extends CheckoutActivity {
                             null, "title IS '" + b.title + "' AND rounded = ROUND(" + b.price + ", 2)", null, null);
                     if (stock.getCount() == 0) {
                         Snackbar.make(findViewById(R.id.frame), b.title + " " +
-                                String.format(Locale.GERMAN, "%2f", b.price) +
+                                String.format(Locale.GERMAN, "%.2f", b.price) +
                                 " nicht mehr auf Lager", Snackbar.LENGTH_LONG).show();
                         return true;
                     }
