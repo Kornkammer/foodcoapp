@@ -259,7 +259,7 @@ public class ProductEditActivity extends AppCompatActivity
                 return;
             }
             ContentValues cv = new ContentValues();
-            cv.put("title", title.getText().toString());
+            cv.put("title", title.getText().toString().trim());
             if (img != null) {
                 cv.put("img", img.toString());
             }
