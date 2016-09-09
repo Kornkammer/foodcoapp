@@ -136,12 +136,12 @@ public class DashboardActivity extends AppCompatActivity {
                 final Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
                 String date = new SimpleDateFormat("yyyy_MM_dd--HH_mm", Locale.GERMAN).format(new Date());
                 intent.putExtra(Intent.EXTRA_EMAIL, new String[] {mail});
-                intent.putExtra(Intent.EXTRA_TEXT, "FoodCoApp Backup und Excel Export vom " + date);
-                intent.putExtra(Intent.EXTRA_SUBJECT, "FoodCoApp " + date + " Export");
+                intent.putExtra(Intent.EXTRA_TEXT, "FoodCoApp Backup vom " + date);
+                intent.putExtra(Intent.EXTRA_SUBJECT, "FoodCoApp Backup " + date);
                 intent.setType("application/zip");
                 final ProgressDialog dialog = new ProgressDialog(this);
                 dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                dialog.setMessage("Export Backup ZIP - Stand " + date);
+                dialog.setMessage("Export Backup - " + date);
                 dialog.setCanceledOnTouchOutside(false);
                 dialog.setIndeterminate(true);
                 dialog.show();
@@ -149,7 +149,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                     @Override
                     protected File doInBackground(String... params) {
-                        return BackupExport.create(DashboardActivity.this, params[0]);
+                        return BackupExport.createBackup(DashboardActivity.this, params[0]);
                     }
 
                     @Override

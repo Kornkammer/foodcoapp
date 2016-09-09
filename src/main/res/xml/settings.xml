@@ -27,6 +27,10 @@
       android:key="restore"
       android:title="@string/restore_last_txn" />
 
+    <Preference
+      android:key="reports"
+      android:title="@string/export_reports" />
+
   </PreferenceCategory>
 
 </PreferenceScreen>

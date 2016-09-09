@@ -50,25 +50,44 @@ public class BackupExport {
         return result;
     }
 
-    public static File create(Context ctx, String id) {
+    public static File createBackup(Context ctx, String id) {
 
         ZipOutputStream zos;
-        File result = file(id + ".zip");
+        File result = file("Backup_" + id + ".zip");
         try {
             zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
             String date = new SimpleDateFormat("yyyy_MM_dd--HH:mm", Locale.GERMAN).format(new Date());
-
             String db = PreferenceManager.getDefaultSharedPreferences(ctx)
                     .getString("db", "foodcoapp.db");
             zip(null, new File(Environment.getDataDirectory(),
                     "//data//org.baobab.foodcoapp//databases//" + db),
+                    "Knk_" + date + ".BAK", zos);
+            zos.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public static File createReports(Context ctx, String id) {
+
+        ZipOutputStream zos;
+        File result = file("Berichte_" + id + ".zip");
+        try {
+            zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
+            String date = new SimpleDateFormat("yyyy_MM_dd--HH:mm", Locale.GERMAN).format(new Date());
+            String db = PreferenceManager.getDefaultSharedPreferences(ctx)
+                    .getString("db", "foodcoapp.db");
+            zip(null, new File(Environment.getDataDirectory(),
+                            "//data//org.baobab.foodcoapp//databases//" + db),
                     "Knk_" + date + ".BAK", zos);
             transactions(ctx, zos, 0);
             reports(ctx, zos, 0);
             lager(ctx, zos, "lager");
             lager(ctx, zos, "kosten");
             lager(ctx, zos, "inventar");
-
             zos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();

@@ -44,6 +44,7 @@
   <string name="member">Mitgliedsnummer</string>
   <string name="fee">Monatsbeitrag</string>
   <string name="restore_last_txn">Letzte Buchung wiederherstellen</string>
+  <string name="export_reports">Berichte exportieren</string>
   <string name="since">seit %1$s</string>
   <string name="monthly_fee">Monatsbeitrag</string>
   <string name="fee_per_month">%1$s€ pro Monat</string>
