@@ -218,7 +218,7 @@ public class LedgerProvider extends ContentProvider {
                         (selection != null? "WHERE " + selection : "") +
                         " GROUP BY guid " +
                         "HAVING status IS NOT 'deleted' " +
-                        "ORDER BY title", null);
+                        "ORDER BY title", selectionArgs);
                 break;
             case PRODUCT:
                 result = db.getReadableDatabase().query("products", new String[] {

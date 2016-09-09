@@ -51,29 +51,13 @@ public class KnkExport {
                         String.format(Locale.ENGLISH, "%.3f", p.getFloat(4)),
                         p.getString(6),
                         p.getString(7),
-                        String.format(Locale.ENGLISH, "%.2f", p.getFloat(5))});
+                        String.format(Locale.ENGLISH, "%.9f", p.getFloat(5))});
             }
             out.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return result;
-    }
-
-    private static String[] writeTransaction(Cursor c) {
-        int count = c.getColumnCount();
-        String[] row = new String[count];
-        row[0] = df.format(c.getLong(2));
-        row[1] = c.getString(3);
-        row[2] = c.getString(4);
-        String sign;
-        if (c.getString(9).equals("aktiva")) {
-            sign = c.getInt(8) < 0? "-" : "+";
-        } else {
-            sign = c.getInt(8) > 0? "-" : "+";
-        }
-       row[3] = sign + String.format(Locale.ENGLISH, "%.2f", c.getFloat(6));
-        return row;
     }
 
     public static File file(String name) {

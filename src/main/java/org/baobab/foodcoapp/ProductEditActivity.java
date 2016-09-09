@@ -192,7 +192,7 @@ public class ProductEditActivity extends AppCompatActivity
                 title.setText(data.getString(7));
             }
             if (data.getFloat(5) != 0.0f) {
-                price.setText(String.format("%.2f", data.getFloat(5)));
+                price.setText(String.format("%.9f", data.getFloat(5)));
             }
             if (!data.isNull(8)) {
                 img = Uri.parse(data.getString(8));

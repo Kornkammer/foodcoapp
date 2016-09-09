@@ -100,7 +100,7 @@ public class TransactionEditFragment extends TransactionFragment {
                 Cursor p = getActivity().getContentResolver().query(
                         Uri.parse("content://org.baobab.foodcoapp/products"),
                         null, "title IS '" + txn.getString(7) +
-                                "' AND price = " + txn.getFloat(5), null, null);
+                                "' AND ROUND(price, 2) = ROUND(" + txn.getFloat(5) + ", 2)", null, null);
                 if (p.getCount() == 0) {
                     msg += "\n + " + txn.getString(7) + " " +
                             String.format("%.2f", txn.getFloat(5)) +
@@ -147,7 +147,6 @@ public class TransactionEditFragment extends TransactionFragment {
         txn.moveToPosition(-1);
         final ArrayList<ContentValues> emptyProducts = new ArrayList<>();
         while (txn.moveToNext()) {
-            System.out.println(txn.getString(7));
             if (!txn.getString(2).equals("lager")) continue;
             if (txn.getFloat(4) > 0) continue;
             Cursor stocks = getActivity().getContentResolver().query(

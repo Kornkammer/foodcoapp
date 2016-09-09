@@ -121,9 +121,9 @@ public class KnkImport implements ImportActivity.Importer {
         } else {
             cv.put("product_id", product != null? product : "3");
         }
-        cv.put("title", line[3]);
+        cv.put("title", line[3].trim());
         cv.put("quantity", Float.valueOf(line[1].replace(",", ".")));
-        cv.put("unit", line[2]);
+        cv.put("unit", line[2].trim());
         cv.put("price", Float.valueOf(line[4].replace(",", ".")));
         if (img != null) cv.put("img", img);
         ctx.getContentResolver().insert(txn.buildUpon()
@@ -135,31 +135,14 @@ public class KnkImport implements ImportActivity.Importer {
         float price = Float.valueOf(line[4].replace(",", "."));
         Cursor p = ctx.getContentResolver().query(Uri.parse(
                         "content://org.baobab.foodcoapp/products"),
-                null, "title IS ? AND price > ? AND price < ?", new String[] {
-                        line[3], String.valueOf(price - 0.01), String.valueOf(price + 0.01) }, null);
+                null, "title IS ? AND ROUND(price, 2) = ROUND(?, 2)", new String[] {
+                        line[3].trim(), String.valueOf(price) }, null);
         if (p.getCount() > 0) {
             p.moveToFirst();
+            System.out.println(p.getString(7) + " product found");
             return p;
         } else {
-            Log.i(TAG, "create product " + line[3]);
-            Cursor s = ctx.getContentResolver().query(Uri.parse(
-                            "content://org.baobab.foodcoapp/products"),
-                    new String[] { "max(button)" }, null, null, null);
-            s.moveToFirst();
-            int button = s.getInt(0) + 1;
-            ContentValues cv = new ContentValues();
-            cv.put("title", line[3]);
-            cv.put("button", button);
-            cv.put("price", price);
-            cv.put("unit", line[2]);
-            cv.put("img", "android.resource://org.baobab.foodcoapp/drawable/ic_korn");
-            Uri uri = ctx.getContentResolver().insert(Uri.parse(
-                    "content://org.baobab.foodcoapp/products"), cv);
-            p = ctx.getContentResolver().query(Uri.parse(
-                    "content://org.baobab.foodcoapp/products"),
-                    null, "_id = ?", new String[] { uri.getLastPathSegment() }, null);
-            p.moveToFirst();
-            return p;
+            return null;
         }
     }
 }
