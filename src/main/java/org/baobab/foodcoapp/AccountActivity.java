@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.content.Loader;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -157,6 +158,10 @@ public class AccountActivity extends CheckoutActivity {
     @Override
     public void onLoadFinished(Loader<Cursor> loader, final Cursor data) {
         if (loader.getId() == 42) {
+            if (data.getCount() == 0) {
+                Log.e(TAG, "empty txn cursor");
+                return;
+            }
             data.moveToFirst();
             time = data.getLong(2);
             comment = data.getString(4);
