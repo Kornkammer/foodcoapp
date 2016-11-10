@@ -57,6 +57,7 @@ public class BackupImport implements ImportActivity.Importer {
             return this;
         } catch (Exception e) {
             Log.i(AccountActivity.TAG, "No Backup zip!");
+            dbFile = null;
         }
         return this;
     }

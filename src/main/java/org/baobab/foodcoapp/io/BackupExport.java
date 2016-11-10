@@ -419,11 +419,13 @@ public class BackupExport {
         String balance;
         int resultDays = Math.round(result / (fee * 12f/365));
         if (result < 0) {
-            balance = " = " + String.format(Locale.ENGLISH, "%.2f", -1 * result) +
-                    "€ (" + (-1 * resultDays) + " Tage) offen";
+            balance = " = noch " + String.format(Locale.ENGLISH, "%.2f", -1 * result) +
+                    "€" + (fee != 0? " (" + (-1 * resultDays) + " Tage)" : "") + " offen";
+        } else if (result > 0) {
+            balance = " = noch " + String.format(Locale.ENGLISH, "%.2f", result) +
+                    "€" + (fee != 0? " (" + resultDays + " Tage)" : "") + " gut";
         } else {
-            balance = " =" + String.format(Locale.ENGLISH, "%.2f", result) +
-                    "€ (" + resultDays + " Tage) gut";
+            balance = " Beiträge ausgeglichen";
         }
         return balance;
     }

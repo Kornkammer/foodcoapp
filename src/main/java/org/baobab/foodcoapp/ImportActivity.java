@@ -81,7 +81,7 @@ public class ImportActivity extends AppCompatActivity {
                             importer = new BnnImport(ImportActivity.this);
                         } else if (line.length == 22) {
                             importer = new GlsImport(ImportActivity.this);
-                        } else if (line.length == 19) {
+                        } else if (line.length == 4 && line[3].equals("Monatsbeitrag")) {
                             importer = new MembersImport(ImportActivity.this);
                         } else {
                             is = getContentResolver().openInputStream(getIntent().getData());
@@ -210,7 +210,8 @@ public class ImportActivity extends AppCompatActivity {
                 .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        if (importer instanceof BackupImport) {
+                        if (importer instanceof BackupImport &&
+                                (((BackupImport) importer).getDbFile()) != null) {
                             getContentResolver().insert(Uri.parse(
                                     "content://org.baobab.foodcoapp/load/" +
                                             ((BackupImport) importer).getDbFile()), null);
@@ -233,6 +234,8 @@ public class ImportActivity extends AppCompatActivity {
                                     finish();
                                 }
                             }).show();
+                        } else {
+                            finish();
                         }
                     }
                 })

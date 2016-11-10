@@ -172,7 +172,7 @@ public class AccountEditFragment extends Fragment
                             getArguments().putInt("fee", Integer.valueOf(((EditText)
                                     dia.findViewById(R.id.fee)).getText().toString()));
                         } else if (((Button) v).getText().equals(getString(R.string.terminate))) {
-                            getArguments().putInt("fee", -1);
+                            getArguments().putInt("fee", 0);
                             getArguments().putString("status", "deleted");
                         }
                         if (store()) {
@@ -253,6 +253,7 @@ public class AccountEditFragment extends Fragment
         ((InputMethodManager) getActivity()
                 .getSystemService(Context.INPUT_METHOD_SERVICE))
                 .hideSoftInputFromWindow(((TextView) getView().findViewById(R.id.name)).getWindowToken(), 0);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
     }
 
     @Override
@@ -337,9 +338,8 @@ public class AccountEditFragment extends Fragment
                 begin = 0;
                 fee = 0;
                 while (data.moveToNext()) {
-                    if (data.getInt(10) == 0) continue;
-                    if (fee >= 0) {
-                        int days = Math.round(((float) (data.getLong(9) - begin)) / 86400000);
+                    if (fee > 0) {
+                        int days = (int) (((float) (data.getLong(9) - begin)) / 86400000);
                         soll += days * Math.max(0, fee) * 12f/365;
                     }
                     View r = getActivity().getLayoutInflater().inflate(R.layout.membership_row, null, false);
@@ -348,10 +348,10 @@ public class AccountEditFragment extends Fragment
                     ((TextView) r.findViewById(R.id.created_at))
                             .setText(getString(R.string.since, new SimpleDateFormat("dd/MM/yyyy",
                                     Locale.GERMAN).format(begin)));
-                    if (!data.isNull(7) && data.getString(11).equals("deleted")) {
+                    fee = data.getInt(10);
+                    if (!data.isNull(7) && !data.isNull(11) && data.getString(11).equals("deleted")) {
                         ((TextView) r.findViewById(R.id.fee)).setText("nicht mehr");
                     } else {
-                        fee = data.getInt(10);
                         ((TextView) r.findViewById(R.id.fee))
                                 .setText(getString(R.string.fee_per_month, fee));
                     }
@@ -369,13 +369,13 @@ public class AccountEditFragment extends Fragment
                     System.out.println(data.getString(2) + " soll " + soll + " and paid " + paid.sum );
                     TextView b = new TextView(getActivity());
                     b.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
-                    b.setText("Beiträge gezahlt " + String.format(Locale.ENGLISH, "%.2f", paid.sum) +
-                            "€  -  " + String.format(Locale.ENGLISH, "%.2f", soll) + "€ soll");
+                    b.setText("Beitr gezahlt " + String.format(Locale.ENGLISH, "%.2f", paid.sum) +
+                            "€  -  " + String.format(Locale.ENGLISH, "%.2f",
+                            soll + days * Math.max(0, fee) * 12f/365) + "€ soll");
                     mem.addView(b);
                     TextView r = new TextView(getActivity());
                     r.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
-                    r.setText(BackupExport.computeBalance(paid.sum
-                            - (soll + days * Math.max(0, fee) * 12f/365), fee));
+                    r.setText(BackupExport.computeBalance(paid.sum - (soll + days * Math.max(0, fee) * 12f/365), fee));
                     mem.addView(r);
                 }
                 final ScrollView scrollView = (ScrollView) getView().findViewById(R.id.scroll);
