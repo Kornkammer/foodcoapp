@@ -26,7 +26,7 @@ public class LedgerProvider extends ContentProvider {
         static final String TAG = "Provider";
 
         public DatabaseHelper(Context context, String db) {
-            super(context, db, null, 5);
+            super(context, db, null, 6);
         }
 
         @Override
