@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.zip.ZipEntry;
@@ -139,6 +140,8 @@ public class BackupExport {
         return selection;
     }
 
+    static HashMap<String, Cons> balances = new HashMap<>();
+
     static void reports(final Context ctx, ZipOutputStream zos, int year) throws IOException {
         String timewindow = "";
         if (year > 0) {
@@ -167,7 +170,7 @@ public class BackupExport {
                     "Einlage", "",
                     "Beitrag", "", (year > 0? "Stand 1. Jan" : ""), "" + year, "soll",
                     "gezahlt", "Stand " + (year == 0 || System.currentTimeMillis() < YEAR.parse("" + (year + 1)).getTime()?
-                           df.format(System.currentTimeMillis()) :  "31. Dez " + year ),
+                           df.format(System.currentTimeMillis()) :  "31. Dez " + year ), "gut", "offen",
                     "Korns", (year > 0? "Stand 1. Jan " : ""), "ein", "aus", "gut",
                     "Einlage zurück", "" });
             csv.writeNext(new String[] { } );
@@ -175,11 +178,13 @@ public class BackupExport {
             float sumPostPaidThisY = 0;
             float sumSoll = 0;
             float sumPaid = 0;
+            Cons paid = null;
             Cons prePaid = null;
             float sumPrePaidThisY = 0;
             float sumStillOpen = 0;
             String guid = "";
             float result = 0;
+            boolean latest = true;
             boolean relevant = false;
             while (accounts.moveToNext()) {
                 boolean another = false;
@@ -189,11 +194,15 @@ public class BackupExport {
                     another = true;
                 } else {
                     if (result < 0) {
-                        sumStillOpen += (-1 * result);
+                        sumStillOpen -= result;
                     } else {
                         sumPrePaidThisY += result;
                     }
+                    Cons r = new Cons();
+                    r.sum = result;
+                    balances.put(year + guid, r);
                     result = 0;
+                    latest = true;
                     prePaid = null;
                     relevant = false;
                     guid = accounts.getString(2);
@@ -210,7 +219,12 @@ public class BackupExport {
                 if (accounts.moveToNext()) {
                     if (accounts.getString(2).equals(guid)) {
                         ended = accounts.getLong(5);
+                        latest = false;
+                    } else {
+                        latest = true;
                     }
+                } else {
+                    latest = true;
                 }
                 accounts.moveToPrevious();
                 int days = Math.round(((float) (ended - joined)) / 86400000);
@@ -222,11 +236,10 @@ public class BackupExport {
                         long after = YEAR.parse("" + year).getTime();
                         long before = YEAR.parse("" + (year + 1)).getTime();
                         if (prePaid == null) {
-                            prePaid = getContribution(ctx, "?before=" + after, name, "beiträge");
+                            prePaid = balances.get((year - 1) + guid);
+                            if (prePaid == null) prePaid = new Cons();
                         }
                         int thisDays = Math.round((((float) (Math.min(ended, before) - Math.max(after, joined))) / 86400000));
-                        preDays = days - Math.max(0, thisDays);
-                        prePaid.sum -= preDays * Math.max(0, fee) * 12f/365;
                         days = thisDays;
                         standBegin = getMembers(ctx, "?before=" + after, name);
                         standBegin.moveToFirst();
@@ -241,14 +254,14 @@ public class BackupExport {
                 float soll = days * Math.max(0, fee) * 12f/365;
                 sumSoll += soll;
                 if (!relevant) {
-                    Cons paid = getContribution(ctx, "?" + timewindow, name, "beiträge");
+                    paid = getContribution(ctx, "?" + timewindow, name, "beiträge");
                     result = prePaid.sum + paid.sum - soll;
                     sumPaid += paid.sum;
                     if (prePaid.sum > 0) {
                         sumPrePaidBefore += prePaid.sum;
                     } else {
                         // actually paid this year???
-                        sumPostPaidThisY += (-1 * prePaid.sum);
+                        sumPostPaidThisY += Math.min( - prePaid.sum, paid.sum);
                     }
                     System.out.println("   relevant?  preDays=" + preDays + " thisDays=" + days + " fee=" + fee + " result=" + result + " prePaid=" + prePaid.sum);
                     if (days < 0 || (fee == -1 && prePaid.sum == 0)) {
@@ -266,7 +279,8 @@ public class BackupExport {
                             (!accounts.isNull(7) && accounts.getString(7).equals("deleted")? "nicht mehr" : "€/Monat"),
                             (year > 0 && prePaid.sum != 0 ? "" + String.format(Locale.ENGLISH, "%.2f", prePaid.sum) : ""),
                             days + " Tage", "" + String.format(Locale.ENGLISH, "%.2f", soll),
-                            "" + String.format(Locale.ENGLISH, "%.2f", paid.sum), computeBalance(result, fee), "",
+                            "" + String.format(Locale.ENGLISH, "%.2f", paid.sum), (latest? computeBalance(result, fee) : ""),
+                            (latest && result > 0? "" + result : ""), (latest && result <= 0? "" + (-result) : ""),
                             (year > 0 && standBegin.getCount() > 0 ?
                                     String.format(Locale.ENGLISH, "%.2f", (-1 * standBegin.getFloat(3))) : ""),
                             (credit.getCount() > 0? String.format(Locale.ENGLISH, "%.2f", (-1 * credit.getFloat(3))) : ""),
@@ -277,23 +291,34 @@ public class BackupExport {
                             (auslage.sum != 0 ? "" + auslage.sum : ""), auslage.dates});
                 } else {
                     result -= soll;
-                    String balance = computeBalance(result, fee);
                     System.out.println("    status " + accounts.getString(7) + " " + accounts.getString(1));
-                    if (accounts.isNull(7)) {
-                        System.out.println("NULL");
-                    }
                     if (!accounts.isNull(7) && accounts.getString(7).equals("deleted")) {
-                        csv.writeNext(new String[] { guid, name, df.format(joined), "", "nicht mehr dabei",
-                                "", "", "", "", "", "", "", "", "", "", "", ""});
+                        csv.writeNext(new String[] { guid, name, df.format(joined), "",
+                                "nicht mehr dabei", "", "", "", "", "", "",
+                                (latest? computeBalance(result, fee) : ""),
+                                (latest && result > 0? "" + result : ""),
+                                (latest && result <= 0? "" + (-result) : ""),
+                                "", "", "", "", "", ""});
                     } else {
                         csv.writeNext(new String[]{guid, name, df.format(joined), "", "",
                                 "" + fee, "€/Monat", "", days + " Tage",
                                 "" + String.format(Locale.ENGLISH, "%.2f", soll),
-                                "", computeBalance(result, fee), "", "", "", "", "", ""});
+                                "", (latest? computeBalance(result, fee) : ""),
+                                (latest && result > 0? "" + result : ""),
+                                (latest && result <= 0? "" + (-result) : ""),
+                                "", "", "", "", "", ""});
                     }
                 }
-
             }
+            if (result < 0) {
+                sumStillOpen -= result;
+            } else {
+                sumPrePaidThisY += result;
+            }
+            Cons r = new Cons();
+            r.sum = result;
+            balances.put(year + guid, r);
+
             csv.close();
             File eur;
             if (year > 0) {
@@ -419,10 +444,10 @@ public class BackupExport {
         String balance;
         int resultDays = Math.round(result / (fee * 12f/365));
         if (result < 0) {
-            balance = " = noch " + String.format(Locale.ENGLISH, "%.2f", -1 * result) +
+            balance = " = " + String.format(Locale.ENGLISH, "%.2f", -1 * result) +
                     "€" + (fee != 0? " (" + (-1 * resultDays) + " Tage)" : "") + " offen";
         } else if (result > 0) {
-            balance = " = noch " + String.format(Locale.ENGLISH, "%.2f", result) +
+            balance = " = " + String.format(Locale.ENGLISH, "%.2f", result) +
                     "€" + (fee != 0? " (" + resultDays + " Tage)" : "") + " gut";
         } else {
             balance = " Beiträge ausgeglichen";
@@ -478,9 +503,12 @@ public class BackupExport {
     }
 
     static void lager(final Context ctx, ZipOutputStream zos, String account) throws IOException {
-        File stock = KnkExport.write(ctx,
-                Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/products"),
-                "(Be)Stand ", new Date().getTime(), file(account + ".knk"));
+        knk(ctx, Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/products"),
+                "(Be)Stand ", file(account + ".knk"), zos);
+    }
+
+    static void knk(final Context ctx, Uri uri, String title, File f, ZipOutputStream zos) throws IOException {
+        File stock = KnkExport.write(ctx, uri, title, new Date().getTime(), f);
         zip(null, stock, zos);
         stock.delete();
     }

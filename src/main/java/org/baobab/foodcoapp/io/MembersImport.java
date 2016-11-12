@@ -77,7 +77,8 @@ public class MembersImport implements ImportActivity.Importer {
                 v.put("qr", a.getString(5));
                 v.put("contact", a.getString(3));
                 v.put("parent_guid", a.getString(8));
-                if (v.getAsString("fee").equals("0.0")) {
+                if (v.getAsString("fee").equals("0.0") ||
+                        v.getAsString("fee").equals("0")) {
                     System.out.println("delete " + v);
                     v.put("status", "deleted");
                     v.put("fee", 0);
