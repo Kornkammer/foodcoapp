@@ -89,6 +89,7 @@ public class BackupExport {
             lager(ctx, zos, "lager");
             lager(ctx, zos, "kosten");
             lager(ctx, zos, "inventar");
+            exportSales(ctx, zos);
             zos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -96,6 +97,16 @@ public class BackupExport {
             e.printStackTrace();
         }
         return result;
+    }
+
+    private static void exportSales(Context ctx, ZipOutputStream zos) throws IOException {
+        Cursor pt = ctx.getContentResolver().query(
+                Uri.parse("content://org.baobab.foodcoapp/products/transactions"),
+                null, null, null, null);
+        File sales = file("kornumsatz.csv");
+        exportProductTransactions(ctx, pt, sales);
+        zip(null, sales, zos);
+        sales.delete();
     }
 
     static void transactions(final Context ctx, ZipOutputStream zos, int year) throws IOException {
@@ -263,7 +274,6 @@ public class BackupExport {
                         // actually paid this year???
                         sumPostPaidThisY += Math.min( - prePaid.sum, paid.sum);
                     }
-                    System.out.println("   relevant?  preDays=" + preDays + " thisDays=" + days + " fee=" + fee + " result=" + result + " prePaid=" + prePaid.sum);
                     if (days < 0 || (fee == -1 && prePaid.sum == 0)) {
                         System.out.println("no relevance for " + year);
                         continue;
@@ -291,7 +301,6 @@ public class BackupExport {
                             (auslage.sum != 0 ? "" + auslage.sum : ""), auslage.dates});
                 } else {
                     result -= soll;
-                    System.out.println("    status " + accounts.getString(7) + " " + accounts.getString(1));
                     if (!accounts.isNull(7) && accounts.getString(7).equals("deleted")) {
                         csv.writeNext(new String[] { guid, name, df.format(joined), "",
                                 "nicht mehr dabei", "", "", "", "", "", "",
@@ -368,7 +377,7 @@ public class BackupExport {
 
             csv.writeNext(new String[] {"Mitglieder Beiträge " + y, String.format(Locale.ENGLISH, "%.2f", sumSoll), ""});
             if (year > 0) {
-                csv.writeNext(new String[] {"davon im Vorraus " + (year - 1), "", "-" + String.format(Locale.ENGLISH, "%.2f", sumPrePaidBefore)});
+                csv.writeNext(new String[] {"Vorschuss vom Vorjahr " + (year - 1), "", "-" + String.format(Locale.ENGLISH, "%.2f", sumPrePaidBefore)});
                 csv.writeNext(new String[] {"nachträglich für " + (year - 1), String.format(Locale.ENGLISH, "%.2f", sumPostPaidThisY), ""});
             }
             csv.writeNext(new String[] {"Vorschuss Beiträge", String.format(Locale.ENGLISH, "%.2f", sumPrePaidThisY), ""});
@@ -540,6 +549,26 @@ public class BackupExport {
         }
         row[3] = sign + String.format(Locale.ENGLISH, "%.2f", c.getFloat(6));
         return row;
+    }
+
+    private static void exportProductTransactions(final Context ctx, final Cursor c, final File file) {
+        CSVWriter out;
+        try {
+            out = new CSVWriter(new FileWriter(file), ';', CSVWriter.NO_QUOTE_CHARACTER);
+            while (c.moveToNext()) {
+                String[] row = new String[6];
+                row[0] = c.getString(1);
+                row[1] = String.format(Locale.ENGLISH, "%.3f", - c.getFloat(2));
+                row[2] = c.getString(3);
+                row[3] = String.format(Locale.ENGLISH, "%.2f", c.getFloat(4));
+                row[4] = c.getString(5);
+                row[5] = String.format(Locale.ENGLISH, "%.2f", - c.getFloat(6));
+                out.writeNext(row);
+            }
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static File file(String name) {

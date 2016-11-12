@@ -165,6 +165,7 @@ public class LedgerProvider extends ContentProvider {
     private static final int TRANSACTIONS = 10;
     private static final int ACCOUNT_PRODUCTS = 11;
     private static final int TRANSACTION_PRODUCTS = 12;
+    private static final int PRODUCT_TRANSACTIONS = 13;
     private static final int LOAD = 0;
 
     public static String AUTHORITY = "org.baobab.foodcoapp";
@@ -196,6 +197,7 @@ public class LedgerProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions/#/sum", SUM);
         router.addURI(AUTHORITY, "transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
+        router.addURI(AUTHORITY, "products/transactions", PRODUCT_TRANSACTIONS);
         router.addURI(AUTHORITY, "sessions/#/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/transactions/*", TRANSACTIONS);
@@ -225,6 +227,27 @@ public class LedgerProvider extends ContentProvider {
                           "_id", "-1", "guid", "_id AS product_id", "0",
                                 "price", "unit", "title", "img", "ean" }, "_id = ?",
                         new String[] { uri.getLastPathSegment() }, null, null, null);
+                break;
+            case PRODUCT_TRANSACTIONS:
+                result = db.getReadableDatabase().rawQuery(
+                        "SELECT transaction_products._id," +
+                                " strftime('%d/%m/%Y',transactions.stop/1000,'unixepoch') AS d," +
+                                " SUM(transaction_products.quantity), transaction_products.unit," +
+                                " transaction_products.price, transaction_products.title," +
+                                " SUM(transaction_products.quantity * transaction_products.price)" +
+                                "" +
+                        " FROM (" +
+                                "SELECT transaction_id" +
+                                " FROM transaction_products" +
+                                " WHERE title IS 'Korns'" +
+                        ") AS txns" +
+                        " LEFT JOIN transactions " +
+                                "ON txns.transaction_id = transactions._id" +
+                        " LEFT JOIN transaction_products " +
+                                "ON transactions._id = transaction_products.transaction_id " +
+                        "WHERE transaction_products.account_guid IS 'lager'" +
+                        " GROUP BY d, transaction_products.title, transaction_products.price" +
+                        " ORDER BY transactions.stop", null);
                 break;
             case TRANSACTION_PRODUCTS:
                 result = db.getReadableDatabase().rawQuery(
