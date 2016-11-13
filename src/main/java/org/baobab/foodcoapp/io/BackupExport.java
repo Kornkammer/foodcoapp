@@ -90,6 +90,7 @@ public class BackupExport {
             lager(ctx, zos, "kosten");
             lager(ctx, zos, "inventar");
             exportSales(ctx, zos);
+            exportFees(ctx, zos);
             zos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -105,6 +106,16 @@ public class BackupExport {
                 null, null, null, null);
         File sales = file("kornumsatz.csv");
         exportProductTransactions(ctx, pt, sales);
+        zip(null, sales, zos);
+        sales.delete();
+    }
+
+    private static void exportFees(Context ctx, ZipOutputStream zos) throws IOException {
+        Cursor pt = ctx.getContentResolver().query(
+                Uri.parse("content://org.baobab.foodcoapp/accounts/mitglieder/fees"),
+                null, null, null, null);
+        File sales = file("beitraege.csv");
+        exportAccountFees(ctx, pt, sales);
         zip(null, sales, zos);
         sales.delete();
     }
@@ -563,6 +574,42 @@ public class BackupExport {
                 row[3] = String.format(Locale.ENGLISH, "%.2f", c.getFloat(4));
                 row[4] = c.getString(5);
                 row[5] = String.format(Locale.ENGLISH, "%.2f", - c.getFloat(6));
+                out.writeNext(row);
+            }
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void exportAccountFees(final Context ctx, final Cursor c, final File file) {
+        CSVWriter out;
+        try {
+            out = new CSVWriter(new FileWriter(file), ';', CSVWriter.NO_QUOTE_CHARACTER);
+            out.writeNext(new String[] { "Nr", "Name", "Datum", "Beitrag", "Mitglieder"});
+            HashMap<String, Integer> fees = new HashMap<>();
+            while (c.moveToNext()) {
+                String[] row = new String[5];
+                row[0] = c.getString(5);
+                row[1] = c.getString(6);
+                row[2] = df.format(c.getLong(2));
+                if (fees.get(c.getString(5)) == null) {
+                    row[3] = "" + c.getInt(3);
+                    row[4] = "1";
+                } else {
+                    if (c.isNull(8) || !c.getString(8).equals("deleted")) {
+                        int diff = c.getInt(3) - fees.get(c.getString(5));
+                        if (diff == 0) {
+                            continue;
+                        }
+                        row[3] = "" + diff;
+                        row[4] = "0";
+                    } else {
+                        row[3] = "" + ( - fees.get(c.getString(5)));
+                        row[4] = "-1";
+                    }
+                }
+                fees.put(c.getString(5), c.getInt(3));
                 out.writeNext(row);
             }
             out.close();

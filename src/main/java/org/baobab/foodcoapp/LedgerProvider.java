@@ -10,9 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.os.CancellationSignal;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -166,6 +164,7 @@ public class LedgerProvider extends ContentProvider {
     private static final int ACCOUNT_PRODUCTS = 11;
     private static final int TRANSACTION_PRODUCTS = 12;
     private static final int PRODUCT_TRANSACTIONS = 13;
+    private static final int ACCOUNTS_MEMBER_FEES = 14;
     private static final int LOAD = 0;
 
     public static String AUTHORITY = "org.baobab.foodcoapp";
@@ -201,6 +200,7 @@ public class LedgerProvider extends ContentProvider {
         router.addURI(AUTHORITY, "sessions/#/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/transactions/*", TRANSACTIONS);
+        router.addURI(AUTHORITY, "accounts/*/fees", ACCOUNTS_MEMBER_FEES);
         router.addURI(AUTHORITY, "transactions/#/products", TRANSACTION_PRODUCTS);
         router.addURI(AUTHORITY, "transactions/#/products/#", TRANSACTION_PRODUCTS);
         router.addURI(AUTHORITY, "transactions/#/accounts/*/products/#", TRANSACTION_PRODUCTS);
@@ -264,6 +264,13 @@ public class LedgerProvider extends ContentProvider {
                 break;
             case SUM:
                 result = getTransactionSum(uri.getPathSegments().get(1));
+                break;
+            case ACCOUNTS_MEMBER_FEES:
+                result = db.getReadableDatabase().rawQuery(
+                        "SELECT _id, last_modified, created_at, fee," +
+                        " parent_guid, guid, name, skr, status FROM accounts" +
+                        " WHERE parent_guid IS 'mitglieder'" +
+                        " ORDER BY created_at, last_modified", null);
                 break;
             case ACCOUNTS:
                 String parent_guid = "NULL";
