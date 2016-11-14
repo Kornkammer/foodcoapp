@@ -46,7 +46,8 @@ public class TimeWindowTests extends BaseProviderTests {
         query("accounts/members/accounts", 3);
         query("accounts/members/memberships", 5);
         createDummyAccount("a", "a", "members", "deleted", year2, year2, -1); // delete
-        query("accounts/members/accounts", 2);
+        query("accounts/members/accounts", 3); // still visible because restguthaben
+        query("accounts/members/accounts?debit=true", 3); // still visible because restguthaben
         query("accounts/members/memberships", 6);
         try {
             Thread.sleep(10);
@@ -63,6 +64,13 @@ public class TimeWindowTests extends BaseProviderTests {
             e.printStackTrace();
         }
         year4 = System.currentTimeMillis();
+        // clear rest guthaben
+        insertTransaction("a", "kasse");
+        insertTransaction("a", "kasse");
+        query("accounts/members/accounts", 2);
+        query("accounts/members/accounts?debit=true", 3);
+
+        query("accounts/members/memberships", 6);
     }
 
     public void testMemberships() {
@@ -111,7 +119,7 @@ public class TimeWindowTests extends BaseProviderTests {
         a.moveToNext();
         assertEquals("balance c", 84.0, a.getDouble(3));
         a.moveToLast();
-        assertEquals("balance a", 42.0, a.getDouble(3));
+        assertEquals("balance a", -42.0, a.getDouble(3));
     }
 
     public void testStandardAccounts() {
@@ -177,10 +185,11 @@ public class TimeWindowTests extends BaseProviderTests {
     }
 
     public void testTransactions() {
-        assertTxns("accounts/kasse/transactions", 10, -168);
+        assertTxns("accounts/kasse/transactions", 12, -84);
 
         assertTxns("accounts/kasse/transactions?before=" + year2, 4, -84);
         assertTxns("accounts/a/transactions?before=" + year2, 1, 42);
+        assertTxns("accounts/a/transactions?after=" + year1, 6, 0);
         assertTxns("accounts/b/transactions?before=" + year2, 3, 42);
         assertTxns("accounts/a/transactions?debit=true&before=" + year2, 1, 42);
         assertTxns("accounts/b/transactions?credit=true&before=" + year2, 1, -42);

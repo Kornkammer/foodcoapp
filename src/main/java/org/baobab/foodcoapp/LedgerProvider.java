@@ -278,7 +278,7 @@ public class LedgerProvider extends ContentProvider {
                     parent_guid = uri.getPathSegments().get(1);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT _id, name, guid, sum(height), parent_guid," +
+                        "SELECT _id, name, guid, sum(height) AS balance, parent_guid," +
                                 " created_at, last_modified, status, fee " +
                         "FROM (" +
                             " SELECT accounts._id AS _id, accounts.name, accounts.guid," +
@@ -356,6 +356,7 @@ public class LedgerProvider extends ContentProvider {
                         " HAVING " + (selection != null? selection : "1 = 1") +
                                 (!uri.getLastPathSegment().equals("memberships")?
                                     " AND (status IS NOT 'deleted'" +
+                                    " OR balance > 0.01 OR balance < -0.01" +
                                     (uri.getQueryParameter("after") != null?
                                         " OR created_at >= " + uri.getQueryParameter("after") + ")" :
                                         (uri.getQueryParameter("before") != null?
