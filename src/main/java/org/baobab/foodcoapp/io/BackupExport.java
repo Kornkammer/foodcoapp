@@ -387,59 +387,63 @@ public class BackupExport {
             csv.writeNext(new String[] { } );
 
             csv.writeNext(new String[] {"Mitglieder Beiträge " + y, String.format(Locale.ENGLISH, "%.2f", sumSoll), ""});
-            if (year > 0) {
-                csv.writeNext(new String[] {"Vorschuss vom Vorjahr " + (year - 1), "", "-" + String.format(Locale.ENGLISH, "%.2f", sumPrePaidBefore)});
-                csv.writeNext(new String[] {"nachträglich für " + (year - 1), String.format(Locale.ENGLISH, "%.2f", sumPostPaidThisY), ""});
-            }
-            csv.writeNext(new String[] {"Vorschuss Beiträge", String.format(Locale.ENGLISH, "%.2f", sumPrePaidThisY), ""});
-            csv.writeNext(new String[] {"ausstehende Beiträge " + y, "", "-" + String.format(Locale.ENGLISH, "%.2f", sumStillOpen)});
-            csv.writeNext(new String[] { } );
-            //csv.writeNext(new String[] {"eingegangen " + (year), String.format(Locale.ENGLISH, "%.2f", sumPaid), ""});
+
             //csv.writeNext(new String[] { } );
 
             Cursor kosten = getAccounts(ctx, "aktiva", "?" + timewindow, "Kosten");
             kosten.moveToFirst();
-            csv.writeNext(new String[] {"Kosten " + y, "", "-" + String.format(Locale.ENGLISH, "%.2f", kosten.getFloat(3))});
-            csv.writeNext(new String[] { } );
+            csv.writeNext(new String[] {"Entstandene Kosten " + y, "", "-" + String.format(Locale.ENGLISH, "%.2f", kosten.getFloat(3))});
 
-            Cursor in = getTxns(ctx, "?debit=true&" + timewindow, null, "lager");
-            while (in.moveToNext()) {
-                //System.out.println(in.getFloat(6));
-                String[] a = in.getString(5).split(",");
-                Cursor prods = ctx.getContentResolver().query(Uri.parse(
-                        "content://org.baobab.foodcoapp/transactions/" + in.getInt(0) + "/products"), null, null, null, null);
-                while (prods.moveToNext()) {
-                    //System.out.println("-> " + prods.getString(2) + " :: " + prods.getString(7));
-                    if (!prods.getString(2).equals("lager")) {
-                        Cursor orig = getTxns(ctx, "?" + timewindow, prods.getString(7), prods.getString(2));
-                        while (orig.moveToNext()) {
-                            //System.out.println("  ### " + orig.getFloat(6) + " | " + orig.getString(5));
-                        }
-                    }
-                }
-
-            }
-
-            Cursor einkauf = getAccounts(ctx, "aktiva", "?debit=true&" + timewindow, "Lager");
-            einkauf.moveToFirst();
-            csv.writeNext(new String[] {"Waren Einkauf (Lager Zugang)", "", "-" + String.format(Locale.ENGLISH, "%.2f", einkauf.getFloat(3))});
-            Cursor umsatz = getAccounts(ctx, "aktiva", "?credit=true&" + timewindow, "Lager");
-            umsatz.moveToFirst();
-            csv.writeNext(new String[] {"Waren Umsatz (Lager Abgang)", String.format(Locale.ENGLISH, "%.2f", -1 * umsatz.getFloat(3)), ""});
-            Cursor lager = getAccounts(ctx, "aktiva", "?=" + timewindow, "Lager");
-            lager.moveToFirst();
-            csv.writeNext(new String[] {"Waren Vorrat (Lager Bestand)", String.format(Locale.ENGLISH, "%.2f", lager.getFloat(3)), ""});
+            Cursor spenden = getAccounts(ctx, "passiva", "?" + timewindow, "Spenden");
+            spenden.moveToFirst();
+            csv.writeNext(new String[] {"Empfangene Spenden " + y, String.format(Locale.ENGLISH, "%.2f", - spenden.getFloat(3)), ""});
             csv.writeNext(new String[] { } );
 
             Cursor aufgeladen = getAccounts(ctx, "passiva", "?credit=true&" + timewindow, "Mitglieder");
             aufgeladen.moveToFirst();
             csv.writeNext(new String[] {"Korns Aufladung", String.format(Locale.ENGLISH, "%.2f", -1 * aufgeladen.getFloat(3)), ""});
+            Cursor einkauf = getAccounts(ctx, "aktiva", "?debit=true&" + timewindow, "Lager");
+            einkauf.moveToFirst();
+            csv.writeNext(new String[] {"Waren Einkauf (Lager Zugang)", "", "-" + String.format(Locale.ENGLISH, "%.2f", einkauf.getFloat(3))});
+
+            Cursor umsatz = getAccounts(ctx, "aktiva", "?credit=true&" + timewindow, "Lager");
+            umsatz.moveToFirst();
+            csv.writeNext(new String[] {"Waren Umsatz (Lager Abgang)", String.format(Locale.ENGLISH, "%.2f", -1 * umsatz.getFloat(3)), ""});
             Cursor korns = getAccounts(ctx, "passiva", "?debit=true&" + timewindow, "Mitglieder");
             korns.moveToFirst();
-            csv.writeNext(new String[] {"Korns Einkäufe", "", String.format(Locale.ENGLISH, "%.2f", -1 * korns.getFloat(3))});
+            csv.writeNext(new String[] {"Korns Umsatz", "", String.format(Locale.ENGLISH, "%.2f", -1 * korns.getFloat(3))});
+
+            /*
+            Cursor lager = getAccounts(ctx, "aktiva", "?=" + timewindow, "Lager");
+            lager.moveToFirst();
+            csv.writeNext(new String[] {"Waren Vorrat (Lager Bestand)", String.format(Locale.ENGLISH, "%.2f", lager.getFloat(3)), ""});
             Cursor credits = getAccounts(ctx, "passiva", "?=" + timewindow, "Mitglieder");
             credits.moveToFirst();
             csv.writeNext(new String[] {"Korns Guthaben", "", String.format(Locale.ENGLISH, "%.2f", credits.getFloat(3))});
+*/
+
+            csv.writeNext(new String[] { } );
+            csv.writeNext(new String[] { } );
+            if (year > 0) {
+                csv.writeNext(new String[] {"nachträglich für " + (year - 1), String.format(Locale.ENGLISH, "%.2f", sumPostPaidThisY), ""});
+                csv.writeNext(new String[] {"Vorschuss vom Vorjahr " + (year - 1), "", "-" + String.format(Locale.ENGLISH, "%.2f", sumPrePaidBefore)});
+            }
+            csv.writeNext(new String[] {"vorausgezahlte Beiträge", String.format(Locale.ENGLISH, "%.2f", sumPrePaidThisY), ""});
+            csv.writeNext(new String[] {"ausstehende Beiträge " + y, "", "-" + String.format(Locale.ENGLISH, "%.2f", sumStillOpen)});
+            //csv.writeNext(new String[] {"eingegangen " + (year), String.format(Locale.ENGLISH, "%.2f", sumPaid), ""});
+
+            Cursor verb = getAccounts(ctx, "passiva", "?" + timewindow, "Verbindlichkeiten");
+            verb.moveToFirst();
+            csv.writeNext(new String[] {"offene Verbindlichkeiten " + y, String.format(Locale.ENGLISH, "%.2f", - verb.getFloat(3)), ""});
+            Cursor ford = getAccounts(ctx, "aktiva", "?" + timewindow, "Forderungen");
+            ford.moveToFirst();
+            csv.writeNext(new String[] {"offene Forderungen " + y, "", String.format(Locale.ENGLISH, "%.2f", - ford.getFloat(3))});
+            csv.writeNext(new String[] { } );
+
+            Cursor kasse = getAccounts(ctx, "aktiva", "?" + timewindow, "Kasse");
+            kasse.moveToFirst();
+            csv.writeNext(new String[] {"Barkasse " + y, "", "-" + String.format(Locale.ENGLISH, "%.2f", kasse.getFloat(3))});
+
 
             csv.writeNext(new String[] { } );
             csv.writeNext(new String[] { } );
