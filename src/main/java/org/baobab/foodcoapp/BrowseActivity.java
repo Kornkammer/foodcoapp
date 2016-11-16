@@ -52,16 +52,19 @@ public class BrowseActivity extends AppCompatActivity {
                         Uri.parse("content://org.baobab.foodcoapp/accounts" + q),
                         null, "guid IS '" + getIntent().getData().getPathSegments().get(1) +
                                 "'", null, null);
+                float balance = 0;
                 account.moveToFirst();
                 if (account.getString(4).equals("aktiva")) {
                     if (getIntent().getData().getQueryParameter("credit") != null) {
                         title = " Abgänge:  - ";
+                        balance = account.getFloat(3);
                     } else if (getIntent().getData().getQueryParameter("debit") != null) {
                         title = " Zugänge:  + ";
+                        balance = - account.getFloat(3);
                     }
                 }
                 getSupportActionBar().setTitle(account.getString(1) + title +
-                        String.format("%.2f", Math.abs(account.getFloat(3))));
+                        String.format("%.2f", balance));
             } else {
                 getSupportActionBar().setTitle("Umsätze " );
             }
