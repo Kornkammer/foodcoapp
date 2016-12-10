@@ -37,10 +37,9 @@ public class BackupExport {
 
 
     public static File create(Context ctx, String id, String guid) {
-        ZipOutputStream zos;
         File result = file(id + ".zip");
         try {
-            zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
+            ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
             report(ctx, zos, guid, "kontoauszug", 0);
             zos.close();
         } catch (FileNotFoundException e) {
