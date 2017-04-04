@@ -49,13 +49,13 @@ public class Report {
             CSVWriter full = new CSVWriter(new FileWriter(file2), ';', CSVWriter.NO_QUOTE_CHARACTER);
             csv.writeNext(new String[] { "", "Einnahmen", "Ausgaben" });
             full.writeNext(new String[] { "", "", "Einnahmen", "Ausgaben" });
-            log(zos, csv, full, bank_out, bank_in, "einlagen", year, false);
+            //log(zos, csv, full, bank_out, bank_in, "einlagen", year, false);
             log(zos, csv, full, bank_out, bank_in, "beiträge", year, false);
-            log(zos, csv, full, bank_out, bank_in, "korns", year, false);
-            log(zos, csv, full, bank_out, bank_in, "spenden", year, false);
-            log(zos, csv, full, bank_in, bank_out, "inventar", year, true);
-            log(zos, csv, full, bank_in, bank_out, "kosten", year, true);
-            log(zos, csv, full, bank_in, bank_out, "lager", year, true);
+            //log(zos, csv, full, bank_out, bank_in, "korns", year, false);
+            //log(zos, csv, full, bank_out, bank_in, "spenden", year, false);
+            //log(zos, csv, full, bank_in, bank_out, "inventar", year, true);
+            //log(zos, csv, full, bank_in, bank_out, "kosten", year, true);
+            //log(zos, csv, full, bank_in, bank_out, "lager", year, true);
             csv.close();
             full.close();
             zip(file, zos);
@@ -83,15 +83,19 @@ public class Report {
         csv.writeNext(header);
         System.out.println(".");
         System.out.println("############## IN COMBINE " + account);
+        csv.writeNext(new String[] { "", "IN COMBINE"});
         write(in.combine(account), account, balance, csv, aktiva);
         System.out.println(".");
         System.out.println("############## IN SPLIT " + account);
+        csv.writeNext(new String[] { "", "IN SPLIT"});
         write(in.split(account), account, balance, csv, aktiva);
         System.out.println(".");
         System.out.println("############## OUT COMBINE " + account);
+        csv.writeNext(new String[] { "", "OUT COMBINE"});
         write(out.combine(account), account, balance, csv, aktiva);
         System.out.println(".");
         System.out.println("############## OUT SPLIT " + account);
+        csv.writeNext(new String[] { "", "OUT SPLIT"});
         write(out.split(account), account, balance, csv, aktiva);
         csv.close();
         zip(year + "_EUR_log", log, zos);
@@ -141,7 +145,7 @@ public class Report {
             if (t.accounts.size() == 0) continue;
             if (balance.visited.containsKey(t.head.id + "")) {
                 System.out.println("another one of " + t.head);
-                continue;
+                //continue;
             }
             balance.visited.put(t.head.id + "", true);
             if (csv != null) csv.writeNext(new String[] {});

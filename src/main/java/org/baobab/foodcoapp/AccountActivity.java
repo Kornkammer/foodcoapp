@@ -100,6 +100,10 @@ public class AccountActivity extends CheckoutActivity {
 
             }
         });
+        startActivity(new Intent(this, TraceActivity.class)
+                .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/kosten/transactions")
+                .buildUpon().appendQueryParameter("title", "Miete 2016")
+                .appendQueryParameter("price", "1100").build()));
     }
 
     @Override

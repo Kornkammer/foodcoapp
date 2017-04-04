@@ -50,7 +50,7 @@ public class Trace {
         ArrayList<Txn> result = new ArrayList<>();
         float sum = 0;
         for (Trace.Prod p : t.list(account)) {
-            //System.out.println(" # " + p + "   = " + (p.in*p.price) + " - " + (p.out*p.price) + "  || " + p.date);
+            System.out.println(" # " + p + "   = " + (p.in*p.price) + " - " + (p.out*p.price) + "  || " + p.date);
             if (p.quantity() == 0) continue;
             Trace.Txn txn = collect(p, 0, seen, null);
             txn.head = p;
@@ -72,16 +72,16 @@ public class Trace {
         } else {
             if (seen.containsKey(p.id + "")) return txn;
             seen.put(p.id + "", p);
-            //System.out.println(" " + indent(level) + " # " + p + " (" + p.inputs.size() + ") ");
+            System.out.println(" " + indent(level) + " # " + p + " (" + p.inputs.size() + ") ");
             txn.add(p);
         }
         if (p.base.products.get(p.key()) != null && p.base.products.get(p.key()).size() > 0) {
-            //System.out.println(" " + indent(level) + "   next " + p.base.products.get(p.key()));
+            System.out.println(" " + indent(level) + "   next " + p.base.products.get(p.key()));
             for (Trace.Prod o : p.base.products.get(p.key())) {
                 collect(o, level + 1, seen, txn);
             }
         }
-        //System.out.println(" " + indent(level) + "   relax " + p);
+        System.out.println(" " + indent(level) + "   relax " + p);
         for (Trace.Prod o : p.siblings()) {
             collect(o, level + 1, seen, txn);
         }
@@ -138,7 +138,7 @@ public class Trace {
 
                 txn.add(p);
                 p.base = txn.accounts.get(p.account);
-                if (!p.title.equals("Cash") && !p.title.equals("Korns") && !p.account.equals("lager")) {
+                if (!p.account.equals("bank") && !p.parent_guid.equals("mitglieder") && !p.account.equals("lager")) {
                     //System.out.println("  " + indent(level) + " TRACE " + "  " + p + (parent != null? "   parent= " + parent : ""));
                     trace(p.account, p.title, p.price, query, forward, level + 1, p);
                 }

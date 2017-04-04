@@ -73,6 +73,34 @@ public class TimeWindowTests extends BaseProviderTests {
         query("accounts/members/memberships", 6);
     }
 
+    public void testProducts() {
+        Cursor a = query("accounts/a/products", 2);
+        assertEquals("sth", a.getString(7));
+        assertEquals(126f, a.getFloat(4));
+        assertEquals("Cash", a.getString(6));
+        assertEquals(1f, a.getFloat(5));
+        a.moveToNext();
+        assertEquals("sth", a.getString(7));
+        assertEquals("dinge", a.getString(6));
+        assertEquals(-126f, a.getFloat(4));
+        a = query("accounts/a/products?before=" + year2, 1);
+        assertEquals("sth", a.getString(7));
+        assertEquals("Cash", a.getString(6));
+        assertEquals(42f, a.getFloat(4));
+
+        Cursor b = query("accounts/b/products", 2);
+        assertEquals("sth", b.getString(7));
+        assertEquals(84f, b.getFloat(4));
+        assertEquals("Cash", b.getString(6));
+        a.moveToNext();
+        b = query("accounts/b/products?before=" + year2, 2);
+        assertEquals(84f, b.getFloat(4));
+        assertEquals("Cash", b.getString(6));
+        b.moveToNext();
+        assertEquals("sth", b.getString(7));
+        assertEquals(-42f, b.getFloat(4));
+    }
+
     public void testMemberships() {
         query("accounts/members/memberships", 6);
         query("accounts/members/accounts?after=" + year1 + "&before=" + year2, 2);
