@@ -4,6 +4,8 @@
   <color name="green">#7fa87f</color>
   <color name="blue">#525B92</color>
 
+  <color name="fade_out">#66000000</color>
+
   <color name="xdark_blue">#10123E</color>
   <color name="dark_blue">#2A2C46</color>
   <color name="medium_blue">#2C2E5B</color>

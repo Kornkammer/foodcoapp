@@ -32,6 +32,7 @@ public class TransactionView extends GridLayout {
 
     private OnClickListener onAmountClick;
     private OnClickListener onTitleClick;
+    private OnLongClickListener onTitleLongClick;
     private OnClickListener onSumClick;
     private TextView header;
     private String account;
@@ -60,6 +61,10 @@ public class TransactionView extends GridLayout {
 
     public void setOnTitleClick(OnClickListener onTitleClick) {
         this.onTitleClick = onTitleClick;
+    }
+
+    public void setOnTitleLongClick(OnLongClickListener onTitleLongClick) {
+        this.onTitleLongClick = onTitleLongClick;
     }
 
     public void setOnSumClick(OnClickListener onSumClick) {
@@ -115,10 +120,11 @@ public class TransactionView extends GridLayout {
             } else {
                 title = data.getString(7);
             }
-            addProduct(data.getPosition(), data.getInt(1), data.getInt(0), data.getInt(3), accountGuid,
-                    quantity, data.getString(6), data.getFloat(5), title, data.getString(8));
+            addProduct(data.getPosition(), data.getInt(1), data.getInt(0),
+                    data.getInt(3), accountGuid, quantity, data.getString(6),
+                    data.getFloat(5), title, data.getString(8), data.getInt(13));
         }
-        addProduct(-1, -1, -1, 4, "lager", weight, "Kilo", 0, null, null);
+        addProduct(-1, -1, -1, 4, "lager", weight, "Kilo", 0, null, null, 0);
 
         post(new Runnable() {
             @Override
@@ -134,13 +140,13 @@ public class TransactionView extends GridLayout {
     }
 
     private void addProduct(int position, int transactionId, int txnProdId, int productId, String accountGuid,
-                         float quantity, String unit, float price, String title, String img) {
+                         float quantity, String unit, float price, String title, String img, int history) {
         images(accountGuid, txnProdId, productId, quantity, img, title, unit);
-        amount(quantity, productId, position);
-        unit(quantity, productId, unit);
-        title(title, position, transactionId);
-        sum(quantity, productId, position, price);
-        details(productId, price, unit);
+        amount(quantity, productId, position, history);
+        unit(quantity, productId, unit, history);
+        title(title, position, transactionId, history);
+        sum(quantity, productId, position, price, history);
+        details(productId, price, unit, history);
     }
 
 
@@ -172,8 +178,8 @@ public class TransactionView extends GridLayout {
                 } else {
                     header.setText("auf Konto " + data.getString(12)  + " gutschreiben");
                 }
-                header.setTextColor(getResources().getColor(R.color.medium_red));
                 f.setBackgroundResource(R.drawable.background_red);
+                header.setTextColor(getResources().getColor(R.color.medium_red));
             } else {
                 if (account.equals("lager") || account.equals("kasse")) {
                     header.setText("in " + data.getString(12) + " rein");
@@ -190,8 +196,8 @@ public class TransactionView extends GridLayout {
                 } else {
                     header.setText("von Konto " + data.getString(12)  + " abbuchen");
                 }
-                header.setTextColor(getResources().getColor(R.color.medium_green));
                 f.setBackgroundResource(R.drawable.background_green);
+                header.setTextColor(getResources().getColor(R.color.medium_green));
             }
         } else {
             if (quantity < 0) {
@@ -203,6 +209,10 @@ public class TransactionView extends GridLayout {
                 header.setTextColor(getResources().getColor(R.color.medium_green));
                 f.setBackgroundResource(R.drawable.background_green);
             }
+        }
+        if (data.getLong(13) == -1) {
+            header.setTextColor(getResources().getColor(android.R.color.black));
+            f.setBackgroundColor(getResources().getColor(R.color.fade_out));
         }
         ViewGroup.LayoutParams p = new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -386,7 +396,7 @@ public class TransactionView extends GridLayout {
     }
 
 
-    private void amount(float quantity, int productId, int position) {
+    private void amount(float quantity, int productId, int position, int history) {
         final DecimalView amount = new DecimalView(getContext(), decimals, onAmountClick);
         LayoutParams lp = new LayoutParams();
         if (productId < 3 || (productId == 4 && weight == -1)) {
@@ -413,9 +423,12 @@ public class TransactionView extends GridLayout {
             amount.setTextSize(R.dimen.font_size_large);
             amount.hideDecimals();
         }
+        if (history == -1) {
+            amount.setColor(R.color.fade_out);
+        }
     }
 
-    private void unit(float quantity, int productId, String unit) {
+    private void unit(float quantity, int productId, String unit, int history) {
         TextView x = new TextView(getContext());
         x.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_small));
         if (productId < 3 || (productId == 4 && weight == -1)) {
@@ -441,9 +454,12 @@ public class TransactionView extends GridLayout {
         lp.setGravity(Gravity.CENTER);
         lp.leftMargin = -2;
         addView(x, lp);
+        if (history == -1) {
+            x.setTextColor(getResources().getColor(R.color.fade_out));
+        }
     }
 
-    private void title(String name, int position, int transactionId) {
+    private void title(String name, int position, int transactionId, int history) {
         TextView title = new TextView(getContext());
         title.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_medium));
         title.setTypeface(null, Typeface.BOLD);
@@ -467,6 +483,14 @@ public class TransactionView extends GridLayout {
             f.setTag(position);
             f.setOnClickListener(onTitleClick);
         }
+        if (onTitleLongClick != null) {
+            f.setClickable(true);
+            f.setFocusable(true);
+            f.setId(transactionId);
+            f.setTag(position);
+            f.setOnLongClickListener(onTitleLongClick);
+        }
+
         f.setBackgroundResource(R.drawable.background_translucent);
         LayoutParams lp = new LayoutParams();
         lp.columnSpec = GridLayout.spec(3, 2, 3);
@@ -474,10 +498,13 @@ public class TransactionView extends GridLayout {
         lp.topMargin = getContext().getResources().getDimensionPixelSize(R.dimen.padding_xsmall);
         lp.width = getContext().getResources().getDimensionPixelSize(columnWidth);
         addView(f, lp);
+        if (history == -1) {
+            title.setTextColor(getResources().getColor(R.color.fade_out));
+        }
     }
 
 
-    private void sum(float quantity, int productId, int position, float price) {
+    private void sum(float quantity, int productId, int position, float price, int history) {
         DecimalView sum = new DecimalView(getContext(), 2, onSumClick);
         if (price == 0) return;
         sum.setNumber(Math.abs(quantity * price));
@@ -502,10 +529,13 @@ public class TransactionView extends GridLayout {
             sum.setTextSize(R.dimen.font_size_medium);
         }
         addView(sum, lp);
+        if (history == -1) {
+            sum.setColor(R.color.fade_out);
+        }
     }
 
 
-    private void details(int productId, float price, String unit) {
+    private void details(int productId, float price, String unit, int history) {
         if (price == 0) return;
         LayoutParams lp;TextView details = new TextView(getContext());
         details.setTextColor(getResources().getColor(android.R.color.black));
@@ -531,5 +561,9 @@ public class TransactionView extends GridLayout {
         lp.topMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xlarge);
         lp.setGravity(Gravity.RIGHT);
         addView(eq, lp);
+        if (history == -1) {
+            eq.setTextColor(getResources().getColor(R.color.fade_out));
+            details.setTextColor(getResources().getColor(R.color.fade_out));
+        }
     }
 }

@@ -1,6 +1,7 @@
 package org.baobab.foodcoapp.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,12 +21,16 @@ import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.baobab.foodcoapp.AccountActivity;
+import org.baobab.foodcoapp.BrowseActivity;
 import org.baobab.foodcoapp.R;
+import org.baobab.foodcoapp.TraceActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class TransactionListFragment extends ListFragment
         implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -136,16 +142,49 @@ public class TransactionListFragment extends ListFragment
             org.baobab.foodcoapp.view.TransactionView transaction = new org.baobab.foodcoapp.view.TransactionView(getActivity());
             transaction.showImages(true);
             transaction.headersClickable(false);
-            Cursor c = getActivity().getContentResolver().query(
+            final Cursor c = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/transactions/" + id + "/products"),
                     null, null, null, null);
             transaction.setColumnWidth(R.dimen.column_small);
             transaction.headersClickable(false);
             transaction.showHeaders(true);
-            transaction.setOnTitleClick(new OnClickListener() {
+            transaction.setOnTitleClick(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    c.moveToPosition((Integer) v.getTag());
+                    Toast.makeText(getContext(), c.getString(7), Toast.LENGTH_SHORT).show();
+                }
+            });
+            transaction.setOnTitleLongClick(new View.OnLongClickListener() {
 
+                @Override
+                public boolean onLongClick(View v) {
+                    c.moveToPosition((Integer) v.getTag());
+                    final String title = c.getString(7);
+                    final float price = c.getFloat(5);
+                    String[] menu = new String[]{"Kontoumsätze", "Trace..."};
+                    new AlertDialog.Builder(getContext())
+                            .setItems(menu, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    switch (which) {
+                                        case 0:
+                                            startActivity(new Intent(getContext(), BrowseActivity.class)
+                                                    .setData(Uri.parse("content://org.baobab.foodcoapp/transactions")
+                                                            .buildUpon().appendQueryParameter("title", title)
+                                                            .appendQueryParameter("price",
+                                                                    String.format(Locale.ENGLISH, "%.2f", price)).build()));
+                                            break;
+                                        case 1:
+                                            startActivity(new Intent(getActivity(), TraceActivity.class)
+                                                    .setData(Uri.parse("content://org.baobab.foodcoapp/transactions")
+                                                            .buildUpon().appendQueryParameter("title", title)
+                                                            .appendQueryParameter("price", String.valueOf(price)).build()));
+                                            break;
+                                    }
+                                }
+                            }).show();
+                    return true;
                 }
             });
             transaction.populate(c);

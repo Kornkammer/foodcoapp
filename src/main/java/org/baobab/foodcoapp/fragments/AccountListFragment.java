@@ -25,8 +25,11 @@ import android.widget.Toast;
 import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.BalanceActivity;
 import org.baobab.foodcoapp.R;
+import org.baobab.foodcoapp.TraceActivity;
 import org.baobab.foodcoapp.view.TransactionView;
 import org.baobab.foodcoapp.BrowseActivity;
+
+import java.util.Locale;
 
 
 public class AccountListFragment extends Fragment
@@ -196,13 +199,21 @@ public class AccountListFragment extends Fragment
             transaction.setOnTitleClick(new OnClickListener() {
 
                 @Override
-                public void onClick(final View v) {
+                public void onClick(View v) {
+                    products.moveToPosition((Integer) v.getTag());
+                    Toast.makeText(getContext(), products.getString(7), Toast.LENGTH_SHORT).show();
+                }
+            });
+            transaction.setOnTitleLongClick(new OnLongClickListener() {
+
+                @Override
+                public boolean onLongClick(View v) {
                     products.moveToPosition((Integer) v.getTag());
                     final String account = products.getString(2);
                     final String title = products.getString(7);
                     final float amount = products.getFloat(4);
                     final float price = products.getFloat(5);
-                    String[] menu = new String[]{"Kontoumsätze", "Umbuchen"};
+                    String[] menu = new String[]{"Kontoumsätze", "Umbuchen", "Trace..."};
                     new AlertDialog.Builder(getActivity())
                             .setItems(menu, new DialogInterface.OnClickListener() {
                                 @Override
@@ -212,16 +223,24 @@ public class AccountListFragment extends Fragment
                                             startActivity(new Intent(getActivity(), BrowseActivity.class)
                                                     .setData(Uri.parse("content://org.baobab.foodcoapp/transactions")
                                                     .buildUpon().appendQueryParameter("title", title)
-                                                            .appendQueryParameter("price", String.valueOf(price)).build()));
+                                                            .appendQueryParameter("price",
+                                                                    String.format(Locale.ENGLISH, "%.2f", price)).build()));
                                             break;
                                         case 1:
                                             startActivity(new Intent(getActivity(), AccountActivity.class)
                                                    .putExtra("title", title).putExtra("account", account)
                                                    .putExtra("amount", amount).putExtra("price", price));
                                             break;
+                                        case 2:
+                                            startActivity(new Intent(getActivity(), TraceActivity.class)
+                                                    .setData(Uri.parse("content://org.baobab.foodcoapp/transactions")
+                                                    .buildUpon().appendQueryParameter("title", title)
+                                                    .appendQueryParameter("price", String.valueOf(price)).build()));
+                                            break;
                                     }
                                 }
                             }).show();
+                    return true;
                 }
             });
             transaction.setOnAmountClick(new OnClickListener() {

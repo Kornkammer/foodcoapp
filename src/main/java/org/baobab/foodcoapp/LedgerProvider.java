@@ -10,14 +10,24 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import org.baobab.foodcoapp.io.BackupExport;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class LedgerProvider extends ContentProvider {
+
+    public static String TEST_DB = null;
 
     private class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -180,6 +190,33 @@ public class LedgerProvider extends ContentProvider {
                     .getString("db", "foodcoapp.db");
         } catch (Exception e) {
             file = "foodcoapp.db";
+            if (TEST_DB != null) {
+                try {
+                    File sd = Environment.getExternalStorageDirectory();
+                    File data = Environment.getDataDirectory();
+
+                    if (sd.canWrite()) {
+                        String fromP = "//sdcard//" + TEST_DB;
+                        String toP = getContext().getDir("databases", Context.MODE_PRIVATE)
+                                .getAbsolutePath().replaceAll("/", "//") + "//test.db";
+                        System.out.println(fromP + " -> " + toP);
+                        File from = new File(data, fromP);
+                        File to = new File(sd, toP);
+
+                        if (from.exists()) {
+                            FileChannel src = new FileInputStream(from).getChannel();
+                            FileChannel dst = new FileOutputStream(to).getChannel();
+                            dst.transferFrom(src, 0, src.size());
+                            src.close();
+                            dst.close();
+                        }
+                    }
+                } catch (Exception err) {
+                    System.out.println("ERR " + e.getMessage());
+                    e.printStackTrace();
+                }
+                file = TEST_DB;
+            }
         }
         db = new DatabaseHelper(getContext(), file);
         router.addURI(AUTHORITY, "accounts/*", ACCOUNT);
@@ -382,6 +419,10 @@ public class LedgerProvider extends ContentProvider {
                         " LEFT JOIN transactions ON transaction_products.transaction_id = transactions._id" +
                         " WHERE account_guid IS ? AND (transactions.status IS 'final'" +
                         (uri.getPathSegments().size() == 5? " OR transactions.session_id=" + uri.getPathSegments().get(1) + ")" : ")") +
+                                (uri.getQueryParameter("after") != null?
+                                        " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
+                                (uri.getQueryParameter("before") != null?
+                                        " AND transactions.start < " + uri.getQueryParameter("before") : "") +
                         " GROUP BY title, rounded, unit" +
                         " HAVING (stock <= -0.001 OR 0.001 <= stock)" +
                         (selection != null? " AND " + selection : ""),
@@ -419,23 +460,24 @@ public class LedgerProvider extends ContentProvider {
                         args.add(uri.getQueryParameter("title"));
                     }
                     if (uri.getQueryParameter("price") != null) {
-                        selection += " AND price IS ?";
+                        selection += " AND ROUND(price, 2) = ROUND(?, 2)";
                         args.add(uri.getQueryParameter("price"));
                     }
                     selectionArgs = args.toArray(new String[args.size()]);
                 }
                 result = db.getReadableDatabase().rawQuery(
-                        "SELECT transactions._id AS _id, session._id, transactions.start, accounts.name, transactions.comment, " +
+                        "SELECT transactions._id AS _id, sessions._id, transactions.start, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
                                 (uri.getPathSegments().get(0).equals("accounts") ?
                                 "sum(transaction_products.quantity * transaction_products.price * " +
                                     "(transaction_products.account_guid IS '" + uri.getPathSegments().get(1) + "')) AS height, "
                                     : "sum(abs(transaction_products.quantity) * transaction_products.price) / 2 AS height, ") +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
-                                " transactions.status, transaction_products.price, transactions.status" +
+                                " transactions.status, transaction_products.price, transactions.status," +
+                                " strftime('%d/%m/%Y', transactions.stop/1000, 'unixepoch') AS day," +
+                                " transaction_products.title, transaction_products.unit, accounts.guid" +
                         " FROM transactions" +
                         " LEFT OUTER JOIN sessions ON transactions.session_id = sessions._id" +
-                        " LEFT JOIN accounts AS session ON sessions.account_guid = session.guid" +
                         " JOIN transaction_products ON transaction_products.transaction_id = transactions._id" +
                         " LEFT JOIN (" +
                                 "SELECT _id, guid, name, max(_id), parent_guid" +
@@ -450,7 +492,7 @@ public class LedgerProvider extends ContentProvider {
                                         " AND transactions.start >= " + uri.getQueryParameter("after") : "") +
                                 ((uri.getQueryParameter("before") != null)?
                                         " AND transactions.start < " + uri.getQueryParameter("before") : "") +
-                        " GROUP BY transactions._id" +
+                        " GROUP BY " + (projection != null? projection[0] : "transactions._id") +
                         " HAVING height != 0" +
                         (uri.getQueryParameter("debit") != null? " AND height > 0" : "") +
                         (uri.getQueryParameter("credit") != null? " AND height < 0" : "") +
@@ -543,7 +585,8 @@ public class LedgerProvider extends ContentProvider {
                         values.getAsString("account_guid"),
                         values.getAsString("title"),
                         values.getAsString("price"),
-                        values.getAsString("unit") };
+                        (values.containsKey("unit") && values.getAsString("unit") != null?
+                                values.getAsString("unit") : "Stück") };
                 Cursor existing = db.getWritableDatabase().query(
                         "transaction_products", new String[] {"quantity"},
                         where, whereArgs, null, null, null);
