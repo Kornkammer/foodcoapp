@@ -286,19 +286,15 @@ public class TransactionFragment extends Fragment
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 ((Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE)).vibrate(100);
-                                MediaPlayer.create(getActivity(), R.raw.yay).start();
-                                MediaPlayer.create(getActivity(), R.raw.chaching).start();
-                                saveStatus("final", "Einkauf:");
-                                Toast.makeText(getActivity(), "Verbucht :-)", Toast.LENGTH_SHORT).show();
-                                ((CheckoutActivity) getActivity()).resetTransaction();
-                                load();
+                                startActivityForResult(new Intent(getActivity(), LegitimateActivity.class)
+                                        .setData(getActivity().getIntent().getData())
+                                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET), 42);
                             }
                         }).setNegativeButton("Abbrechen", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 }).show();
-                Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
                 MediaPlayer.create(getActivity(), R.raw.error_1).start();
                 return false;
             } else {
@@ -316,12 +312,10 @@ public class TransactionFragment extends Fragment
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == getActivity().RESULT_OK && requestCode == 42) {
-            if (transactionValid()) {
-                if (saveStatus("final", "Einkauf:")) {
-                    startActivity(new Intent(getActivity(), BrowseActivity.class)
-                            .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
-                                    data.getStringExtra("guid") + "/transactions")));
-                }
+            if (saveStatus("final", "Einkauf:")) {
+                startActivity(new Intent(getActivity(), BrowseActivity.class)
+                        .setData(Uri.parse("content://org.baobab.foodcoapp/accounts/" +
+                                data.getStringExtra("guid") + "/transactions")));
             }
         }
     }
