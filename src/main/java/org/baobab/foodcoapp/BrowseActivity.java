@@ -52,9 +52,10 @@ public class BrowseActivity extends AppCompatActivity {
                         Uri.parse("content://org.baobab.foodcoapp/accounts" + q),
                         null, "guid IS '" + getIntent().getData().getPathSegments().get(1) +
                                 "'", null, null);
-                float balance = 0;
                 account.moveToFirst();
+                float balance = - account.getFloat(3);
                 if (account.getString(4).equals("aktiva")) {
+                    balance = balance * -1;
                     if (getIntent().getData().getQueryParameter("credit") != null) {
                         title = " Abgänge:  - ";
                         balance = account.getFloat(3);
