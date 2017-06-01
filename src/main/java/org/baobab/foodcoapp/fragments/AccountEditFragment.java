@@ -108,7 +108,7 @@ public class AccountEditFragment extends Fragment
             view.findViewById(R.id.guid).setEnabled(true);
             ((EditText) view.findViewById(R.id.guid)).setText(guid);
             getArguments().putLong("created_at", System.currentTimeMillis());
-            getArguments().putLong("fee", 0);
+            getArguments().putInt("fee", 0);
             TextView r = new TextView(getActivity());
             r.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.font_size_large));
             r.setText(R.string.monthly_fee);
