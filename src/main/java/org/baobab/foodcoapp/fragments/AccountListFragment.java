@@ -213,6 +213,7 @@ public class AccountListFragment extends Fragment
                     final String title = products.getString(7);
                     final float amount = products.getFloat(4);
                     final float price = products.getFloat(5);
+                    final String unit = products.getString(6);
                     String[] menu = new String[]{"Kontoumsätze", "Umbuchen", "Trace..."};
                     new AlertDialog.Builder(getActivity())
                             .setItems(menu, new DialogInterface.OnClickListener() {
@@ -229,7 +230,8 @@ public class AccountListFragment extends Fragment
                                         case 1:
                                             startActivity(new Intent(getActivity(), AccountActivity.class)
                                                    .putExtra("title", title).putExtra("account", account)
-                                                   .putExtra("amount", amount).putExtra("price", price));
+                                                   .putExtra("amount", amount).putExtra("price", price)
+                                                    .putExtra("unit", unit));
                                             break;
                                         case 2:
                                             startActivity(new Intent(getActivity(), TraceActivity.class)
