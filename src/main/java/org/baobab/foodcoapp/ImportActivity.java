@@ -234,7 +234,7 @@ public class ImportActivity extends AppCompatActivity {
                                     finish();
                                 }
                             }).show();
-                        } else {
+                        } else if (!(importer instanceof GlsImport)) {
                             finish();
                         }
                     }

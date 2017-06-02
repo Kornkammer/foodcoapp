@@ -114,7 +114,7 @@ public class GlsImport implements ImportActivity.Importer {
             }
         }
         if (exitingCount > 0) {
-            msg += "\n\n" + exitingCount + " Transactionsn existitierten bereits.\n";
+            msg += "\n\nFYI: " + exitingCount + " Transactionen existierten bereits.\n";
         }
         if (lines.size() != count) {
             msg += "Error! \nCould not read " + (lines.size() - count) + " lines!" + "\n\n" + msg;
