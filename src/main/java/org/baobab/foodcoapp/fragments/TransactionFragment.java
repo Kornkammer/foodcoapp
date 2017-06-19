@@ -138,19 +138,22 @@ public class TransactionFragment extends Fragment
         public void onClick(final View v) {
             if ((Integer) v.getTag() < 0) return;
             txn.moveToPosition((Integer) v.getTag());
+            NumberDialogFragment dialog = new NumberDialogFragment(
+                    text(), txn.getFloat(4), inputType(), chars());
+            dialog.setNumberListener(new NumberDialogFragment.NumberListener() {
+                @Override
+                public void onNumber(float number) {
+                    ContentValues cv = new ContentValues();
+                    cv.put("quantity", quantity(number));
+                    getActivity().getContentResolver()
+                            .update(getActivity().getIntent().getData().buildUpon()
+                                    .appendEncodedPath("products/" + txn.getLong(0))
+                                    .build(), cv, null, null);
+                }
+            });
             getFragmentManager().beginTransaction()
-                    .replace(R.id.container, new NumberDialogFragment(
-                            text(), txn.getFloat(4), inputType(), chars()) {
-                        @Override
-                        public void onNumber(float number) {
-                            ContentValues cv = new ContentValues();
-                            cv.put("quantity", quantity(number));
-                            getActivity().getContentResolver()
-                                    .update(getActivity().getIntent().getData().buildUpon()
-                                            .appendEncodedPath("products/" + txn.getLong(0))
-                                            .build(), cv, null, null);
-                        }
-                    }, "amount").addToBackStack("amount").commit();
+                    .replace(R.id.container, dialog, "amount")
+                    .addToBackStack("amount").commit();
         }
     }
 

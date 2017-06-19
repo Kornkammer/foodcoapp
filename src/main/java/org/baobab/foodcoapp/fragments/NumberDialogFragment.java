@@ -18,19 +18,29 @@ import android.widget.Toast;
 
 import org.baobab.foodcoapp.R;
 
-public abstract class NumberDialogFragment extends DialogFragment {
+public class NumberDialogFragment extends DialogFragment {
 
     private EditText number;
     private final String msg;
     private final float value;
     private final int inputType;
     private final String chars;
+    private NumberListener listener;
+
 
     public NumberDialogFragment(String msg, float value, int inputType, String chars) {
         this.msg = msg;
         this.value = value;
         this.inputType = inputType;
         this.chars = chars;
+    }
+
+    public interface NumberListener {
+        void onNumber(float number);
+    }
+
+    public void setNumberListener(NumberListener listener) {
+        this.listener = listener;
     }
 
     @Override
@@ -103,12 +113,11 @@ public abstract class NumberDialogFragment extends DialogFragment {
                 return;
             }
             n = (float) (Math.round(n * 1000) / 1000.0d);
-            onNumber(n);
+            listener.onNumber(n);
         } catch (NumberFormatException e) {
             Log.d("System.err", e.getMessage());
         }
         getFragmentManager().popBackStack();
     }
 
-    public abstract void onNumber(float number);
 }
