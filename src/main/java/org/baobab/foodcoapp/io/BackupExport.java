@@ -85,7 +85,7 @@ public class BackupExport {
                             "//data//org.baobab.foodcoapp//databases//" + db),
                     "Knk_" + date + ".BAK", zos);
             transactions(ctx, zos, 0);
-            reports(ctx, zos, 0);
+            //reports(ctx, zos, 0);
             exportKornumsatz(ctx, zos);
             exportFees(ctx, zos);
             zos.close();
@@ -304,7 +304,7 @@ public class BackupExport {
             int last = Integer.parseInt(YEAR.format(all.getLong(2)));
             for (int y = first; y <= last; y++) {
                 transactions(ctx, zos, y);
-                reports(ctx, zos, y);
+                //reports(ctx, zos, y);
             }
             all.moveToPosition(-1);
             tmp = file("alltime_transactions.csv");
@@ -982,19 +982,19 @@ public class BackupExport {
                     stock.put(c.getString(5), stock.get(c.getString(5)) + c.getFloat(2));
                     stock2.put(c.getString(5), stock2.get(c.getString(5)) + sum);
                 }
-                if (row[4].equals("Sonnenblumenkerne")) {
-                    System.out.println("ZEITSTEMPEL " + df.format(c.getLong(7)));
-                    Cursor l = ctx.getContentResolver().query(Uri.parse(
-                            "content://org.baobab.foodcoapp/accounts/lager/products/?before=" + (c.getLong(7) + 1000)),
-                            null, null, null, null);
-                    while (l.moveToNext()) {
-                        if (l.getString(7).equals("Sonnenblumenkerne")) {
-                            System.out.println("LAERBESTAND am " + c.getString(1) + " war " + l.getFloat(4));
-                        }
-                    }
-                    System.out.println("SONNENBLUMENKERNE " + c.getFloat(2) + " (" + c.getFloat(4) + ") -> " + stock.get(c.getString(5)));
-                    System.out.println("");
-                }
+                //if (row[4].equals("Sonnenblumenkerne")) {
+                //    System.out.println("ZEITSTEMPEL " + df.format(c.getLong(7)));
+                //    Cursor l = ctx.getContentResolver().query(Uri.parse(
+                //            "content://org.baobab.foodcoapp/accounts/lager/products/?before=" + (c.getLong(7) + 1000)),
+                //            null, null, null, null);
+                //    while (l.moveToNext()) {
+                //        if (l.getString(7).equals("Sonnenblumenkerne")) {
+                //            System.out.println("LAERBESTAND am " + c.getString(1) + " war " + l.getFloat(4));
+                //        }
+                //    }
+                //    System.out.println("SONNENBLUMENKERNE " + c.getFloat(2) + " (" + c.getFloat(4) + ") -> " + stock.get(c.getString(5)));
+                //    System.out.println("");
+                //}
                 row[6] = String.format(Locale.ENGLISH, "%.3f", stock.get(c.getString(5)));
                 row[7] = String.format(Locale.ENGLISH, "%.2f", stock2.get(c.getString(5)));
                 out.writeNext(row);
