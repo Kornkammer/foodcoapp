@@ -81,7 +81,7 @@ public class TraceTests extends BaseProviderTests {
 
         //export(bank_out, "lager");
 
-        new Report(getContext(), 2016);
+        new Report(getContext(), 2015);
     }
 
 
