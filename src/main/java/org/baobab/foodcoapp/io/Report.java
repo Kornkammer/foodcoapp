@@ -26,11 +26,12 @@ public class Report {
 
     private final Context ctx;
     private final int year;
+    private final File result;
 
     public Report(Context ctx, int year) {
         this.ctx = ctx;
         this.year = year;
-        File result = file(year + ".zip");
+        result = file(year + ".zip");
         try {
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
             eur(zos, year);
@@ -40,6 +41,10 @@ public class Report {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public File getZip() {
+        return result;
     }
 
     private void eur(ZipOutputStream zos, int year) {

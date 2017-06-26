@@ -31,6 +31,9 @@
       android:key="reports"
       android:title="@string/export_reports" />
 
+    <Preference
+        android:key="jahresabschluss"
+        android:title="@string/jahresabschluss" />
   </PreferenceCategory>
 
 </PreferenceScreen>

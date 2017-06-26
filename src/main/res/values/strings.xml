@@ -54,5 +54,6 @@
   <string name="change_membership">Mitgliedschaft ändern\n(braucht Papier mit Unterschrift)</string>
   <string name="terminate_membership">Mitgliedschaft kündigen\n(braucht Papier mit Unterschrift)</string>
   <string name="session_restore">letzte Session wiederherstellen?</string>
+    <string name="jahresabschluss">Jahresabschluss</string>
 
 </resources>
