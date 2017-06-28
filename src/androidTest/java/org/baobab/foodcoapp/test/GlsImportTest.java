@@ -4,11 +4,13 @@ package org.baobab.foodcoapp.test;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.test.mock.MockContext;
 
 import org.baobab.foodcoapp.io.GlsImport;
 
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Locale;
 
@@ -244,13 +246,24 @@ public class GlsImportTest extends BaseProviderTests {
     }
 
     public void testAuszahlungBegleichtVerbindlichkeit() {
-        insertTransaction("verbindlichkeiten", "inventar", 300, "Auszahlung");
-        read(gls().who("Auszahlung").vwz1("blabla").amount(-300));
+        Uri txn = insertTransaction("verbindlichkeiten", "inventar", 300, "Auszahlung");
+        Cursor t = query(txn, 1);
+        long time = t.getLong(2);
+        read(gls().date("03.05.2015").who("Auszahlung").vwz1("blabla").amount(-300));
         Cursor items = assertTransaction("Auszahlung", 2);
         assertTransactionItem("bank", "Bank", "Cash", -300, 1, items);
         items.moveToNext();
         assertTransactionItem("verbindlichkeiten", "Verbindlichkeiten", "Auszahlung", 1.0f, 300, items);
         assertTrue(importer.getMsg().contains("Verbindlichkeit beglichen: Auszahlung -> " + String.format("%.2f", 300.00)));
+        Cursor result = query(importer.getSession().buildUpon().appendPath("transactions").build(), 1);
+        t = query(txn, 1);
+        assertNotSame(time, result.getLong(2));
+        assertEquals(t.getLong(2), result.getLong(2));
+        try {
+            assertEquals(t.getLong(2), GlsImport.date.parse("03.05.2015").getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 
     public void testKontofuehrungsgebuehren() {

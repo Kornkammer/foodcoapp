@@ -719,14 +719,22 @@ public class LedgerProvider extends ContentProvider {
                                 " SET quantity = -1 * quantity" +
                             " WHERE transaction_id = ?",
                             new String[] { uri.getLastPathSegment() });
-                } else {
-                    if (values.containsKey("status") &&
+                } else if (values.containsKey("status") &&
                             values.getAsString("status").equals("final")) {
-                        if (isTransactionValid(uri.getLastPathSegment())) {
-                            result = db.getWritableDatabase().update("transactions", values,
-                                    "_id = " + uri.getLastPathSegment(), null);
-                            result = 1;
-                        }
+                    if (isTransactionValid(uri.getLastPathSegment())) {
+                        result = db.getWritableDatabase().update("transactions", values,
+                                "_id = " + uri.getLastPathSegment(), null);
+                    }
+                } else if (values.containsKey("start")) {
+                    Cursor txn = query(uri, null, null, null, null);
+                    txn.moveToFirst();
+                    if (!txn.getString(5).equals("final") && !values.containsKey("status") ) {
+                        result = db.getWritableDatabase().update("transactions", values,
+                                "_id = " + uri.getLastPathSegment(), null);
+                        Log.d(AccountActivity.TAG, "updated txn " + uri.getLastPathSegment() +
+                                " start time " + values.getAsLong("start"));
+                    } else {
+                        Log.d(AccountActivity.TAG, "txn already final!");
                     }
                 }
                 break;

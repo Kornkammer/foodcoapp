@@ -22,12 +22,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import org.baobab.foodcoapp.io.BackupExport;
 import org.baobab.foodcoapp.io.KnkExport;
 import org.baobab.foodcoapp.util.Barcode;
 import org.baobab.foodcoapp.util.Nfc;
 import org.baobab.foodcoapp.view.StretchableGrid;
 
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
 
@@ -121,6 +123,12 @@ public class AccountActivity extends CheckoutActivity {
                         intent.getStringExtra("unit"),
                         intent.getStringExtra("img"),
                         intent.getStringExtra("account"));
+                time = intent.getLongExtra("time", System.currentTimeMillis());
+                ContentValues cv = new ContentValues();
+                cv.put("start", time);
+                getContentResolver().update(getIntent().getData(), cv, null, null);
+                String date = BackupExport.df.format(new Date(time));
+                getSupportActionBar().setTitle(getSupportActionBar().getTitle() + "   " + date);
             }
         } else {
             editable = false;
@@ -165,21 +173,22 @@ public class AccountActivity extends CheckoutActivity {
             data.moveToFirst();
             time = data.getLong(2);
             comment = data.getString(4);
+            String date = BackupExport.df.format(new Date(time));
             if (data.getString(10).equals("final")) {
                 getSupportActionBar().setTitle(getString(R.string.view) +
                         " " + getString(R.string.transaction) + " " +
-                        getIntent().getData().getLastPathSegment() + "   (final)");
+                        getIntent().getData().getLastPathSegment() + "   (final) " + date);
                 transactionFragment.setUneditable();
                 editable = false;
             } else {
                 if (getIntent().hasExtra("import")) {
                     getSupportActionBar().setTitle(getString(R.string.importe) +
                             " " + getString(R.string.transaction) + " " +
-                            getIntent().getData().getLastPathSegment() + "   (draft)");
+                            getIntent().getData().getLastPathSegment() + "   (draft) " + date);
                 } else {
                     getSupportActionBar().setTitle(getString(R.string.edit) +
                             " " + getString(R.string.transaction) + " " +
-                            getIntent().getData().getLastPathSegment() + "   (draft)");
+                            getIntent().getData().getLastPathSegment() + "   (draft) " + date);
                 }
                 transactionFragment.enableEdit(true);
                 editable = true;

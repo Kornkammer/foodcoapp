@@ -170,6 +170,7 @@ public class GlsImport implements ImportActivity.Importer {
                             if (amount + sum >= 0) { // quantity negative after groupBy from users perspective
                                 lineMsges += "\nForderung beglichen: " + title + " -> " + String.format("%.2f", -sum);
                                 storeTransactionItem(transaction, "forderungen", sum, title);
+                                updateTxnTime(txn.getLong(0), time);
                                 amount += sum;
                             }
                         }
@@ -199,6 +200,7 @@ public class GlsImport implements ImportActivity.Importer {
                             lineMsges += "\nForderung beglichen: Bar " + txn.getString(3) + " -> " + String.format("%.2f", -sum);
                             storeTransactionItem(transaction, "forderungen",
                                     sum, "Bar " + txn.getString(3));
+                            updateTxnTime(txn.getLong(0), time);
                             amount += sum;
                         }
                     }
@@ -295,6 +297,7 @@ public class GlsImport implements ImportActivity.Importer {
         return transaction;
     }
 
+
     static final Pattern pattern =  Pattern.compile(".*([Kk]osten|[Ii]nventar)[-:,N\\s]+(.*)");
     private Uri findBookingInstruction(long time, float amount, String comment, String text) {
         Matcher m = pattern.matcher(text);
@@ -318,6 +321,7 @@ public class GlsImport implements ImportActivity.Importer {
                 storeBankCash(transaction, amount);
                 storeTransactionItem(transaction, "verbindlichkeiten", -amount, title);
                 lineMsges += "\nVerbindlichkeit beglichen: " + title + " -> " + String.format("%.2f", -amount);
+                updateTxnTime(txn.getLong(0), time);
                 return true;
             }
         }
@@ -375,6 +379,13 @@ public class GlsImport implements ImportActivity.Importer {
         t.put("comment", comment);
         return ctx.getContentResolver().insert(Uri.parse(
                 "content://" + AUTHORITY + "/transactions"), t);
+    }
+
+    private void updateTxnTime(long txnId, long time) {
+        ContentValues cv = new ContentValues();
+        cv.put("start", time);
+        ctx.getContentResolver().update(Uri.parse(
+                "content://" + AUTHORITY + "/transactions/" + txnId), cv, null, null);
     }
 
     private void storeTransactionKorn(Uri transaction, String account, float amount, String title) {

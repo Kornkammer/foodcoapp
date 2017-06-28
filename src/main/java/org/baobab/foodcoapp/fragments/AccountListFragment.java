@@ -26,9 +26,11 @@ import org.baobab.foodcoapp.AccountActivity;
 import org.baobab.foodcoapp.BalanceActivity;
 import org.baobab.foodcoapp.R;
 import org.baobab.foodcoapp.TraceActivity;
+import org.baobab.foodcoapp.io.BackupExport;
 import org.baobab.foodcoapp.view.TransactionView;
 import org.baobab.foodcoapp.BrowseActivity;
 
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -228,10 +230,24 @@ public class AccountListFragment extends Fragment
                                                                     String.format(Locale.ENGLISH, "%.2f", price)).build()));
                                             break;
                                         case 1:
-                                            startActivity(new Intent(getActivity(), AccountActivity.class)
-                                                   .putExtra("title", title).putExtra("account", account)
-                                                   .putExtra("amount", amount).putExtra("price", price)
-                                                    .putExtra("unit", unit));
+                                            Intent intent = new Intent(getActivity(), AccountActivity.class)
+                                                    .putExtra("title", title).putExtra("account", account)
+                                                    .putExtra("amount", amount).putExtra("price", price)
+                                                    .putExtra("unit", unit);
+                                            Cursor prods = getContext().getContentResolver().query(
+                                                    Uri.parse("content://org.baobab.foodcoapp/transactions/" +
+                                                            products.getLong(1) + "/products"), null, null, null, null);
+                                            while (prods.moveToNext()) {
+                                                if (prods.getString(2).equals("bank")) {
+                                                    Cursor txn = getContext().getContentResolver().query(
+                                                            Uri.parse("content://org.baobab.foodcoapp/transactions/" +
+                                                            prods.getLong(1)), null, null, null, null);
+                                                    txn.moveToFirst();
+                                                    long time = txn.getLong(2);
+                                                    intent.putExtra("time", time); // Zeitpunkt "Vereinnahmumg"
+                                                }
+                                            }
+                                            startActivity(intent);
                                             break;
                                         case 2:
                                             startActivity(new Intent(getActivity(), TraceActivity.class)

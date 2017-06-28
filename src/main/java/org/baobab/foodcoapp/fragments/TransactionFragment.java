@@ -332,11 +332,6 @@ public class TransactionFragment extends Fragment
         } else {
             cv.put("comment", comment);
         }
-        if (((CheckoutActivity) getActivity()).time != 0) {
-            cv.put("start", ((CheckoutActivity) getActivity()).time);
-        } else {
-            cv.put("start", System.currentTimeMillis());
-        }
         cv.put("stop", System.currentTimeMillis());
         int result = getActivity().getContentResolver().update(
                 getActivity().getIntent().getData(), cv, null, null);
