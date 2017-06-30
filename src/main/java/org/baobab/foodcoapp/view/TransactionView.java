@@ -159,7 +159,7 @@ public class TransactionView extends GridLayout {
         lp.setGravity(Gravity.FILL_HORIZONTAL);
         final long txnProdId = data.getLong(0);
         FrameLayout f = new FrameLayout(getContext());
-        if (data.getLong(9) <= 150 ) {
+        if (data.getLong(9) <= 150 || (!data.isNull(12) && data.getString(12).contains("Jahr"))) {
             if (quantity < 0) {
                 if (account.equals("lager") || account.equals("kasse")) {
                     header.setText("aus " + data.getString(12) + " raus");
@@ -176,7 +176,11 @@ public class TransactionView extends GridLayout {
                 } else if (account.equals("spenden")) {
                     header.setText("Spenden annehmen");
                 } else {
-                    header.setText("auf Konto " + data.getString(12)  + " gutschreiben");
+                    if (!data.isNull(12) && !data.getString(12).contains("Jahr")) {
+                        header.setText("auf Konto " + data.getString(12) + " gutschreiben");
+                    } else {
+                        header.setText(data.getString(2));
+                    }
                 }
                 f.setBackgroundResource(R.drawable.background_red);
                 header.setTextColor(getResources().getColor(R.color.medium_red));
@@ -194,7 +198,11 @@ public class TransactionView extends GridLayout {
                 } else if (account.equals("verbindlichkeiten")) {
                     header.setText("Verbindlichkeit begleichen");
                 } else {
-                    header.setText("von Konto " + data.getString(12)  + " abbuchen");
+                    if (!data.isNull(12) && !data.getString(12).contains("Jahr")) {
+                        header.setText("von Konto " + data.getString(12) + " abbuchen");
+                    } else {
+                        header.setText(data.getString(2));
+                    }
                 }
                 f.setBackgroundResource(R.drawable.background_green);
                 header.setTextColor(getResources().getColor(R.color.medium_green));

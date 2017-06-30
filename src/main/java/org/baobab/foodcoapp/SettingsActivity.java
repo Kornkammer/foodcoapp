@@ -63,7 +63,7 @@ public class SettingsActivity extends PreferenceActivity
         findPreference("jahresabschluss").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                jahresabschluss(SettingsActivity.this);
+                startActivity(new Intent(SettingsActivity.this, JahresabschlussActivity.class));
                 return false;
             }
         });
@@ -113,68 +113,6 @@ public class SettingsActivity extends PreferenceActivity
         }.execute(date);
     }
 
-    private void jahresabschluss(SettingsActivity settingsActivity) {
-        final Dialog d = new Dialog(this);
-        d.setTitle(R.string.jahresabschluss);
-        d.setContentView(R.layout.dialog_year_pick);
-        Button set = (Button) d.findViewById(R.id.button1);
-        Button cancel = (Button) d.findViewById(R.id.button2);
-        final NumberPicker nopicker = (NumberPicker) d.findViewById(R.id.numberPicker1);
-
-        nopicker.setMinValue(2015);
-        nopicker.setMaxValue(2017);
-        nopicker.setWrapSelectorWheel(false);
-        nopicker.setValue(2016);
-        nopicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-
-        set.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                d.dismiss();
-                final int year = nopicker.getValue();
-                final ProgressDialog dialog = new ProgressDialog(SettingsActivity.this);
-                dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                dialog.setMessage("rechne im Kreis alles, was alles " + year + " so alles überall passiert ist...");
-                dialog.setCanceledOnTouchOutside(false);
-                dialog.setIndeterminate(true);
-                dialog.show();
-                new AsyncTask<String, String, File>() {
-
-                    @Override
-                    protected File doInBackground(String... params) {
-                        return new Report(SettingsActivity.this, year).getZip();
-
-                    }
-
-                    @Override
-                    protected void onPostExecute(File export) {
-                        String mail = PreferenceManager.getDefaultSharedPreferences(SettingsActivity.this)
-                                .getString("export_email", "");
-                        final Intent intent = new Intent(Intent.ACTION_SEND, Uri.parse("mailto:" + mail));
-                        intent.putExtra(Intent.EXTRA_EMAIL, new String[] {mail});
-                        intent.putExtra(Intent.EXTRA_TEXT, "Jahresabschluss " + year);
-                        intent.putExtra(Intent.EXTRA_SUBJECT, "Jahresabschluss" + year);
-                        intent.setType("application/zip");
-                        intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(export));
-                        Intent chooser = Intent.createChooser(intent, "Jahresabschluss Ex(el)port");
-                        startActivity(chooser);
-                        if (dialog != null && dialog.isShowing()) {
-                            dialog.dismiss();
-                        }
-                    }
-                }.execute();
-            }
-        });
-        cancel.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v) {
-                d.dismiss();
-            }
-        });
-        d.show();
-    }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {

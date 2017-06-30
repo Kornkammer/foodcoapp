@@ -140,6 +140,10 @@
       android:theme="@android:style/Theme.Black" >
     </activity>
     <activity
+      android:name="org.baobab.foodcoapp.JahresabschlussActivity"
+        android:screenOrientation="portrait" >
+    </activity>
+    <activity
       android:name="org.acra.CrashReportDialog"
       android:theme="@android:style/Theme.Dialog"
       android:process=":error_report"

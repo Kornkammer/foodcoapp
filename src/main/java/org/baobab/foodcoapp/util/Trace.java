@@ -45,6 +45,10 @@ public class Trace {
         return walk(account, combine);
     }
 
+    public boolean visited(long id) {
+        return split.visited.containsKey(id + "") || combine.visited.containsKey(id + "");
+    }
+
     private List<Txn> walk(String account, Txn t) {
         HashMap<String, Trace.Prod> seen = new HashMap<>();
         ArrayList<Txn> result = new ArrayList<>();
@@ -60,7 +64,7 @@ public class Trace {
         float found = 0;
         for (Trace.Prod p : seen.values()) found += p.value();
         if (Math.abs(found) > 0.01) {
-            System.out.println("SEEN SUM " + found);
+            //System.out.println("SEEN SUM " + found);
         }
         return result;
     }
@@ -102,6 +106,7 @@ public class Trace {
     public void trace(String uri, String query, int forward, int level, Prod parent) {
 
         Cursor orig = ctx.getContentResolver().query(Uri.parse(uri + "&" + query), null, null, null, null);
+
         while (orig.moveToNext()) {
             if (level == 0) {
                 if (orig.getFloat(6) * forward > 0) continue;

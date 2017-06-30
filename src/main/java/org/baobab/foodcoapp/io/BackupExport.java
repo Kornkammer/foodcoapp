@@ -336,7 +336,7 @@ public class BackupExport {
         if (year > 0) {
             try {
                 return "after=" + YEAR.parse("" + year).getTime() +
-                        "&before=" + YEAR.parse("" + (year + 1)).getTime();
+                        "&before=" + (YEAR.parse("" + (year + 1)).getTime());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
@@ -860,7 +860,7 @@ public class BackupExport {
         return getAccounts(ctx, "mitglieder", query, name);
     }
 
-    private static Cursor getAccounts(Context ctx, String account, String query, String name) {
+    public static Cursor getAccounts(Context ctx, String account, String query, String name) {
         return ctx.getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/accounts/" + account + "/accounts" + query),
                     null, (name != null? "name IS '" + name + "'" : null), null, null);

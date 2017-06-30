@@ -75,7 +75,7 @@ public class TransactionListFragment extends ListFragment
                 v.time.setText(tf.format(new Date(cursor.getLong(2))));
                 v.who.setText(cursor.getString(3));
                 String sign;
-                if (cursor.getString(9).equals("aktiva")) {
+                if (cursor.isNull(9) || cursor.getString(9).equals("aktiva")) {
                     sign = cursor.getFloat(8) < 0 ? "-" : "+";
                 } else {
                     sign = cursor.getFloat(8) > 0 ? "-" : "+";
@@ -140,7 +140,11 @@ public class TransactionListFragment extends ListFragment
 
         public void expand() {
             org.baobab.foodcoapp.view.TransactionView transaction = new org.baobab.foodcoapp.view.TransactionView(getActivity());
-            transaction.showImages(true);
+            if (comment.getText().toString().contains("Bestand")) {
+                transaction.showImages(false);
+            } else {
+                transaction.showImages(true);
+            }
             transaction.headersClickable(false);
             final Cursor c = getActivity().getContentResolver().query(
                     Uri.parse("content://org.baobab.foodcoapp/transactions/" + id + "/products"),

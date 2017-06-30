@@ -235,6 +235,7 @@ public class LedgerProvider extends ContentProvider {
         router.addURI(AUTHORITY, "transactions/#", TRANSACTION);
         router.addURI(AUTHORITY, "products/transactions", PRODUCT_TRANSACTIONS);
         router.addURI(AUTHORITY, "sessions/#/transactions", TRANSACTIONS);
+        router.addURI(AUTHORITY, "sessions/#/accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/transactions", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/transactions/*", TRANSACTIONS);
         router.addURI(AUTHORITY, "accounts/*/fees", ACCOUNTS_MEMBER_FEES);
@@ -445,8 +446,15 @@ public class LedgerProvider extends ContentProvider {
             case TRANSACTION:
                 selection = "transaction_products.transaction_id = " + uri.getPathSegments().get(1);
             case TRANSACTIONS:
+                String account = null;
+                if (uri.getPathSegments().get(0).equals("accounts")) {
+                    account = uri.getPathSegments().get(1);
+                }
                 if (uri.getPathSegments().get(0).equals("sessions")) {
                     selection = "session_id = " + uri.getPathSegments().get(1);
+                    if (uri.getPathSegments().get(2).equals("accounts")) {
+                        account = uri.getPathSegments().get(3);
+                    }
                 } else if (selection == null) {
                     selection = "transactions.status IS 'final'";
                     List<String> args = new ArrayList<>();
@@ -463,9 +471,9 @@ public class LedgerProvider extends ContentProvider {
                 result = db.getReadableDatabase().rawQuery(
                         "SELECT transactions._id AS _id, sessions._id, transactions.start, accounts.name, transactions.comment, " +
                                 "GROUP_CONCAT(accounts.guid, ',') AS involved_accounts, " +
-                                (uri.getPathSegments().get(0).equals("accounts") ?
+                                (account != null ?
                                 "sum(transaction_products.quantity * transaction_products.price * " +
-                                    "(transaction_products.account_guid IS '" + uri.getPathSegments().get(1) + "')) AS height, "
+                                    "(transaction_products.account_guid IS '" + account + "')) AS height, "
                                     : "sum(abs(transaction_products.quantity) * transaction_products.price) / 2 AS height, ") +
                                 "max(accounts._id), transaction_products.quantity, accounts.parent_guid," +
                                 " transactions.status, transaction_products.price, transactions.status," +
