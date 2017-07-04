@@ -245,20 +245,6 @@ public class AccountEditFragment extends Fragment
         } else {
 //            imm.showSoftInput(getView().findViewById(R.id.name), InputMethodManager.SHOW_FORCED);
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        ((InputMethodManager) getActivity()
-                .getSystemService(Context.INPUT_METHOD_SERVICE))
-                .hideSoftInputFromWindow(((TextView) getView().findViewById(R.id.name)).getWindowToken(), 0);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
         final ActionBar actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         actionBar.show();
         actionBar.setDisplayOptions(
@@ -293,6 +279,20 @@ public class AccountEditFragment extends Fragment
                     }
                 }
         );
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        ((InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE))
+                .hideSoftInputFromWindow(((TextView) getView().findViewById(R.id.name)).getWindowToken(), 0);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
