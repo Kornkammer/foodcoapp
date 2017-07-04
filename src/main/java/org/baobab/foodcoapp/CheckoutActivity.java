@@ -257,7 +257,9 @@ public class CheckoutActivity extends AppCompatActivity
         cv.put("product_id", id);
         cv.put("title", title);
         if (quantity != 1 && quantity != 0 || !account.equals("lager")) {
-            cv.put("quantity", quantity);
+            if (unit.equals("Kilo") || weight == -1) {
+                cv.put("quantity", quantity);
+            }
         }
         cv.put("price", price);
         cv.put("unit", unit);
