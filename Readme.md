@@ -12,7 +12,7 @@ point-of-sale checkout for food co-ops / food hubs
 
 ```
 
-Download version v1.2.1 apk [http://bit.ly/1SwqaUs](http://bit.ly/1SwqaUs)
+Download version v1.3 apk [http://bit.ly/1SwqaUs](http://bit.ly/1SwqaUs)
 
 
  
