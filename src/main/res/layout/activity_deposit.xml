@@ -42,12 +42,13 @@
       android:id="@+id/bar"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:checked="true"
+      android:visibility="invisible"
       android:text="Bar" />
     <RadioButton
       android:id="@+id/bank"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
+      android:checked="true"
       android:text="Bank" />
   </RadioGroup>
 
