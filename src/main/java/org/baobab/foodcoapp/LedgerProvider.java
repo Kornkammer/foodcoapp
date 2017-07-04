@@ -19,6 +19,7 @@ import org.baobab.foodcoapp.io.BackupExport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.net.URLDecoder;
 import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -342,6 +343,7 @@ public class LedgerProvider extends ContentProvider {
                             ") AS txn_heights ON txn_heights.account_guid = accounts.guid" +
                             (uri.getPathSegments().size() > 1?
                             " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
+                                " AND accounts.name NOT LIKE 'Jahr%'" +
                         " UNION ALL " +
                             "SELECT accounts._id AS _id, accounts.name, accounts.guid," +
                                 " height, accounts.parent_guid," +
@@ -380,6 +382,7 @@ public class LedgerProvider extends ContentProvider {
                             ") AS txn_heights ON txn_heights.account_guid = children.guid" +
                             (uri.getPathSegments().size() > 1?
                             " WHERE accounts.parent_guid IS '" + parent_guid + "'" : "") +
+                                " AND accounts.name NOT LIKE 'Jahr%'" +
                         ")" +
                         (uri.getQueryParameter("before") != null?
                                 " WHERE created_at < " + uri.getQueryParameter("before") +
@@ -503,6 +506,11 @@ public class LedgerProvider extends ContentProvider {
                                 " AND involved_accounts LIKE '%" + uri.getPathSegments().get(1) + "%'" : "") +
                         " ORDER BY " + (sortOrder != null? sortOrder : "transactions._id"),
                         selectionArgs);
+                break;
+            case SESSIONS:
+                result = db.getReadableDatabase().query("sessions", null, "comment LIKE '" +
+                                URLDecoder.decode(uri.getQueryParameter("comment")) + "%'",
+                        null, null, null, "_id");
                 break;
         }
         result.setNotificationUri(getContext().getContentResolver(), uri);
@@ -702,6 +710,19 @@ public class LedgerProvider extends ContentProvider {
                 getContext().getContentResolver().notifyChange(Uri.parse("content://" + AUTHORITY +
                         "/transactions/" + uri.getPathSegments().get(1) + "/products"), null);
                 break;
+            case TRANSACTIONS:
+                Cursor txns = query(uri, null, selection, selectionArgs, null);
+                db.getWritableDatabase().beginTransaction();
+                while (txns.moveToNext()) {
+                    String id = txns.getLong(0) + "";
+                    System.out.println(" - delete txn " + id);
+                    db.getWritableDatabase().delete("transaction_products",
+                            "transaction_id = ?", new String[] { id });
+                    db.getWritableDatabase().delete("transactions", "_id = ?", new String[] { id });
+                }
+                db.getWritableDatabase().setTransactionSuccessful();
+                db.getWritableDatabase().endTransaction();
+                break;
         }
         return 0;
     }
@@ -735,14 +756,16 @@ public class LedgerProvider extends ContentProvider {
                     }
                 } else if (values.containsKey("start")) {
                     Cursor txn = query(uri, null, null, null, null);
-                    txn.moveToFirst();
-                    if (!txn.getString(5).equals("final") && !values.containsKey("status") ) {
-                        result = db.getWritableDatabase().update("transactions", values,
-                                "_id = " + uri.getLastPathSegment(), null);
-                        Log.d(AccountActivity.TAG, "updated txn " + uri.getLastPathSegment() +
-                                " start time " + values.getAsLong("start"));
-                    } else {
-                        Log.d(AccountActivity.TAG, "txn already final!");
+                    if (txn.getCount() > 0) {
+                        txn.moveToFirst();
+                        if (!txn.getString(5).equals("final") && !values.containsKey("status") ) {
+                            result = db.getWritableDatabase().update("transactions", values,
+                                    "_id = " + uri.getLastPathSegment(), null);
+                            Log.d(AccountActivity.TAG, "updated txn " + uri.getLastPathSegment() +
+                                    " start time " + values.getAsLong("start"));
+                        } else {
+                            Log.d(AccountActivity.TAG, "txn already final!");
+                        }
                     }
                 }
                 break;
@@ -797,7 +820,7 @@ public class LedgerProvider extends ContentProvider {
     private boolean zerSum(String id) {
         Cursor sum = getTransactionSum(id);
         sum.moveToFirst();
-        return -0.01 < sum.getFloat(2) && sum.getFloat(2) < 0.01;
+        return -0.02 < sum.getFloat(2) && sum.getFloat(2) < 0.02;
     }
 
     private boolean exists(String id, String start, String comment) {

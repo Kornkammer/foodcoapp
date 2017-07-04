@@ -323,7 +323,7 @@ public class BackupExport {
         if (year > 0) {
             try {
                 long from = YEAR.parse("" + year).getTime();
-                long to = YEAR.parse("" + (year + 1)).getTime();
+                long to = YEAR.parse("" + (year + 1)).getTime() - 3000;
                 selection += " AND " + from + " <= transactions.start AND transactions.start < " + to;
             } catch (ParseException e) {
                 e.printStackTrace();
@@ -336,7 +336,7 @@ public class BackupExport {
         if (year > 0) {
             try {
                 return "after=" + YEAR.parse("" + year).getTime() +
-                        "&before=" + (YEAR.parse("" + (year + 1)).getTime());
+                        "&before=" + (YEAR.parse("" + (year + 1)).getTime() - 3000);
             } catch (ParseException e) {
                 e.printStackTrace();
             }

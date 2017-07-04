@@ -43,95 +43,29 @@ public class Report {
     public Report(Context ctx, int year) {
         this.ctx = ctx;
         this.year = year;
-        if (year == 2015) {
-            fixDate(1451430000000l, 2116); // beitrag aufs konto 42 verbindlichkeit begleichen -> 31.dez
-            fixDate(1451430000000l, 2125); // beitrag aufs konto 18 verbindlichkeit begleichen -> 31.dez
-            fixDate(1451602800000l, 236); // 25/11 Bar Clara 50 -> 1.jan
-            fixDate(1451602800000l, 371); // 05/12 nach Kasse 50 -> 1.jan
-            fixDate(1451602800000l, 330); // 02/12 Bar Hoehe3 40 -> 1.jan
-            fixDate(1451602800000l, 372); // 05/12 nach Kasse 40 -> 1.jan
-            fixDate(1451602800000l, 345); // 04/12 Bar Paul 50 -> 1.jan
-            fixDate(1451602800000l, 373); // 05/12 nach Kasse 50 -> 1.jan
-            fixDate(1451602800000l, 6); // 18/11 Luzernenhof 328 -> 1.jan
-        }
         result = file(year + ".zip");
         ContentValues cv = new ContentValues();
         cv.put("start", System.currentTimeMillis());
+        cv.put("comment", "Jahr " + year);
         uri = ctx.getContentResolver().insert(Uri.parse(
                 "content://" + AUTHORITY + "/sessions"), cv);
         try {
             ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(result)));
             eur(zos, year);
-            intern(zos, year);
-            storeBestand();
             zos.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println(".");
+        System.out.println(".");
+        System.out.println("==========================");
+        System.out.println(" TOTAL JAHRESABSCHLUSS BALANCE " + balance);
     }
 
     public File getZip() {
         return result;
-    }
-
-    private void intern(ZipOutputStream zos, int year) {
-        Trace lager_in = new Trace(ctx, "lager", query, -1);
-        Trace lager_out = new Trace(ctx, "lager", query, 1);
-        File file = file(year + "intern.csv");
-
-        Uri txn = storeTransaction(time, "----------------\nINTERN");
-        float konsum = - sum(lager_out, "korns");
-        System.out.println("KONSUM " + konsum);
-        storeProduct(txn, konsum, "Jahresabschluss", "Konsum");
-        float schwund = - sum(lager_out, "kosten");
-        System.out.println("Schwund " + schwund);
-        storeProduct(txn, schwund, "Jahresabschluss", "Schwund");
-        float mehrung = - sum(lager_in, "spenden");
-        System.out.println("Mehrung " + mehrung);
-        storeProduct(txn, mehrung, "Jahresabschluss", "Mehrung");
-        float einkauf = - sum(lager_in, "korns");
-        System.out.println("Einkauf " + einkauf);
-        storeProduct(txn, einkauf, "Jahresabschluss", "Einkauf");
-        System.out.println("LAGER: " + (konsum + schwund + mehrung + einkauf));
-
-        Trace kasse_in = new Trace(ctx, "kasse", query, -1);
-        float kasse = - sum(kasse_in, "korns");
-        System.out.println("Kasse " + kasse);
-
-        //list(korns_in, korns_out, "korns");
-        //list(korns_in, korns_out, "kosten");
-        //list(korns_in, korns_out, "spenden");
-    }
-
-    private float sum(Trace trace, String account) {
-        float sum = 0;
-        for (Trace.Txn t : trace.split(account)) {
-            //System.out.println(" split " + t.head + "  :: " + t.saldo(account));
-            sum += t.head.value();
-        }
-        for (Trace.Txn t : trace.combine(account)) {
-            //System.out.println(" combine " + t.head + "  :: " + t.saldo(account));
-            sum += t.head.value();
-        }
-        return sum;
-    }
-    private void list(Trace in, Trace out, String account) {
-        System.out.println("----------");
-        System.out.println(account);
-        for (Trace.Txn t : in.split(account)) {
-            System.out.println(" in split " + t.head);
-        }
-        for (Trace.Txn t : in.combine(account)) {
-            System.out.println(" in combine " + t.head);
-        }
-        for (Trace.Txn t : out.split(account)) {
-            System.out.println(" out split " + t.head);
-        }
-        for (Trace.Txn t : out.combine(account)) {
-            System.out.println(" out combine " + t.head);
-        }
     }
 
     private void eur(ZipOutputStream zos, int year) {
@@ -194,7 +128,7 @@ public class Report {
             if (ideal > 0) {
                 result_ideal = "Gewinn";
             }
-            storeProduct(txn, ideal, "Jahresabschluss", result_ideal + " ideeller Ber");
+            storeProduct(txn, ideal, "Jahresabschluss", result_ideal + " ideell Bereich");
             full.writeNext(new String[] { result_ideal + " ideeller Bereich", "", format(bereich_in), format(- bereich_out), "", format(ideal)});
             full.writeNext(new String[] {});
             full.writeNext(new String[] {});
@@ -221,6 +155,7 @@ public class Report {
             verify("kosten", query, bal);
             storeProduct(txn, bal.saldo("kosten"), "Ausgaben " + year, "Kosten");
             bal = log(zos, csv, full, bank_in, bank_out, "lager", year, true);
+            korns += bal.saldo("lager");
             expense += bal.saldo("lager");
             bereich_out += bal.saldo("lager");
             verify("lager", query, bal);
@@ -265,15 +200,16 @@ public class Report {
             System.out.println(".");
 
             txn = storeTransaction(time, "ZUSAMMEN");
-            storeProduct(txn, einlagen, "Jahresabschluss", year + " Einlagen");
+            storeProduct(txn, -ideal, "Jahresabschluss", result_ideal + " ideell Bereich");
+            storeProduct(txn, -zweck, "Jahresabschluss", result_zweck + " Zeckbetrieb");
             float total = ideal + zweck;
             if (total > 0) {
-                storeProduct(txn, - total, "Jahresabschluss", "Gewinn gesamt");
+                storeProduct(txn, total, "Ideeler Bereich und Zweckbetrieb", "Gewinn " + year);
             } else {
-                storeProduct(txn, - total, "Jahresabschluss", "Verlust gesamt");
+                storeProduct(txn, total, "Ideeler Bereich und Zweckbetrieb", "Verlust " + year);
             }
-            storeProduct(txn, total - einlagen, "bank", "Kontostand 31 Dez");
-
+            storeBestand(total, korns, einlagen);
+            intern(total, korns, einlagen);
 
             csv.close();
             full.close();
@@ -289,7 +225,7 @@ public class Report {
         }
     }
 
-    private void storeBestand() {
+    private void storeBestand(float total, float korns, float einlagen) {
         Uri txn;
         txn = storeTransaction(time, "Guthaben " + year + " (Rest)Bestand ");
         Cursor accounts = ctx.getContentResolver().query(
@@ -325,6 +261,16 @@ public class Report {
         }
         System.out.println("LAGER SUM " + sum);
         storeProduct(txn, -stand.getFloat(3), "Jahresabschluss", "Bestand");
+
+        stand = BackupExport.getAccounts(ctx, "aktiva", "?" + query, "Bank");
+        stand.moveToFirst();
+        txn = storeTransaction(time, "Bank " + year + " (Konto)Stand ");
+        storeProduct(txn, stand.getFloat(3), "bank", "Kontostand 31. Dez");
+        storeProduct(txn, -total, "Jahresabschluss", "Gewinn " + year);
+        storeProduct(txn, einlagen, "Jahresabschluss", "Einlagen " + year);
+        System.out.println(stand.getFloat(3));
+        System.out.println(-total);
+        System.out.println(einlagen);
     }
 
     private void findStillOpen(String account, int year, Trace.Txn bal) {
@@ -366,6 +312,71 @@ public class Report {
                     if (done) break;
                 }
             }
+        }
+    }
+
+    private void intern(float total, float korns, float einlagen) {
+        Trace lager_in = new Trace(ctx, "lager", query, -1);
+        Trace lager_out = new Trace(ctx, "lager", query, 1);
+        File file = file(year + "intern.csv");
+
+        Uri txn = storeTransaction(time, "INTERN " + year + " (Rest) Stand ");
+        storeProduct(txn, total, "Jahresabschluss", "Gewinn " + year);
+        storeProduct(txn, korns, "Jahresabschluss", "Waren " + year);
+
+        float konsum = - sum(lager_out, "korns");
+        System.out.println("KONSUM " + konsum);
+        //storeProduct(txn, konsum, "Jahresabschluss", "Konsum");
+        float schwund = - sum(lager_out, "kosten");
+        System.out.println("Schwund " + schwund);
+        storeProduct(txn, schwund, "Jahresabschluss", "Schwund");
+        float mehrung = - sum(lager_in, "spenden");
+        System.out.println("Mehrung " + mehrung);
+        storeProduct(txn, mehrung, "Jahresabschluss", "Mehrung");
+        float einkauf = - sum(lager_in, "korns"); // waren gegen korns
+        System.out.println("Einkauf " + einkauf);
+        //storeProduct(txn, einkauf, "Jahresabschluss", "Einkauf");
+        System.out.println("LAGER: " + (konsum + schwund + mehrung + einkauf));
+
+        storeProduct(txn, - korns - total - mehrung + schwund, "spenden", "Überschuss " + year);
+
+        Trace kasse_in = new Trace(ctx, "kasse", query, -1);
+        float kasse = - sum(kasse_in, "korns");
+        System.out.println("Kasse " + kasse);
+
+        //list(korns_in, korns_out, "korns");
+        //list(korns_in, korns_out, "kosten");
+        //list(korns_in, korns_out, "spenden");
+
+    }
+
+    private float sum(Trace trace, String account) {
+        float sum = 0;
+        for (Trace.Txn t : trace.split(account)) {
+            //System.out.println(" split " + t.head + "  :: " + t.saldo(account));
+            sum += t.head.value();
+        }
+        for (Trace.Txn t : trace.combine(account)) {
+            //System.out.println(" combine " + t.head + "  :: " + t.saldo(account));
+            sum += t.head.value();
+        }
+        return sum;
+    }
+
+    private void list(Trace in, Trace out, String account) {
+        System.out.println("----------");
+        System.out.println(account);
+        for (Trace.Txn t : in.split(account)) {
+            System.out.println(" in split " + t.head);
+        }
+        for (Trace.Txn t : in.combine(account)) {
+            System.out.println(" in combine " + t.head);
+        }
+        for (Trace.Txn t : out.split(account)) {
+            System.out.println(" out split " + t.head);
+        }
+        for (Trace.Txn t : out.combine(account)) {
+            System.out.println(" out combine " + t.head);
         }
     }
 
@@ -433,18 +444,18 @@ public class Report {
         csv.writeNext(header);
 
         //System.out.println("############## OUT COMBINE " + account);
-        csv.writeNext(new String[] { "", "OUT COMBINE"});
+        //csv.writeNext(new String[] { "", "OUT COMBINE"});
         write(out.combine(account), account, balance, csv, aktiva);
         //System.out.println("############## OUT SPLIT " + account);
-        csv.writeNext(new String[] { "", "OUT SPLIT"});
+        //csv.writeNext(new String[] { "", "OUT SPLIT"});
         write(out.split(account), account, balance, csv, aktiva);
         //System.out.println(".");
 
         //System.out.println("############## IN COMBINE " + account);
-        csv.writeNext(new String[] { "", "IN COMBINE"});
+        //csv.writeNext(new String[] { "", "IN COMBINE"});
         write(in.combine(account), account, balance, csv, aktiva);
         //System.out.println("############## IN SPLIT " + account);
-        csv.writeNext(new String[] { "", "IN SPLIT"});
+        //csv.writeNext(new String[] { "", "IN SPLIT"});
         write(in.split(account), account, balance, csv, aktiva);
         //System.out.println(".");
         csv.close();
@@ -630,7 +641,11 @@ public class Report {
         if (img != null) b.put("img", img);
         ctx.getContentResolver().insert(transaction.buildUpon()
                 .appendEncodedPath("products").build(), b);
+        if (guid.equals("Jahresabschluss")) {
+            balance += (amount * price);
+        }
     }
+    float balance = 0;
 
     private static String format(float val) {
         return String.format(Locale.ENGLISH, "%.2f", val);

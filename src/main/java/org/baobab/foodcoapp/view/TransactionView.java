@@ -534,7 +534,7 @@ public class TransactionView extends GridLayout {
         lp.bottomMargin = - getContext().getResources().getDimensionPixelSize(R.dimen.padding_xxsmall);
         lp.setGravity(Gravity.RIGHT|Gravity.BOTTOM);
         if (quantity * price >= 10000) {
-            sum.setTextSize(R.dimen.font_size_medium);
+            sum.setTextSize(R.dimen.font_size_xmedium);
         }
         addView(sum, lp);
         if (history == -1) {
