@@ -12,6 +12,8 @@ import org.baobab.foodcoapp.io.BackupExport;
 
 import java.text.ParseException;
 
+import static org.baobab.foodcoapp.io.BackupExport.YEAR;
+
 
 public class BalanceActivity extends AppCompatActivity {
 
@@ -20,18 +22,27 @@ public class BalanceActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_accounts);
         getSupportActionBar().hide();
-        long time = 0;
-        try {
-            time = BackupExport.YEAR.parse("" + (2016)).getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
+        String query = "";
+        if (getIntent().hasExtra("year")) {
+            int year = getIntent().getIntExtra("year", 0);
+            try {
+                System.out.println(YEAR.parse(2017 + "").getTime() - 5000);
+                query = "after=" + YEAR.parse("" + year).getTime() +
+                        "&before=" + (YEAR.parse("" + (year + 1)).getTime());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            getSupportActionBar().setTitle("Bilanz : Jahr " + year);
+            getSupportActionBar().show();
         }
         getWindow().setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.xdark_blue)));
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.active))
-                .setUri("content://org.baobab.foodcoapp/accounts/aktiva/accounts?before=" + time, false)
+                .setTimeWindow(query)
+                .setUri("content://org.baobab.foodcoapp/accounts/aktiva/accounts", false)
                 .setEditable(false);
         ((AccountListFragment) getSupportFragmentManager().findFragmentById(R.id.passive))
-                .setUri("content://org.baobab.foodcoapp/accounts/passiva/accounts?before=" + time, true)
+                .setTimeWindow(query)
+                .setUri("content://org.baobab.foodcoapp/accounts/passiva/accounts", true)
                 .setEditable(true);
         if (getIntent().getData() != null && getIntent().getData().toString().startsWith("content://org.baobab.foodcoapp/accounts/")) {
             editAccount(getIntent().getData());

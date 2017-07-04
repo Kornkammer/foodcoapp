@@ -42,6 +42,7 @@ public class AccountListFragment extends Fragment
     private boolean editable;
     private ExpandableListView list;
     private CursorTreeAdapter adapter;
+    private String timeWindow = "";
 
     public AccountListFragment() { }
 
@@ -105,11 +106,12 @@ public class AccountListFragment extends Fragment
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         if (id < 0) {
-            return new CursorLoader(getActivity(), uri, null, null, null, null);
+            return new CursorLoader(getActivity(), Uri.parse(
+                    uri + "?" + timeWindow), null, null, null, null);
         } else {
             return new CursorLoader(getActivity(), Uri.parse(
                     "content://org.baobab.foodcoapp/accounts/" +
-                            args.getString("group_guid") + "/accounts"),
+                            args.getString("group_guid") + "/accounts?" + timeWindow),
                     null, null, null, "_id DESC");
         }
     }
@@ -132,6 +134,11 @@ public class AccountListFragment extends Fragment
         } else {
             adapter.setChildrenCursor(loader.getId(), null);
         }
+    }
+
+    public AccountListFragment setTimeWindow(String timeWindow) {
+        this.timeWindow = timeWindow;
+        return this;
     }
 
     private class AccountView extends LinearLayout implements View.OnClickListener, View.OnLongClickListener {
@@ -192,7 +199,8 @@ public class AccountListFragment extends Fragment
             }
             TransactionView transaction = new TransactionView(getActivity());
             final Cursor products = getActivity().getContentResolver().query(
-                    Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid + "/products"),
+                    Uri.parse("content://org.baobab.foodcoapp/accounts/" + guid +
+                            "/products" + "?" + timeWindow),
                     null, null, null, null);
             transaction.setColumnWidth(R.dimen.column_small);
             transaction.headersClickable(false);
